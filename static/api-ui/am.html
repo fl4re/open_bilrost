@@ -1,0 +1,883 @@
+<!doctype html>
+<html>
+<head>
+    <title>Asset Manager API Examples</title>
+    
+    <script src="js/jquery-3.1.0.min.js" charset="utf-8"></script>
+    <script src="js/api-service.js" charset="utf-8"></script>
+    <script src="js/main.js" charset="utf-8"></script>
+    <script src="js/am.js" charset="utf-8"></script>
+    
+    <link rel="stylesheet" href="css/main.css">
+
+    <meta name="copyright" content="© 2015-2018 Starbreeze AB All Rights Reserved"/>
+
+</head>
+
+<body>
+    <div class="app-container">
+        <div class="app">
+            <!-- ASSET MANAGER API's UI -->
+            
+            <div class="title">
+              Bilrost Asset Manager API Examples
+              
+              <a href="http://localhost:9224/auth/access_token" target="_blank" class="btn big to-the-right green" id="login">LOGIN</a>
+              <a href="cb.html" class="btn big to-the-right" >CB API</a>
+            </div>
+
+            <div class="calls-container">
+                <div class="subtitle">API Description</div>
+                <div class="call get" data-call="am_api_description">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/assetmanager</div>
+                        <div class="description">Asset Manager's API description</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/asset-manager-api.md#get--retrieve-workspace-status-list#api-description" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subtitle">WORKSPACES</div>
+                
+                <div class="call post" data-call="am_create_workspace">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/assetmanager/workspaces</div>
+                        <div class="description">Add a Workspace</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">Headers</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">Content-Type*: </td>
+                                            <td>
+                                                <select id="content_type" name="content_type" data-autofill="application/json" data-clean="application/json">
+                                                    <option value="application/json">application/json</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            
+                                <div class="section-container">
+                                    <div class="title">Body</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">file_uri*: </td>
+                                            <td><input type="text" id="file_uri" name="file_uri" placeholder="E.g. file:///C:/Workspaces/example" data-autofill="file:///C:/Workspaces/example"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">name: </td>
+                                            <td><input type="text" id="name" name="name" placeholder="E.g. test-workspace" data-autofill="test-workspace"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">description: </td>
+                                            <td><input type="text" id="description" name="description" placeholder="E.g. This is my first workspace!" data-autofill="This is my first workspace!"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">organization: </td>
+                                            <td><input type="text" id="organization" name="organization" placeholder="E.g. StarbreezeStudios" data-autofill="StarbreezeStudios"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">project_name: </td>
+                                            <td><input type="text" id="project_name" name="project_name" placeholder="E.g. cloud-test-project-2" data-autofill="cloud-test-project-2"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">branch: </td>
+                                            <td><input type="text" id="branch" name="branch" placeholder="E.g. good_repo_v4" data-autofill="good_repo_v4"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/asset-manager-api.md#post--add-a-workspace" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="call delete" data-call="am_delete_workspace">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/assetmanager/workspaces/{workspace_guid||workspace_name}</div>
+                        <div class="description">Delete a Workspace</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">workspace_guid OR workspace_name*: </td>
+                                            <td><input type="text" id="workspace_guid_name" name="workspace_guid_name" placeholder="E.g. e39d0f72c81c445ba801dsssssss45219sddsdss" data-autofill="e39d0f72c81c445ba801dsssssss45219sddsdss"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/asset-manager-api.md#delete--forget-a-workspace" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="call post" data-call="am_add_workspace_to_favorites">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/assetmanager/workspaces/favorites</div>
+                        <div class="description">Add a Workspace to Favorites</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">Headers</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">Content-Type*: </td>
+                                            <td>
+                                                <select id="content_type" name="content_type" data-autofill="application/json" data-clean="application/json">
+                                                    <option value="application/json">application/json</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            
+                                <div class="section-container">
+                                    <div class="title">Body</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">file_uri*: </td>
+                                            <td><input type="text" id="file_uri" name="file_uri" placeholder="E.g. file:///C:/Workspaces/example" data-autofill="file:///C:/Workspaces/example"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/asset-manager-api.md#post--add-a-workspace" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="call delete" data-call="am_forget_workspace_from_favorites">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/assetmanager/workspaces/{workspace_guid||workspace_name}/favorites</div>
+                        <div class="description">Forget a Workspace from Favorites</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">workspace_guid OR workspace_name*: </td>
+                                            <td><input type="text" id="workspace_guid_name" name="workspace_guid_name" placeholder="E.g. e39d0f72c81c445ba801dsssssss45219sddsdss" data-autofill="e39d0f72c81c445ba801dsssssss45219sddsdss"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/asset-manager-api.md#delete--forget-a-workspace" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subtitle">STATUS</div>
+                
+                <div class="call get" data-call="am_status">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/assetmanager/workspaces/{workspace_guid||workspace_name}/status</div>
+                        <div class="description">Workspace's Statuses</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">workspace_guid OR workspace_name*: </td>
+                                            <td><input type="text" id="workspace_guid_name" name="workspace_guid_name" placeholder="E.g. e39d0f72c81c445ba801dsssssss45219sddsdss" data-autofill="e39d0f72c81c445ba801dsssssss45219sddsdss"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/version-control-api.MD#get--retrieve-workspace-status" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="call get" data-call="am_ref_status">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/assetmanager/workspaces/{workspace_guid||workspace_name}/status/{asset_ref||resource_ref}</div>
+                        <div class="description">Workspace's Highest Priority Status</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">workspace_guid OR workspace_name*: </td>
+                                            <td><input type="text" id="workspace_guid_name" name="workspace_guid_name" placeholder="E.g. e39d0f72c81c445ba801dsssssss45219sddsdss" data-autofill="e39d0f72c81c445ba801dsssssss45219sddsdss"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">asset_ref OR resource_ref*: </td>
+                                            <td><input type="text" id="ref" name="ref" placeholder="E.g. /assets/test_1_1_0.level" data-autofill="/assets/test_1_1_0.level"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/version-control-api.MD#get--retrieve-assetresource-status" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subtitle">ASSETS</div>
+                
+                <div class="call put" data-call="am_create_update_asset">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/assetmanager/workspaces/{workspace_guid||workspace_name}{asset_ref}</div>
+                        <div class="description">Create and update an Asset</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">workspace_guid OR workspace_name*: </td>
+                                            <td><input type="text" id="workspace_guid_name" name="workspace_guid_name" placeholder="E.g. e39d0f72c81c445ba801dsssssss45219sddsdss" data-autofill="e39d0f72c81c445ba801dsssssss45219sddsdss"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">asset_ref*: </td>
+                                            <td><input type="text" id="asset_ref" name="asset_ref" placeholder="E.g. /assets/test/example.level" data-autofill="/assets/test/example.level" data-clean="/assets/"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                
+                                <div class="section-container">
+                                    <div class="title">Headers</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">Content-Type*: </td>
+                                            <td>
+                                                <select id="content_type" name="content_type" data-autofill="application/vnd.bilrost.level+json">
+                                                    <option value="">- Select One -</option>
+                                                    <option value="application/vnd.bilrost.level+json">application/vnd.bilrost.level+json</option>
+                                                    <option value="application/vnd.bilrost.prefab+json">application/vnd.bilrost.prefab+json</option>
+                                                    <option value="application/vnd.bilrost.maya+json">application/vnd.bilrost.maya+json</option>
+                                                    <option value="application/vnd.bilrost.collada+json">application/vnd.bilrost.collada+json</option>
+                                                    <option value="application/vnd.bilrost.animation+json">application/vnd.bilrost.animation+json</option>
+                                                    <option value="application/vnd.bilrost.material+json">application/vnd.bilrost.material+json</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">Last-modified*: </td>
+                                            <td><input type="text" id="last_modified" name="last_modified" placeholder="E.g. 2016-08-16T07:29:11.695Z" data-autofill="2016-08-16T07:29:11.695Z"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                
+                                <div class="section-container">
+                                    <div class="title">Body</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">tags: </td>
+                                            <td><input type="text" id="tags" name="tags" placeholder="Array of Strings, separated by comma"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">comment*: </td>
+                                            <td><input type="text" id="comment" name="comment" placeholder="String"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">main*: </td>
+                                            <td><input type="text" id="main" name="main" placeholder="String"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">dependencies: </td>
+                                            <td><input type="text" id="dependencies" name="dependencies" placeholder="Array of Strings, separated by comma"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">semantics: </td>
+                                            <td><input type="text" id="semantics" name="semantics" placeholder="Array of Strings, separated by comma"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/asset-manager-api.md#put--create-and-update-an-asset" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="call post" data-call="am_rename_asset">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/assetmanager/workspaces/{workspace_guid||workspace_name}/rename/{asset_ref}</div>
+                        <div class="description">Rename an Asset</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">workspace_guid OR workspace_name*: </td>
+                                            <td><input type="text" id="workspace_guid_name" name="workspace_guid_name" placeholder="E.g. e39d0f72c81c445ba801dsssssss45219sddsdss" data-autofill="e39d0f72c81c445ba801dsssssss45219sddsdss"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">asset_ref*: </td>
+                                            <td><input type="text" id="asset_ref" name="asset_ref" placeholder="E.g. /assets/test/example.level" data-autofill="/assets/test/example.level" data-clean="/assets/"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                
+                                <div class="section-container">
+                                    <div class="title">Headers</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">Content-Type*: </td>
+                                            <td>
+                                                <select id="content_type" name="content_type" data-autofill="application/vnd.bilrost.level+json">
+                                                    <option value="">- Select One -</option>
+                                                    <option value="application/vnd.bilrost.level+json">application/vnd.bilrost.level+json</option>
+                                                    <option value="application/vnd.bilrost.prefab+json">application/vnd.bilrost.prefab+json</option>
+                                                    <option value="application/vnd.bilrost.maya+json">application/vnd.bilrost.maya+json</option>
+                                                    <option value="application/vnd.bilrost.collada+json">application/vnd.bilrost.collada+json</option>
+                                                    <option value="application/vnd.bilrost.animation+json">application/vnd.bilrost.animation+json</option>
+                                                    <option value="application/vnd.bilrost.material+json">application/vnd.bilrost.material+json</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">Last-modified*: </td>
+                                            <td><input type="text" id="last_modified" name="last_modified" placeholder="E.g. 2016-08-16T07:29:11.695Z" data-autofill="2016-08-16T07:29:11.695Z"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                    
+                                <div class="section-container">
+                                    <div class="title">Body</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">new*: </td>
+                                            <td><input type="text" id="new_ref" name="new_ref" placeholder="E.g. /assets/test/new_asset_ref.level" data-autofill="/assets/test/new_asset_ref.level" data-clean="/assets/"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/asset-manager-api.md#post--rename-an-asset" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="call delete" data-call="am_delete_asset">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/assetmanager/workspaces/{workspace_guid||workspace_name}{asset_ref}</div>
+                        <div class="description">Delete an Asset</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">workspace_guid OR workspace_name*: </td>
+                                            <td><input type="text" id="workspace_guid_name" name="workspace_guid_name" placeholder="E.g. e39d0f72c81c445ba801dsssssss45219sddsdss" data-autofill="e39d0f72c81c445ba801dsssssss45219sddsdss"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">asset_ref*: </td>
+                                            <td><input type="text" id="asset_ref" name="asset_ref" placeholder="E.g. /assets/test/example.level" data-autofill="/assets/test/example.level" data-clean="/assets/"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/asset-manager-api.md#delete--delete-an-asset" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subtitle">SUBSCRIPTIONS</div>
+                
+                <div class="call get" data-call="am_get_subscriptions">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/assetmanager/workspaces/{workspace_guid||workspace_name}/subscriptions</div>
+                        <div class="description">Get Subscription List</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">workspace_guid OR workspace_name*: </td>
+                                            <td><input type="text" id="workspace_guid_name" name="workspace_guid_name" placeholder="E.g. e39d0f72c81c445ba801dsssssss45219sddsdss" data-autofill="e39d0f72c81c445ba801dsssssss45219sddsdss"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/version-control-api.MD#get--retrieve-subscriptions-list" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="call post" data-call="am_add_subscription">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/assetmanager/workspaces/{workspace_guid||workspace_name}/subscriptions</div>
+                        <div class="description">Add Subscription</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">workspace_guid OR workspace_name*: </td>
+                                            <td><input type="text" id="workspace_guid_name" name="workspace_guid_name" placeholder="E.g. e39d0f72c81c445ba801dsssssss45219sddsdss" data-autofill="e39d0f72c81c445ba801dsssssss45219sddsdss"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                    
+                                <div class="section-container">
+                                    <div class="title">Body</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">type*: </td>
+                                            <td>
+                                                <select id="type" name="type" data-autofill="ASSET">
+                                                    <option value="">- Select One -</option>
+                                                    <option value="ASSET">ASSET</option>
+                                                    <option value="NAMESPACE">NAMESPACE</option>
+                                                    <option value="SEARCH">SEARCH</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">descriptor*: </td>
+                                            <td><input type="text" id="descriptor" name="descriptor" placeholder="E.g. /assets/test_1_1_0.level" data-autofill="/assets/test_1_1_0.level"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/version-control-api.MD#post--add-asset-namespace-or-search-subscription-to-workspace" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="call delete" data-call="am_delete_subscription">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/assetmanager/workspaces/{workspace_guid||workspace_name}/subscriptions/{subscription_id}</div>
+                        <div class="description">Delete Subscription</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">workspace_guid OR workspace_name*: </td>
+                                            <td><input type="text" id="workspace_guid_name" name="workspace_guid_name" placeholder="E.g. e39d0f72c81c445ba801dsssssss45219sddsdss" data-autofill="e39d0f72c81c445ba801dsssssss45219sddsdss"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">subscription_id*: </td>
+                                            <td><input type="text" id="subscription_id" name="subscription_id" placeholder="E.g. cdd1890347c3eb2baba80b3f6693d7833cf5e6be" data-autofill="cdd1890347c3eb2baba80b3f6693d7833cf5e6be"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/version-control-api.MD#delete--remove-subscription-from-workspace" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subtitle">STAGE</div>
+                
+                <div class="call get" data-call="am_get_stage">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/assetmanager/workspaces/{workspace_guid||workspace_name}/stage</div>
+                        <div class="description">Get Assets on Stage</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">workspace_guid OR workspace_name*: </td>
+                                            <td><input type="text" id="workspace_guid_name" name="workspace_guid_name" placeholder="E.g. e39d0f72c81c445ba801dsssssss45219sddsdss" data-autofill="e39d0f72c81c445ba801dsssssss45219sddsdss"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/version-control-api.MD#get--retrieve-assets-from-workspace-stage" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="call post" data-call="am_add_asset_to_stage">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/assetmanager/workspaces/{workspace_guid||workspace_name}/stage</div>
+                        <div class="description">Add Asset to Stage</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">workspace_guid OR workspace_name*: </td>
+                                            <td><input type="text" id="workspace_guid_name" name="workspace_guid_name" placeholder="E.g. e39d0f72c81c445ba801dsssssss45219sddsdss" data-autofill="e39d0f72c81c445ba801dsssssss45219sddsdss"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">asset_ref*: </td>
+                                            <td><input type="text" id="asset_ref" name="asset_ref" placeholder="E.g. /assets/test_1_1_0.level" data-autofill="/assets/test_1_1_0.level"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/version-control-api.MD#post--add-assets-to-stage" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="call delete" data-call="am_delete_asset_from_stage">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/assetmanager/workspaces/{workspace_guid||workspace_name}/stage/{asset_ref}</div>
+                        <div class="description">Delete Asset from Stage</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">workspace_guid OR workspace_name*: </td>
+                                            <td><input type="text" id="workspace_guid_name" name="workspace_guid_name" placeholder="E.g. e39d0f72c81c445ba801dsssssss45219sddsdss" data-autofill="e39d0f72c81c445ba801dsssssss45219sddsdss"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">asset_ref*: </td>
+                                            <td><input type="text" id="asset_ref" name="asset_ref" placeholder="E.g. /assets/test_1_1_0.level" data-autofill="/assets/test_1_1_0.level"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/version-control-api.MD#delete--remove-assets-from-stage" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subtitle">COMMITS</div>
+                
+                <div class="call get" data-call="am_get_commit_log">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/assetmanager/workspaces/{workspace_guid||workspace_name}/commits</div>
+                        <div class="description">Get Commit Log</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">workspace_guid OR workspace_name*: </td>
+                                            <td><input type="text" id="workspace_guid_name" name="workspace_guid_name" placeholder="E.g. e39d0f72c81c445ba801dsssssss45219sddsdss" data-autofill="e39d0f72c81c445ba801dsssssss45219sddsdss"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">ref*: </td>
+                                            <td><input type="text" id="ref" name="ref" placeholder="E.g. /assets/test_1_1_0.level" data-autofill="/assets/test_1_1_0.level"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">paging: </td>
+                                            <td><input type="text" id="paging" placeholder="E.g. start_at_revision=r10&maxResults=10"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/version-control-api.MD#get--retrieve-commit-log" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="call post" data-call="am_commit_to_project">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/assetmanager/workspaces/{workspace_guid||workspace_name}/commits</div>
+                        <div class="description">Commit to Project</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">workspace_guid OR workspace_name*: </td>
+                                            <td><input type="text" id="workspace_guid_name" name="workspace_guid_name" placeholder="E.g. e39d0f72c81c445ba801dsssssss45219sddsdss" data-autofill="e39d0f72c81c445ba801dsssssss45219sddsdss"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                    
+                                <div class="section-container">
+                                    <div class="title">Body</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">message*: </td>
+                                            <td><input type="text" id="message" name="message" placeholder="E.g. My first commit!" data-autofill="My first commit!"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/version-control-api.MD#post--commit-to-project" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div xmlns:dc="http://purl.org/dc/elements/1.1/" style="position: absolute; bottom:0; right: 0;">
+        <p id="copyright" property="dc:rights">©
+            <span property="dc:dateCopyrighted">2015-2018</span>
+            <span property="dc:publisher">2015-2018 Starbreeze AB All Rights Reserved </span>
+        </p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,485 @@
+<!doctype html>
+<html>
+<head>
+    <title>Content Browser API Examples</title>
+    
+    <script src="js/jquery-3.1.0.min.js" charset="utf-8"></script>
+    <script src="js/api-service.js" charset="utf-8"></script>
+    <script src="js/main.js" charset="utf-8"></script>
+    <script src="js/cb.js" charset="utf-8"></script>
+    
+    <link rel="stylesheet" href="css/main.css">
+
+    <meta name="copyright" content="© 2015-2018 Starbreeze AB All Rights Reserved"/>
+
+</head>
+
+<body>
+    <div class="app-container">
+        <div class="app">
+            <!-- CONTENT BROWSER API's UI -->
+            
+            <div class="title">
+              Bilrost Content Browser API Examples
+              
+              <a href="http://localhost:9224/auth/access_token" target="_blank" class="btn big to-the-right green" id="login">LOGIN</a>
+              <a href="am.html" class="btn big to-the-right" >AM API</a>
+            </div>
+            
+            <div class="calls-container">
+                <div class="subtitle">API Description</div>
+                
+                <div class="call get" data-call="cb_api_description">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/contentbrowser</div>
+                        <div class="description">Content Browser's API description</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/content-browser-api.md#api-description" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subtitle">PROJECTS</div>
+                
+                <div class="call get" data-call="cb_project_resources_by_organization">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/contentbrowser/projects/{organization}</div>
+                        <div class="description">Project Resources By Organization</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr>
+                                            <td class="label">organization*: </td>
+                                            <td><input type="text" id="organization" placeholder="E.g. fl4re" data-autofill="fl4re"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">filter: </td>
+                                            <td><input type="text" id="filter" placeholder="E.g. test=foo,test"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">paging: </td>
+                                            <td><input type="text" id="paging" placeholder="E.g. start=10&maxResults=10"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/content-browser-api.md#get--retrieve-project-resources-by-organization" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="call get" data-call="cb_project_resources">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/contentbrowser/projects/{organization}/{project_name}</div>
+                        <div class="description">Project Resource(s)</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">organization*: </td>
+                                            <td><input type="text" id="organization" placeholder="E.g. fl4re" data-autofill="fl4re"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">project_name*: </td>
+                                            <td><input type="text" id="project_name" placeholder="E.g. ProjectName" data-autofill="ProjectName"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">filter: </td>
+                                            <td><input type="text" id="filter" placeholder="E.g. test=foo,test"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">paging: </td>
+                                            <td><input type="text" id="paging" placeholder="E.g. start=10&maxResults=10"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/content-browser-api.md#get--retrieve-project-resources" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subtitle">BRANCHES</div>
+                
+                <div class="call get" data-call="cb_branches">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/contentbrowser/projects/{project_full_name}/{branch_name}</div>
+                        <div class="description">Project's branches</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">project_full_name*: </td>
+                                            <td><input type="text" id="project_full_name" placeholder="E.g. foo/toto" data-autofill="foo/toto"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">branch_name*: </td>
+                                            <td><input type="text" id="branch_name" placeholder="E.g. master" data-autofill="master"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">filter: </td>
+                                            <td><input type="text" id="filter" placeholder="E.g. name=DLC_test"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">paging: </td>
+                                            <td><input type="text" id="paging" placeholder="E.g. start=10&maxResults=10"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/content-browser-api.md#get--retrieve-project-branches" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subtitle">WORKSPACES</div>
+                
+                <div class="call get" data-call="cb_list_workspaces">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/contentbrowser/workspaces</div>
+                        <div class="description">List Workspaces</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">filter: </td>
+                                            <td><input type="text" id="filter" placeholder="E.g. name=DLC_test"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">paging: </td>
+                                            <td><input type="text" id="paging" placeholder="E.g. start=10&maxResults=10"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/content-browser-api.md#get--retrieve-project-branches" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="call get" data-call="cb_project_workspaces">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/contentbrowser/workspaces/{workspace_guid||workspace_name}</div>
+                        <div class="description">Project's workspace(s)</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">workspace_guid OR workspace_name*: </td>
+                                            <td><input type="text" id="workspace_guid_name" placeholder="E.g. e39d0f72c81c445ba801dsssssss45219sddsdss" data-autofill="e39d0f72c81c445ba801dsssssss45219sddsdss"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            
+                                <div class="btn small fill">Autofill</div>
+                                <div class="btn small clean">Clean</div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/content-browser-api.md#get--retrieve-project-branches" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subtitle">ASSETS</div>
+                
+                <div class="call get" data-call="cb_asset_resources_from_workspace">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/contentbrowser/workspaces/{workspace_guid||workspace_name}{asset_ref}?{q}</div>
+                        <div class="description">Asset's Resource(s) from Workspace</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">workspace_guid OR workspace_name*: </td>
+                                            <td><input type="text" id="workspace_guid_name" placeholder="E.g. e39d0f72c81c445ba801dsssssss45219sddsdss" data-autofill="e39d0f72c81c445ba801dsssssss45219sddsdss"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">asset_ref*: </td>
+                                            <td><input type="text" id="asset_ref" placeholder="E.g. /assets/test/example.level" data-autofill="/assets/test/example.level" data-clean="/assets/"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">q: </td>
+                                            <td><input type="text" id="q" placeholder="Use {q} language documentation"></td>
+                                            <td><a class="btn small" target="_blank" href="https://github.com/fl4re/open_bilrost/blob/master/docs/Search-assets">?</a></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">paging: </td>
+                                            <td><input type="text" id="paging" placeholder="E.g. start=10&maxResults=10"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/content-browser-api.md#get--retrieve-project-branches" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="call get" data-call="cb_assets_from_project">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/contentbrowser/projects/{project_full_name}/{branch_name}{asset_ref}</div>
+                        <div class="description">Asset(s) from a Project</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">project_full_name*: </td>
+                                            <td><input type="text" id="project_full_name" placeholder="E.g. foo/toto" data-autofill="foo/toto"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">branch_name: </td>
+                                            <td><input type="text" id="branch_name" placeholder="E.g. master" data-autofill="master"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">asset_ref*: </td>
+                                            <td><input type="text" id="asset_ref" placeholder="E.g. /assets/test/example.level" data-autofill="/assets/test/example.level" data-clean="/assets/"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">filter: </td>
+                                            <td><input type="text" id="filter" placeholder="E.g. ref=DLC_test"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">paging: </td>
+                                            <td><input type="text" id="paging" placeholder="E.g. start=10&maxResults=10"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/content-browser-api.md#get--retrieve-project-branches" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subtitle">RESOURCES</div>
+                
+                <div class="call get" data-call="cb_resources_from_workspace">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/contentbrowser/workspaces/{workspace_guid||workspace_name}{resource_ref}?{q}</div>
+                        <div class="description">Resource(s) from a Workspace</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">workspace_guid OR workspace_name*: </td>
+                                            <td><input type="text" id="workspace_guid_name" placeholder="E.g. e39d0f72c81c445ba801dsssssss45219sddsdss" data-autofill="e39d0f72c81c445ba801dsssssss45219sddsdss"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">resource_ref*: </td>
+                                            <td><input type="text" id="resource_ref" placeholder="E.g. /resources/test/example.level" data-autofill="/resources/test/example.level" data-clean="/resources/"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">q: </td>
+                                            <td><input type="text" id="q" placeholder="Use {q} language documentation"></td>
+                                            <td><a class="btn small" target="_blank" href="https://github.com/fl4re/open_bilrost/docs/Search-assets">?</a></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">paging: </td>
+                                            <td><input type="text" id="paging" placeholder="E.g. start=10&maxResults=10"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            
+                                <div class="btn-area">
+                                    <div class="btn small fill">Autofill</div>
+                                    <div class="btn small clean">Clean</div>
+                                </div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/content-browser-api.md#get--retrieve-project-branches" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="call get" data-call="cb_resources_from_project">
+                    <div class="title-bar">
+                        <div class="type"></div>
+                        <div class="url">/contentbrowser/projects/{project_full_name}/{branch_name}{resource_ref}</div>
+                        <div class="description">Resource(s) from a Project</div>
+                    </div>
+                    <div class="container">
+                        <div class="content">
+                            <div class="form-container">
+                                <div class="section-container">
+                                    <div class="title">URL Parameters</div>
+                                    <table>
+                                        <tr class="field">
+                                            <td class="label">project_full_name*: </td>
+                                            <td><input type="text" id="project_full_name" placeholder="E.g. foo/toto" data-autofill="foo/toto"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">branch_name: </td>
+                                            <td><input type="text" id="branch_name" placeholder="E.g. master" data-autofill="master"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">resource_ref*: </td>
+                                            <td><input type="text" id="resource_ref" placeholder="E.g. /resources/test/example.level" data-autofill="/resources/test/example.level" data-clean="/resources/"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">filter: </td>
+                                            <td><input type="text" id="filter" placeholder="E.g. ref=DLC_test"></td>
+                                        </tr>
+                                        <tr class="field">
+                                            <td class="label">paging: </td>
+                                            <td><input type="text" id="paging" placeholder="E.g. start=10&maxResults=10"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            
+                                <div class="btn small fill">Autofill</div>
+                                <div class="btn small">Clean</div>
+                            </div>
+                            <div class="response-container">
+                                <div class="title res">Response</div>
+                                <pre class="response">JSON Response</pre>
+                            </div>
+                            <div class="btn-area">
+                                <a href="https://github.com/fl4re/open_bilrost/blob/master/docs/content-browser-api.md#get--retrieve-project-branches" target="_blank" class="btn docs">Docs</a>
+                                <div class="btn run">Run ></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div xmlns:dc="http://purl.org/dc/elements/1.1/" style="position: absolute; bottom:0; right: 0;">
+        <p id="copyright" property="dc:rights">©
+            <span property="dc:dateCopyrighted">2015-2018</span>
+            <span property="dc:publisher">2015-2018 Starbreeze AB All Rights Reserved </span>
+        </p>
+    </div>
+</body>
+</html>

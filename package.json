@@ -1,0 +1,60 @@
+{
+  "name": "open_bilrost",
+  "bin": {
+    "bilrost-server": "./bin/start.js"
+  },
+  "description": "Web and proxy server for fl4re applications",
+  "version": "2.0.24",
+  "main": "proxy.js",
+  "private": false,
+  "engines": {
+    "node": ">8.9.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fl4re/open_bilrost"
+  },
+  "dependencies": {
+    "bunyan": "^1.8.1",
+    "config": "^1.30.0",
+    "drivelist": "^5.0.20",
+    "event-emitter": "^0.3.4",
+    "fs-extra": "^3.0.1",
+    "jsonschema": "^1.1.0",
+    "lokijs": "^1.5.3",
+    "lowdb": "^1.0.0",
+    "mime": "^1.3.6",
+    "minimatch": "^3.0.4",
+    "minimist": "^1.1.1",
+    "nconf": "^0.8.2",
+    "recursive-readdir": "^2.2.1",
+    "recursive-readdir-sync": "^1.0.6",
+    "restify": "^4.3.2",
+    "sanitize-filename": "https://github.com/fl4re/node-sanitize-filename",
+    "search_parser": "https://github.com/fl4re/search_parser.git#0.1.6",
+    "send": "^0.16.2",
+    "url-parse": "^1.2.0",
+    "walker": "^1.0.7",
+    "ws": "^1.1.4",
+    "xml2js": "^0.4.19"
+  },
+  "devDependencies": {
+    "commander": "^2.11.0",
+    "jshint": "^2.9.4",
+    "mocha": "^5.2.0",
+    "mocha-multi": "^0.11.0",
+    "open_bilrost_server": "https://github.com/fl4re/open_bilrost_server.git",
+    "should": "^11.2.1",
+    "sinon": "^2.4.1",
+    "supertest": "^3.0.0"
+  },
+  "scripts": {
+    "start": "node ./proxy.js | ./node_modules/.bin/bunyan",
+    "test": "./node_modules/.bin/mocha --exit --recursive --grep DO_NOT_RUN --invert",
+    "jenkins": "./node_modules/.bin/mocha --exit --timeout 10000 --recursive --grep DO_NOT_RUN --invert --reporter mocha-multi --reporter-options spec=-,xunit=reports/xunit.xml",
+    "jshint": "./node_modules/.bin/jshint . --exclude node_modules",
+    "all": "./node_modules/.bin/mocha --exit",
+    "build": "echo 'Ok, nothing to build.'"
+  },
+  "license": "MIT"
+}

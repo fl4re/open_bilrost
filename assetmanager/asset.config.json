@@ -1,0 +1,59 @@
+{
+    "versions": [
+        "1.0.0",
+        "1.1.0"
+    ],
+    "schema": {
+        "title": "asset_schema",
+        "version": 0,
+        "type": "object",
+        "properties": {
+            "comment": {
+                "type": "string"
+            },
+            "tags": {
+                "type": "array",
+                "uniqueItems": true
+            },
+            "main": {
+                "type": "string",
+                "pattern": "^\/(resources|assets)\/.*"
+            },
+            "dependencies": {
+                "type": "array",
+                "uniqueItems": true
+            },
+            "semantics": {
+                "type": "array",
+                "uniqueItems": true
+            },
+            "ref": {
+                "type": "string"
+            },
+            "created": {
+                "type": "string"
+            },
+            "modified": {
+                "type": "string"
+            },
+            "author": {
+                "type": "string",
+                "pattern": "^[[\\w\/ !?_\\.-]{0,512}$"
+            },
+            "version": {
+                "type": "string",
+                "pattern": "^(\\d+\\.)?(\\d+\\.)?(\\*|\\d+)$"
+            },
+            "namespace": {
+                "type": "string"
+            },
+            "namespaces": {
+                "type": "array"
+            },
+            "type": {
+                "type": "string"
+            },
+            "required": ["meta", "dependencies", "ref", "created", "version", "author", "namespace", "namespaces", "type"]
+        }
+    }
+}

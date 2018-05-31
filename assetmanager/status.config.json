@@ -1,0 +1,31 @@
+{
+    "integrity": {
+        "DELETED": "DELETED",
+        "PENDING": "PENDING",
+        "VALID": "VALID",
+        "INVALID": "INVALID"
+    },
+    "sync": {
+        "UP_TO_DATE": "UP_TO_DATE",
+        "OUT_OF_DATE": "OUT_OF_DATE",
+        "MODIFIED": "MODIFIED",
+        "DELETED": "DELETED",
+        "RENAMED": "RENAMED",
+        "EXTERNAL": "EXTERNAL",
+        "NEW": "NEW",
+        "ADDED": "ADDED",
+        "CONFLICTED": "CONFLICTED"
+    },
+    "map_states_to_priorities" : {
+        "VALID": 0,
+        "PENDING": 1,
+        "DELETED": 2,
+        "INVALID": 3
+    },
+    "map_states_to_descriptions" : {
+        "DELETED": "The validation hasn't been ran yet!",
+        "PENDING": "The validation is pending!",
+        "VALID": "The validation succeeded!",
+        "INVALID": "The validation failed!"
+    }
+}

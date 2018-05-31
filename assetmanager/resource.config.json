@@ -1,0 +1,9 @@
+{
+    "ignore" : [
+        ".svn",
+        ".git",
+        ".gitignore",
+        ".bilrost"
+    ],
+    "mime" : {}
+}

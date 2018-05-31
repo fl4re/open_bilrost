@@ -1,0 +1,13 @@
+test/config/local*
+local.config.json
+.session.json
+npm-debug.log
+dist
+node_modules
+coverage
+config/
+xunit.xml
+tmp/*
+.idea
+.nyc_output
+cli
