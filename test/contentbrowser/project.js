@@ -9,27 +9,27 @@ describe('module', function () {
 
     const am_project = require('../../assetmanager/project_manager');
 
-    /* faking rest3d-client
-       we define a rest3d_client that simply calls the callback with
+    /* faking bilrost-client
+       we define a bilrost_client that simply calls the callback with
        the predefined parameters.
        These parameters are only declared here, and they are set in
        a before clause according to what we want to test.
      */
     let err, req, res, obj;
-    const rest3d_client = {
+    const bilrost_client = {
         get: (url, callback) => callback(err, req, res, obj)
     };
 
     describe("#get", function () {
-        describe('with rest3d successful answer', function () {
-            before('set rest3d answer', function () {
+        describe('with bilrost successful answer', function () {
+            before('set bilrost answer', function () {
                 err = false;
                 req = null;
                 res = null;
                 obj = {one: 1};
             });
             it('return an object', function () {
-                const project = am_project({ rest3d_client: rest3d_client });
+                const project = am_project({ bilrost_client: bilrost_client });
                 return project.get('fake_project_id').then((project) => {
                     should.exist(project);
                     project.should.equal(obj);
@@ -37,7 +37,7 @@ describe('module', function () {
             });
         });
 
-        describe('with rest3d error answer', function () {
+        describe('with bilrost error answer', function () {
             before('create setting', function () {
                 err = true;
                 req = null;
@@ -45,7 +45,7 @@ describe('module', function () {
                 obj = {one: 1};
             });
             it('return an object', function () {
-                const project = am_project({ rest3d_client: rest3d_client });
+                const project = am_project({ bilrost_client: bilrost_client });
                 return project.get('fake_project_id').then(() => {
                     throw new Error("should have failed and it didn't");
                 }, (reason) => {

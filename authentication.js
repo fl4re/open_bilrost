@@ -6,12 +6,12 @@
 
 const path = require('path');
 const fs = require('fs');
-const Handler = require('./handler');
+const Handler = require('./lib/handler');
 
-module.exports = function (server, rest3d_client) {
+module.exports = function (server, bilrost_client) {
 
     const get_access_token = function get_access_token(access_code, handler) {
-        rest3d_client.get("/auth/access_token?code=" + access_code, function (err, req, res, obj) {
+        bilrost_client.get("/auth/access_token?code=" + access_code, function (err, req, res, obj) {
             if (err) {
                 server.log.error(err);
                 handler.handleError(err);
@@ -34,7 +34,7 @@ module.exports = function (server, rest3d_client) {
     };
 
     const get_access_code = function get_access_code(handler) {
-        rest3d_client.get("/auth/access_code", function (err, req, res, obj) {
+        bilrost_client.get("/auth/access_code", function (err, req, res, obj) {
             if (err) {
                 server.log.error(err);
                 handler.handleError(err);
@@ -47,7 +47,7 @@ module.exports = function (server, rest3d_client) {
     };
 
     const get_user_info = handler => {
-        rest3d_client.get("/rest3d/user", function (err, req, res, obj) {
+        bilrost_client.get("/bilrost/user", function (err, req, res, obj) {
             if (err) {
                 server.log.error(err);
                 handler.handleError(err);
@@ -89,14 +89,14 @@ module.exports = function (server, rest3d_client) {
     server.put('/auth/session', function (req, res, next) {
         var handler = new Handler(req, res, next);
         const id = req.body.id;
-        rest3d_client.set_session_id(id);
+        bilrost_client.set_session_id(id);
         handler.sendJSON('Ok');
         next();
     });
 
     server.del('/auth/access_token', function (req, res, next) {
         var handler = new Handler(req, res, next);
-        rest3d_client.reset();
+        bilrost_client.reset();
         handler.sendJSON({ok: 'Logget out'});
         next();
     });

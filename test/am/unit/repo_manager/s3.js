@@ -14,7 +14,7 @@ const amazon_s3 = require('../../../../lib/amazon-s3');
 
 const Repo_manager = require('../../../../assetmanager/repo_manager');
 const workspace_utilities = require('../../../../assetmanager/workspace_utilities')(p => path.join('.bilrost',  p ? p : '/'));
-const start_rest3d_client = require('../../../util/local_rest3d_client.js');
+const start_bilrost_client = require('../../../util/local_bilrost_client.js');
 
 const key_file_to_download = 'c0535e4be2b79ffd93291305436bf889314e4a3faec05ecffcbb7df31ad9e51a';
 
@@ -42,17 +42,17 @@ const cache = {
 };
 
 describe('S3 repo manager', function () {
-    let rest3d_client, amazon, context;
-    before('Init rest3d', function (done) {
+    let bilrost_client, amazon, context;
+    before('Init bilrost', function (done) {
         this.timeout(20000);
-        start_rest3d_client()
+        start_bilrost_client()
             .then(client => {
                 client.set_session_id("1234");
                 const amz_client = amazon_client(client);
                 amazon = amazon_s3(amz_client, cache);
-                rest3d_client = client;
+                bilrost_client = client;
                 context = {
-                    rest3d_client: client,
+                    bilrost_client: client,
                     amazon_client: amz_client,
                     cache: cache
                 };
@@ -80,12 +80,12 @@ describe('S3 repo manager', function () {
             .catch(done);
     });
     it('Dont pull files', done => {
-        const mock_rest3d_client = {
+        const mock_bilrost_client = {
             get: () => Promise.reject()
         };
         let this_context = {
-            rest3d_client: mock_rest3d_client,
-            amazon_client: amazon_client(mock_rest3d_client),
+            bilrost_client: mock_bilrost_client,
+            amazon_client: amazon_client(mock_bilrost_client),
             cache: cache
         };
         const get_resource_hash = () => Promise.resolve("");
@@ -142,12 +142,12 @@ describe('S3 repo manager', function () {
             .catch(done);
     });
     it('Dont push files', done => {
-        const mock_rest3d_client = {
+        const mock_bilrost_client = {
             put: () => Promise.reject()
         };
         let this_context = {
-            rest3d_client: mock_rest3d_client,
-            amazon_client: amazon_client(mock_rest3d_client),
+            bilrost_client: mock_bilrost_client,
+            amazon_client: amazon_client(mock_bilrost_client),
             cache: cache
         };
         const get_resource_hash = () => Promise.resolve("");
@@ -167,7 +167,7 @@ describe('S3 repo manager', function () {
             });
     });
     it('get current status', done => {
-        const mock_rest3d_client = {};
+        const mock_bilrost_client = {};
         const get_resource_hash = () => Promise.resolve("");
 
         const modified_path = 'm';
@@ -179,8 +179,8 @@ describe('S3 repo manager', function () {
         const new_ref = '/resources/n';
 
         const this_context = {
-            rest3d_client: mock_rest3d_client,
-            amazon_client: amazon_client(mock_rest3d_client),
+            bilrost_client: mock_bilrost_client,
+            amazon_client: amazon_client(mock_bilrost_client),
             cache: cache
         };
         const subscription_manager = {

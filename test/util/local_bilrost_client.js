@@ -8,7 +8,7 @@ module.exports = port => new Promise((resolve, reject) => {
     const PORT = port || require('./port_factory')();
     const s3config = require('config').get('S3');
     const CFconfig = require('config').get('CF');
-    const rest3d_server_config = {
+    const bilrost_server_config = {
         predefined_sessions: {
             '1234': {
                 login: 'fake_user_name',
@@ -26,18 +26,18 @@ module.exports = port => new Promise((resolve, reject) => {
         CF: CFconfig
     };
 
-    const rest3d_client = require('../../lib/rest3d-client')('http://localhost:' + PORT, __dirname);
-    /* setup a rest3d server */
+    const bilrost_client = require('../../lib/bilrost-client')('http://localhost:' + PORT, __dirname);
+    /* setup a bilrost server */
     const bilrost_server = require('open_bilrost_server');
     const restify = require('restify');
-    const rest3d_server = restify.createServer({});
-    rest3d_server.use(restify.bodyParser());
-    bilrost_server(rest3d_server, rest3d_server_config);
-    rest3d_server.listen(PORT, err => {
+    const server = restify.createServer({});
+    server.use(restify.bodyParser());
+    bilrost_server(server, bilrost_server_config);
+    server.listen(PORT, err => {
         if (err) {
             reject(err);
         } else {
-            resolve(rest3d_client);
+            resolve(bilrost_client);
         }
     });
 

@@ -15,19 +15,19 @@ const Test_util = require('../../../util/test_util');
 var test_util = new Test_util("workspace", "good_repo");
 
 describe('Run Workspace related functional tests for the API', function () {
-    /* faking rest3d-client
-       we define a rest3d_client that simply calls the callback with
+    /* faking bilrost-client
+       we define a bilrost_client that simply calls the callback with
        the predefined parameters.
        These parameters are only declared here, and they are set in
        a before clause according to what we want to test.
      */
     let err, req, res, obj;
-    const rest3d_client = {
+    const bilrost_client = {
         get: (url, callback) => callback(err, req, res, obj)
     };
 
     before("Starting a Content Browser server", done => test_util.start_server(done, {
-        rest3d_client: rest3d_client,
+        bilrost_client: bilrost_client,
         protocol: 'ssh'
     }));
 
@@ -180,7 +180,7 @@ describe('Run Workspace related functional tests for the API', function () {
 
     describe("Create workspaces", function () {
 
-        before('Set rest3d_client answer', function () {
+        before('Set bilrost_client answer', function () {
             err = false;
             req = null;
             res = null;

@@ -7,13 +7,13 @@
 const should = require('should');
 const path = require('path').posix;
 const Test_util = require('../../../util/test_util');
-const start_rest3d_client = require('../../../util/local_rest3d_client');
+const start_bilrost_client = require('../../../util/local_bilrost_client');
 
 var test_util = new Test_util("vcs", "production_repo");
 
 describe('Run Version Control related functional tests for the API', function () {
-    /* faking rest3d-client
-       we define a rest3d_client that simply calls the callback with
+    /* faking bilrost-client
+       we define a bilrost_client that simply calls the callback with
        the predefined parameters.
        These parameters are only declared here, and they are set in
        a before clause according to what we want to test.
@@ -22,19 +22,19 @@ describe('Run Version Control related functional tests for the API', function ()
 
     before("Starting a Content Browser server", function(done) {
         this.timeout(20000);
-        start_rest3d_client()
-            .then(rest3d_client => {
-                rest3d_client.set_session_id("1234");
-                rest3d_client.get = (url, callback) => callback(err, req, res, obj);
+        start_bilrost_client()
+            .then(bilrost_client => {
+                bilrost_client.set_session_id("1234");
+                bilrost_client.get = (url, callback) => callback(err, req, res, obj);
                 test_util.start_server(done, {
-                    rest3d_client: rest3d_client,
+                    bilrost_client: bilrost_client,
                     protocol: 'ssh'
                 });
             });
     });
 
     describe("Test Bilrost Version Control operations", function () {
-        before('Set rest3d_client answer', function () {
+        before('Set bilrost_client answer', function () {
             err = false;
             req = null;
             res = null;

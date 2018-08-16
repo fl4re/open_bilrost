@@ -8,61 +8,66 @@ const os = require('os');
 const fs = require('fs-extra');
 const path = require('path');
 const bunyan = require('bunyan');
-const repo_manager = require('./assetmanager/repo_manager');
 
 //
 // CONFIGURATION
 //
 
+const name = 'Bilrost';
+const version = require('./package.json').version;
 const is_win = /^win/.test(process.platform);
-
 const command_line_args = require('minimist')(process.argv.slice(2));
 
-if (command_line_args.h || command_line_args.help) {
-    console.log('\nusage\n-h (--help):\tthis message\n--parentPID:\tkill itself if parentPID is killed\n--modulesPath:\tpath to load local node modules');
-    process.exit(0);
-}
+const INTERNAL_FOLDER_PATH = is_win ?
+    path.join(process.env.APPDATA, 'Bilrost') :
+    path.join(os.homedir(), 'Library/Bilrost');
+const CACHE_PATH = path.join(INTERNAL_FOLDER_PATH, 'Cache');
+const SETTINGS_PATH = path.join(INTERNAL_FOLDER_PATH, 'Settings');
+const CONFIG_PATH = path.join(INTERNAL_FOLDER_PATH, 'Config');
 
-const cache_path = is_win ?
-    path.join(process.env.APPDATA,'/Bilrost/Cache') :
-    path.join(os.homedir(), 'Library/Bilrost/Cache');
+// TODO deprecate folder creations
 
-const default_config = {
-    NAME: "Bilrost",
-    REST3D_SERVER: "http://localhost:3000",
-    PORT: 9224,
-    CACHE_PATH: cache_path
-};
-
-const config = Object.assign(default_config, process.env, command_line_args);
-
-// Create server setting directories if they don't exist
-const settings_base_path = is_win ?
-    path.join(config.APPDATA,'/Bilrost/Settings') :
-    path.join(os.homedir(), '/Library/Bilrost/Settings');
 try {
-    fs.statSync(settings_base_path);
+    fs.statSync(SETTINGS_PATH);
 } catch (err){
     if(err.code === 'ENOENT'){
-        fs.mkdirsSync(settings_base_path);
+        fs.mkdirsSync(SETTINGS_PATH);
     }
 }
 
+try {
+    fs.statSync(CONFIG_PATH);
+} catch (err){
+    if(err.code === 'ENOENT'){
+        fs.mkdirsSync(CONFIG_PATH);
+    }
+}
+
+const default_config = {
+    BILROST_SERVER: "http://localhost:3000",
+    PORT: 9224,
+    CACHE_PATH,
+    PROTOCOL: 'https',
+    GIT_USERNAME: undefined,
+    GIT_PASSWORD: undefined
+};
+
+const config = require('./lib/config')(CONFIG_PATH, default_config, process.env, command_line_args);
+
 var logger = bunyan.createLogger({
-    name: config.NAME,
+    name,
     stream: process.stdout,
     level: 'info'
 });
-logger.info("Using rest3d server: " + config.REST3D_SERVER);
+logger.info("Using bilrost server: " + config.BILROST_SERVER);
 logger.info('Listening at port: %s', config.PORT);
-
 
 //
 // SERVER
 //
 
 const server = require('./lib/server')({
-    name: config.NAME,
+    name,
     log: logger
 });
 
@@ -75,68 +80,74 @@ server.use((req, res, next) => {
 // CONTEXT
 //
 
-const rest3d_client = require('./lib/rest3d-client')(config.REST3D_SERVER, settings_base_path);
+const bilrost_client = require('./lib/bilrost-client')(config.BILROST_SERVER, SETTINGS_PATH);
 const cache = require('./lib/cache')(config.CACHE_PATH);
-const amazon_client = require('./lib/amazon-client')(rest3d_client);
+const amazon_client = require('./lib/amazon-client')(bilrost_client);
 
-repo_manager.create({ host_vcs: 'git' })
-    .get_config('protocol')
-    .then(protocol => {
-        const bilrost_context = {
-            rest3d_client: rest3d_client,
-            amazon_client: amazon_client,
-            cache: cache,
-            protocol: protocol ? protocol : 'https'
-        };
-
-        if (config.GIT_USERNAME && config.GIT_PASSWORD) {
-            bilrost_context.credentials = {
-                username: config.GIT_USERNAME,
-                password: config.GIT_PASSWORD
-            };
+const version_control_system_context = {
+    bilrost_client,
+    amazon_client,
+    cache,
+    get protocol () {
+        return config.protocol;
+    },
+    credentials: {
+        get username () {
+            return config.GIT_USERNAME;
+        },
+        get password () {
+            return config.GIT_PASSWORD;
         }
+    }
+};
 
-        //
-        //  COMPONENTS
-        //
-        server.get('/', (req, res, next) => {
-            const version = require('./package.json').version;
-            res.end('Bilrost '+ version);
-        });
+//
+//  COMPONENTS
+//
 
-        require('./lib/authentication')(server, bilrost_context.rest3d_client);
-        require('./ifs')(server);
-        require('./contentbrowser')(server, bilrost_context);
-        require('./assetmanager')(server, bilrost_context);
-        require('./lib/static')(server);
+server.get('/', (req, res, next) => {
+    res.end('Bilrost '+ version);
+    next();
+});
 
-        server.static({
-            route: "api-ui",
-            base_dir: path.join(__dirname, "static/api-ui")
-        });
+require('./lib/static')(server);
 
-        //
-        // START SERVER
-        //
+require('./authentication')(server, bilrost_client);
+require('./config')(server, config);
+require('./contentbrowser')(server, version_control_system_context);
+require('./assetmanager')(server, version_control_system_context);
 
-        process.on('uncaughtException', function(err) {
-            if(err.errno === 'EADDRINUSE') {
-                 logger.error('Some other server is using port %s -> bye bye !', config.PORT);
-            } else {
-                logger.error('uncaughtException: ' + err.message);
-                logger.error('stack:');
-                logger.error(err.stack);
-            }
-            process.exit(1);
-        });
+server.static({
+    route: "api-ui",
+    base_dir: path.join(__dirname, "static/api-ui")
+});
 
-        process.on('unhandledRejection', (reason, promise_data) => {
-            console.log("unhandledRejection");
-            console.log(reason);
-            console.log(promise_data);
-        });
+//
+// ERROR LISTENERS
+// TODO: USE LOGGER
+//
 
-        server.listen(config.PORT, () => {
-            logger.info('%s started', server.name);
-        });
-    });
+process.on('uncaughtException', function(err) {
+    if(err.errno === 'EADDRINUSE') {
+        logger.error('Some other server is using port %s -> bye bye !', config.PORT);
+    } else {
+        logger.error('uncaughtException: ' + err.message);
+        logger.error('stack:');
+        logger.error(err.stack);
+    }
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise_data) => {
+    console.log("unhandledRejection");
+    console.log(reason);
+    console.log(promise_data);
+});
+
+//
+// START SERVER
+//
+
+server.listen(config.PORT, () => {
+    logger.info('%s started', server.name);
+});

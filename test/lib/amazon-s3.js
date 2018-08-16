@@ -10,7 +10,7 @@ const crypto = require('crypto');
 const should = require('should');
 
 const promisify = require('../../util/promisify');
-const start_rest3d_client = require('../util/local_rest3d_client');
+const start_bilrost_client = require('../util/local_bilrost_client');
 const amazon_client = require('../../lib/amazon-client');
 const amazon_s3 = require('../../lib/amazon-s3');
 const external_service = require("../../externals/models/external");
@@ -42,14 +42,14 @@ const KB = 1024;
 const MB = 1024 * KB;
 
 describe('DO_NOT_RUN amazon-s3', function () {
-    
+
     let amazon;
-    before('Init rest3d', function (done) {
-        this.timeout(20000); 
-        start_rest3d_client()
-            .then(rest3d_client => {
-                rest3d_client.set_session_id("1234");
-                const amz_client = amazon_client(rest3d_client);
+    before('Init bilrost', function (done) {
+        this.timeout(20000);
+        start_bilrost_client()
+            .then(bilrost_client => {
+                bilrost_client.set_session_id("1234");
+                const amz_client = amazon_client(bilrost_client);
                 amazon = amazon_s3(amz_client,
                 cache,
                 {
@@ -61,7 +61,7 @@ describe('DO_NOT_RUN amazon-s3', function () {
     });
 
     describe('-- Exists', function () {
-        
+
         it('Exists', function (done) {
             amazon.exists(key_file_to_download)
                 .then(() => {
@@ -81,7 +81,7 @@ describe('DO_NOT_RUN amazon-s3', function () {
     });
 
     describe('-- Simple upload', function () {
-        
+
         const filename = 's3_file_to_simple_upload.txt';
         const file_to_upload_path = path.join(test_path, filename);
         let file_key;
@@ -105,7 +105,7 @@ describe('DO_NOT_RUN amazon-s3', function () {
     });
 
     describe('-- Download', function () {
-        
+
         const filename = 's3_downloaded_file.txt';
         const download_location = path.join(test_path, filename);
 
@@ -130,17 +130,17 @@ describe('DO_NOT_RUN amazon-s3', function () {
         const alice_filename = 'alice_file_to_multipart_upload.txt';
         const alice_file_to_upload_path = path.join(test_path, alice_filename);
         let alice_file_key;
-        
+
         before('Create alice file', done => {
             const content = generate_string(1 * KB);
             alice_file_key = sha256(content);
             fs.outputFile(alice_file_to_upload_path, content, done);
         });
-        
+
         const kevin_filename = 'kevin_file_to_multipart_upload.txt';
         const kevin_file_to_upload_path = path.join(test_path, kevin_filename);
         let kevin_file_key;
-        
+
         const kevin_downloaded_filename = 'kevin_downloaded_file.txt';
         const download_location = path.join(test_path, kevin_downloaded_filename);
 
@@ -149,7 +149,7 @@ describe('DO_NOT_RUN amazon-s3', function () {
             kevin_file_key = sha256(content);
             fs.outputFile(kevin_file_to_upload_path, content, done);
         });
-        
+
         it('Dont multipart upload too small file', function (done) {
             const size = fs.statSync(alice_file_to_upload_path).size;
             try {
@@ -188,7 +188,7 @@ describe('DO_NOT_RUN amazon-s3', function () {
         const john_filename = 'john_file_to_multipart_upload.txt';
         const john_file_to_upload_path = path.join(test_path, john_filename);
         let john_file_key;
-        
+
         before('Create john file', done => {
             const content = generate_string(7 * MB);
             john_file_key = sha256(content);
@@ -229,7 +229,7 @@ describe('DO_NOT_RUN amazon-s3', function () {
         const scrievner_filename = 'scrievner_file_to_multipart_upload.txt';
         const scrievner_file_to_upload_path = path.join(test_path, scrievner_filename);
         let scrievner_file_key;
-        
+
         before('Create scrievner file', done => {
             const content = generate_string(7 * MB);
             scrievner_file_key = sha256(content);
@@ -267,7 +267,7 @@ describe('DO_NOT_RUN amazon-s3', function () {
         const matt_filename = 'matt_file_to_multipart_upload.txt';
         const matt_file_to_upload_path = path.join(test_path, matt_filename);
         let matt_file_key;
-        
+
         before('Create matt file', done => {
             const content = generate_string(19 * MB, 4);
             matt_file_key = sha256(content);
@@ -303,21 +303,21 @@ describe('DO_NOT_RUN amazon-s3', function () {
     });
 
     describe('-- Upload decider', function () {
-        
+
         const stephen_filename = 'stephen_file_to_decide_upload.txt';
         const stephen_file_to_upload_path = path.join(test_path, stephen_filename);
         let stephen_file_key;
-        
+
         before('Create stephen file', done => {
             const content = generate_string(1 * KB);
             stephen_file_key = sha256(content);
             fs.outputFile(stephen_file_to_upload_path, content, done);
         });
-        
+
         const helen_filename = 'helen_file_to_decide_upload.txt';
         const helen_file_to_upload_path = path.join(test_path, helen_filename);
         let helen_file_key;
-        
+
         before('Create helen file', done => {
             const content = generate_string(7 * MB);
             helen_file_key = sha256(content);

@@ -57,7 +57,7 @@ const workspace_identifiers = {
 describe('Run set of test for asset management methods', function () {
 
     before("Starting a Content Browser server", done => test_util.start_server(done, {
-        rest3d_client: {}
+        bilrost_client: {}
     }));
 
     before(() => favorite.flush());

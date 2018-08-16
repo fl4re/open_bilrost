@@ -9,7 +9,7 @@
 
  Inside Rest3d we need a way to browse remote server files, local work directory files or git trees. Therefore we need an API that allows to list (with filter) directories, get files (metadata or content), and put files in a virtualized file system that will eventually map to any of the above.
 
- Other rest3d modules are responsible of creating/registering a fs base url (/ifs/{id}), for example when creating a workspace we may refer to /ifs/ws12345. By now we are not going to specify how you create or register these ifs id.
+ Other bilrost modules are responsible of creating/registering a fs base url (/ifs/{id}), for example when creating a workspace we may refer to /ifs/ws12345. By now we are not going to specify how you create or register these ifs id.
 
  This API is going to follow rest principles, using http verbs, url to resources, …
  When getting/puttings files, file metadata will be passed by HTTP Headers, and file content in the body.
@@ -43,14 +43,14 @@ module.exports = function (server) {
         if (!adapter) {
             return handler.handleError("adapter "+adapterName+" not found");
         }
-        
+
         let promise;
         if (req.query.q) {
             promise = IFS.search_query(adapter, path, req.query.q);
         } else {
             promise = IFS.get_stats(adapter, path);
         }
-        
+
         promise
             .then(function(result){
                 if(result.kind === "file-list") {
