@@ -52,7 +52,7 @@ const default_config = {
     GIT_PASSWORD: undefined
 };
 
-const config = require('./lib/config')(CONFIG_PATH, default_config, process.env, command_line_args);
+const config = require('./lib/config')(default_config, CONFIG_PATH, process.env, command_line_args);
 
 var logger = bunyan.createLogger({
     name,
@@ -89,7 +89,7 @@ const version_control_system_context = {
     amazon_client,
     cache,
     get protocol () {
-        return config.protocol;
+        return config.PROTOCOL;
     },
     credentials: {
         get username () {

@@ -16,7 +16,7 @@ module.exports = function (server, bilrost_client) {
                 server.log.error(err);
                 handler.handleError(err);
             } else {
-                fs.readFile(path.join(__dirname, '..', 'static', 'login.html'), (err, data) => {
+                fs.readFile(path.join(__dirname, 'static', 'login.html'), (err, data) => {
                     if (err) {
                         handler.next(err);
                         return;

@@ -21,7 +21,7 @@ module.exports = (server, config) => {
         const handler = new Handler(req, res, next);
         try {
             const key = req.params.key;
-            const value = config[key];
+            const value = config[key] || 'N/A';
             handler.sendJSON(value, 200);
         } catch (err) {
             handler.handleError(err);
@@ -32,8 +32,8 @@ module.exports = (server, config) => {
         const handler = new Handler(req, res, next);
         try {
             const key = req.params.key;
-            const payload = req.body;
-            config[key] = payload;
+            const new_value = req.body.value;
+            config[key] = new_value;
             handler.sendJSON('Ok', 204);
         } catch (err) {
             handler.handleError(err);
