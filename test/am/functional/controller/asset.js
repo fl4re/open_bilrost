@@ -14,7 +14,7 @@ var test_util = new Test_util("asset", "good_repo");
 describe('Run Asset related functional tests for the API', function () {
 
     before("Starting a Content Browser server", done => test_util.start_server(done, {
-        rest3d_client: {}
+        bilrost_client: {}
     }));
     before("Creating fixtures", function(done) {
         this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000

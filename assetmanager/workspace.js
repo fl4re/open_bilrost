@@ -62,7 +62,7 @@ const Workspace = function Workspace (file_uri, context, options) {
     this.get_guid = () => this.properties.guid;
     this.get_branch = () => this.branch_name;
     this.get_context = () => context;
-    this.get_rest3d_client = () => context.rest3d_client;
+    this.get_bilrost_client = () => context.bilrost_client;
     this.get_internal_folder_name = () => WORKSPACE_INTERNAL_FOLDER_PATH;
     this.get_internal_file_path = path => _path.join(this.get_internal_folder_name(), path ? path : '/');
     this.get_internal_absolute_path = () => _path.join(this.get_base_absolute_path(), this.get_internal_folder_name());

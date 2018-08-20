@@ -27,7 +27,7 @@ const generate_random_path = () => {
 describe('Run Asset related functional tests for the API', function () {
 
     before("Starting a Content Browser server", done => test_util.start_server(done, {
-        rest3d_client: {}
+        bilrost_client: {}
     }));
 
     before("Creating fixtures", function(done) {

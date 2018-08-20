@@ -16,12 +16,12 @@ const test_util = new Test_util("branch", "good_repo");
 describe('Run Workspace related functional tests for the API', function () {
 
     let err, req, res;
-    const rest3d_client = {
+    const bilrost_client = {
         get: (url, callback) => callback(err, req, res, test_util.get_example_project())
     };
 
     before("Starting a Content Browser server", done => test_util.start_server(done, {
-        rest3d_client: rest3d_client,
+        bilrost_client: bilrost_client,
         protocol: 'ssh'
     }));
 

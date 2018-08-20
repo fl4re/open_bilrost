@@ -5,21 +5,21 @@
 'use strict';
 const should = require('should');
 const amazon_client = require('../../lib/amazon-client');
-const start_rest3d_client = require('../util/local_rest3d_client');
+const start_bilrost_client = require('../util/local_bilrost_client');
 
 describe('amazon-client', function () {
-    
+
     let amazon;
-    before('Init rest3d', function (done) {
-        this.timeout(20000); 
-        start_rest3d_client()
-            .then(rest3d_client => {
-                rest3d_client.set_session_id("1234");
-                amazon = amazon_client(rest3d_client);
+    before('Init bilrost', function (done) {
+        this.timeout(20000);
+        start_bilrost_client()
+            .then(bilrost_client => {
+                bilrost_client.set_session_id("1234");
+                amazon = amazon_client(bilrost_client);
                 done();
             });
     });
-    
+
     it('Simple client', function (done) {
         const input = {
             method: 'post',
@@ -56,6 +56,6 @@ describe('amazon-client', function () {
                 done();
             }).catch(done);
     });
-    
+
 
 });

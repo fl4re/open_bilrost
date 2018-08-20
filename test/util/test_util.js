@@ -221,8 +221,8 @@ class Test_util {
         Promise.all(promises)
             .then(() => {
                 const context = {
-                    rest3d_client: parameters.rest3d_client,
-                    amazon_client: amazon_client(parameters.rest3d_client),
+                    bilrost_client: parameters.bilrost_client,
+                    amazon_client: amazon_client(parameters.bilrost_client),
                     cache: cache(this.get_cache()),
                     protocol: parameters.protocol
                 };

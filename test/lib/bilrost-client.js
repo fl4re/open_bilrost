@@ -7,8 +7,8 @@ const assert = require('assert');
 const PORT = require('./../util/port_factory')();
 const path = require('path').posix;
 
-describe('rest3d-client', function () {
-    let rest3d_client = require('../../lib/rest3d-client')('http://localhost:' + PORT, path.join(process.cwd(), 'tmp'));
+describe('bilrost-client', function () {
+    let bilrost_client = require('../../lib/bilrost-client')('http://localhost:' + PORT, path.join(process.cwd(), 'tmp'));
 
     describe('sets session id from server', function () {
         var server;
@@ -32,33 +32,33 @@ describe('rest3d-client', function () {
         });
 
         it('sets session', function (done) {
-            rest3d_client.get('/success', (err, req, res, obj) => {
+            bilrost_client.get('/success', (err, req, res, obj) => {
                 if (err) {return done(err);}
-                assert.equal('blahblahblah', rest3d_client.get_session_id());
+                assert.equal('blahblahblah', bilrost_client.get_session_id());
                 assert.equal('ok', obj.ok);
                 done();
             });
         });
         it('changes session', function (done) {
-            rest3d_client.set_session_id('1234');
-            rest3d_client.get('/success', (err, req, res, obj) => {
+            bilrost_client.set_session_id('1234');
+            bilrost_client.get('/success', (err, req, res, obj) => {
                 if (err) {return done(err);}
-                assert.equal('blahblahblah', rest3d_client.get_session_id());
+                assert.equal('blahblahblah', bilrost_client.get_session_id());
                 done();
             });
         });
         it('sets session even if response failed', function (done) {
-            rest3d_client.get('/fail', (err, req, res, obj) => {
-                assert.equal('blahblahblah', rest3d_client.get_session_id());
+            bilrost_client.get('/fail', (err, req, res, obj) => {
+                assert.equal('blahblahblah', bilrost_client.get_session_id());
                 if (err) {return done();}
                 done("should have failed");
             });
         });
         it("deletes session", function (done) {
-            rest3d_client.reset();
-            assert.equal(null, rest3d_client.get_session_id());
-            rest3d_client.get('/success', function (err, req, res, obj) {
-                assert.equal('blahblahblah', rest3d_client.get_session_id());
+            bilrost_client.reset();
+            assert.equal(null, bilrost_client.get_session_id());
+            bilrost_client.get('/success', function (err, req, res, obj) {
+                assert.equal('blahblahblah', bilrost_client.get_session_id());
                 done();
             });
         });

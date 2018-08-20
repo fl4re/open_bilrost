@@ -5,13 +5,13 @@
 'use strict';
 const assert = require('assert');
 const sinon = require('sinon');
-const authentication = require('../../lib/authentication');
+const authentication = require('../../authentication');
 const restify = require('restify');
 const PORT = require('./../util/port_factory')();
 
 describe('Authentication', function () {
     var server;
-    // backend is a complete fake of the rest3d used in this test
+    // backend is a complete fake of the bilrost used in this test
     var backend = {
         get: () => {}
     };
@@ -80,7 +80,7 @@ describe('Authentication', function () {
     describe('#GET /auth/whoami', function () {
         before(function() {
             backend.get = function (path, callback) {
-                assert.equal('/rest3d/user', path);
+                assert.equal('/bilrost/user', path);
                 callback(null, {}, { statusCode: 200 }, {
                     displayName: "foo",
                     email: "foo@bar.com"
