@@ -50,6 +50,7 @@ describe('Authentication', function () {
         client.get('/config', function (err, req, res, obj) {
             assert.ifError(err);
             assert.equal(200, res.statusCode);
+            assert.equal(Object.keys(obj).length, 2);
             assert.deepEqual(obj, sample);
             done();
         });
