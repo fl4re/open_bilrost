@@ -12,7 +12,7 @@ const external_service = require('../../externals/models/external');
 const repo_manager = require('../../assetmanager/repo_manager');
 const workspace_utilities = require('../../assetmanager/workspace_utilities');
 
-const bilrost_path = 'proxy.js';
+const bilrost_path = 'index.js';
 const bilrost_server_path = 'node_modules/open_bilrost_server/index.js';
 
 const is_win = /^win/.test(process.platform);

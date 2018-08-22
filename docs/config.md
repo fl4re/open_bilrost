@@ -1,7 +1,7 @@
 **[Home](Home)**
 
 ### Overview
-Node proxy is using nconf as a key/value local store. For some use cases, we need to store persistently data. Nconf is great for doing this with json files, and support also remote storage.
+Bilrost uses nconf as a key/value local store. For some use cases, we need to store persistently data. Nconf is great for doing this with json files, and support also remote storage.
 
 ### Where to find?
         %APPDATA/Bilrost on Windows®
