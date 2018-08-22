@@ -22,18 +22,9 @@ const INTERNAL_FOLDER_PATH = is_win ?
     path.join(process.env.APPDATA, 'Bilrost') :
     path.join(os.homedir(), 'Library/Bilrost');
 const CACHE_PATH = path.join(INTERNAL_FOLDER_PATH, 'Cache');
-const SETTINGS_PATH = path.join(INTERNAL_FOLDER_PATH, 'Settings');
 const CONFIG_PATH = path.join(INTERNAL_FOLDER_PATH, 'Config');
 
 // TODO deprecate folder creations
-
-try {
-    fs.statSync(SETTINGS_PATH);
-} catch (err){
-    if(err.code === 'ENOENT'){
-        fs.mkdirsSync(SETTINGS_PATH);
-    }
-}
 
 try {
     fs.statSync(CONFIG_PATH);
@@ -80,7 +71,7 @@ server.use((req, res, next) => {
 // CONTEXT
 //
 
-const bilrost_client = require('./lib/bilrost-client')(config.BILROST_SERVER, SETTINGS_PATH);
+const bilrost_client = require('./lib/bilrost-client')(config.BILROST_SERVER, CONFIG_PATH);
 const cache = require('./lib/cache')(config.CACHE_PATH);
 const amazon_client = require('./lib/amazon-client')(bilrost_client);
 

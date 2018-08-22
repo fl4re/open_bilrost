@@ -9,7 +9,7 @@ Node proxy is using nconf as a key/value local store. For some use cases, we nee
 
 ### Which files?
 
-- Settings/workspaces.json 
+- Config/workspaces.json 
 
 This is used by the [content browser api]() for storing the workspace favorite list. Its JSON structure is like this:
 ```
@@ -22,7 +22,7 @@ This is used by the [content browser api]() for storing the workspace favorite l
 }
 ```
 
-- Settings/.session
+- Config/.session
 
 This stores session information to contact bilrost back end server.
 ```
