@@ -12,19 +12,19 @@ const errors = require('../lib/errors')('favorite');
 
 const ConfProvider = require('nconf').Provider;
 const nconf = new ConfProvider();
-const settingsPath =/^win/.test(process.platform)?
-    Path.join(process.env.APPDATA,'/Bilrost/Settings/workspaces.json'):
-    Path.join(os.homedir(), '/Library/Bilrost/Settings/workspaces.json');
+const configPath =/^win/.test(process.platform)?
+    Path.join(process.env.APPDATA,'/Bilrost/Config/workspaces.json'):
+    Path.join(os.homedir(), '/Library/Bilrost/Config/workspaces.json');
 
 //init "itsWorkspaces" nconf instance by creating the file if doesn't exist
 try {
-    fs.statSync(settingsPath);
+    fs.statSync(configPath);
 } catch (err) {
     if (err.code === 'ENOENT') {
-        fs.outputJsonSync(settingsPath, { favorite:[] });
+        fs.outputJsonSync(configPath, { favorite:[] });
     }
 }
-nconf.file(settingsPath);
+nconf.file(configPath);
 
 const list = () => {
     const all = nconf.get("favorite");
