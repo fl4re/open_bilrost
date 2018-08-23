@@ -10,7 +10,7 @@ const exec = require('child_process').exec;
 
 const external_service = require('../../externals/models/external');
 
-const bilrost_path = 'proxy.js';
+const bilrost_path = 'index.js';
 const bilrost_server_path = 'node_modules/open_bilrost_server/index.js';
 
 const is_win = /^win/.test(process.platform);

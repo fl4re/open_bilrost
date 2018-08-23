@@ -3,9 +3,9 @@
   "bin": {
     "bilrost-server": "./bin/start.js"
   },
-  "description": "Web and proxy server for fl4re applications",
+  "description": "Bilrost client server",
   "version": "2.0.24",
-  "main": "proxy.js",
+  "main": "index.js",
   "private": false,
   "engines": {
     "node": ">8.9.0"
@@ -49,7 +49,7 @@
     "supertest": "^3.0.0"
   },
   "scripts": {
-    "start": "node ./proxy.js | ./node_modules/.bin/bunyan",
+    "start": "node ./index.js | ./node_modules/.bin/bunyan",
     "test": "./node_modules/.bin/mocha --exit --recursive --grep DO_NOT_RUN --invert",
     "jenkins": "./node_modules/.bin/mocha --exit --timeout 10000 --recursive --grep DO_NOT_RUN --invert --reporter mocha-multi --reporter-options spec=-,xunit=reports/xunit.xml",
     "jshint": "./node_modules/.bin/jshint . --exclude node_modules",

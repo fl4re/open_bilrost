@@ -6,7 +6,7 @@ The Bilrost API UI is a tool for developers to test, study and get inspired on h
 Since the purpose of this API UI is to test, educate and inspire developers, no input validation is made on the view. Testing errors and seeing responses to incorrect inputs is useful in this case.
 
 ### How to run
-To access the Bilrost API UI, the user needs to run "node proxy.js" on the root folder. The API UI will then be accessible at http://localhost:9224/api-ui/index.html.
+To access the Bilrost API UI, the user needs to run "node index.js" on the root folder. The API UI will then be accessible at http://localhost:9224/api-ui/index.html.
 
 The Bilrost API UI main page leads into two sub-pages, one that gives access to testing the Content Browser's API calls (http://localhost:9224/api-ui/cb.html) and another one for the Asset Manager's (http://localhost:9224/api-ui/am.html). Each page contains a list of various API calls that can be set up as the user intends.*
 

@@ -31,12 +31,12 @@ describe('Check database behaviors', function () {
         "dependencies": [],
         "semantics": []
     };
-    
+
     describe('Verify synchronisation', function () {
         let server;
 
         before('Start node server', function (done) {
-            server = spawn('node', ['proxy']);
+            server = spawn('node', ['index']);
             readline.createInterface({input: server.stdout}).on('line', line => {
                 let msg;
                 try {
@@ -91,7 +91,7 @@ describe('Check database behaviors', function () {
         let server;
 
         before('Start node server', function (done) {
-            server = spawn('node', ['proxy']);
+            server = spawn('node', ['index']);
             readline.createInterface({input: server.stdout}).on('line', line => {
                 let msg;
                 try {
