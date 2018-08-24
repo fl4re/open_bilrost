@@ -211,8 +211,8 @@ const Workspace = function Workspace (file_uri, context, options) {
     this.remove_database_semaphore = () => {
         delete database_semaphores[file_uri];
     };
-    this.reset = () => this.adapter.getFilesRecursively('', ['.git', '.bilrost', '.gitignore'])
-        .then(files => Promise.all(files.map(this.adapter.remove)))
+    this.reset = () => this.adapter.list_files('')
+        .then(files => Promise.all(files.filter(file => !['.git', '.bilrost', '.gitignore'].includes(file)).map(this.adapter.remove)))
         .then(this.remove_all_subscriptions)
         .then(this.empty_stage)
         .catch(transform_error);
