@@ -466,6 +466,9 @@ var local_FS_adapter = function (base_path) {
             readdirSync : function(path) {
                 return fs.readdirSync(absolute_path(path));
             },
+            list_files : function(path) {
+                return fs.readdir(absolute_path(path));
+            },
             readJsonSync : function(path) {
                 return fs.readJsonSync(absolute_path(path));
             },

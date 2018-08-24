@@ -230,7 +230,6 @@ describe('Run Workspace related functional tests for the API', function () {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    console.log(fs.readdirSync(test_util.get_carol_path()));
                     should.equal(fs.readdirSync(test_util.get_carol_path()).length, 3);
                     done();
                 });
