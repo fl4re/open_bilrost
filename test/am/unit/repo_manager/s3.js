@@ -36,6 +36,7 @@ const sha256 = content => crypto.createHash('sha256').update(content).digest('he
 
 const cache = {
     get_path: key => path.resolve(test_path, 'Cache', key ? key : ''),
+    get_tmp_path: key => `${cache.get_path(key)}.tmp`,
     write: () => Promise.resolve(),
     read: () => Promise.resolve(),
     exist: () => Promise.reject()
