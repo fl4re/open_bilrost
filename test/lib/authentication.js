@@ -80,7 +80,7 @@ describe('Authentication', function () {
     describe('#GET /auth/whoami', function () {
         before(function() {
             backend.get = function (path, callback) {
-                assert.equal('/bilrost/user', path);
+                assert.equal('/rest3d/user', path);
                 callback(null, {}, { statusCode: 200 }, {
                     displayName: "foo",
                     email: "foo@bar.com"

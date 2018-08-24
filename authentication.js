@@ -47,7 +47,7 @@ module.exports = function (server, bilrost_client) {
     };
 
     const get_user_info = handler => {
-        bilrost_client.get("/bilrost/user", function (err, req, res, obj) {
+        bilrost_client.get("/rest3d/user", function (err, req, res, obj) {
             if (err) {
                 server.log.error(err);
                 handler.handleError(err);
