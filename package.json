@@ -30,7 +30,7 @@
     "recursive-readdir": "^2.2.1",
     "recursive-readdir-sync": "^1.0.6",
     "restify": "^4.3.2",
-    "sanitize-filename": "https://github.com/fl4re/node-sanitize-filename",
+    "sanitize-filename": "https://github.com/fl4re/node-sanitize-filename.git#1.6.1",
     "search_parser": "https://github.com/fl4re/search_parser.git#0.1.6",
     "send": "^0.16.2",
     "url-parse": "^1.2.0",
@@ -43,7 +43,7 @@
     "jshint": "^2.9.4",
     "mocha": "^5.2.0",
     "mocha-multi": "^0.11.0",
-    "open_bilrost_server": "https://github.com/fl4re/open_bilrost_server.git",
+    "open_bilrost_server": "https://github.com/fl4re/open_bilrost_server.git#0.0.5",
     "should": "^11.2.1",
     "sinon": "^2.4.1",
     "supertest": "^3.0.0"
