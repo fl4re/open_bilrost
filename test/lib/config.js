@@ -52,4 +52,15 @@ describe('Check config', function () {
         done();
     });
 
+    it('check configuration setting works works', done => {
+        const conf = config({ foo: 1 }, CONFIG_DIRECTORY_PATH);
+        should.equal(1, conf.foo);
+        should.deepEqual({ foo: 1 }, fs.readJsonSync(CONFIG_FILE_PATH));
+        conf.foo = 2;
+        should.equal(2, conf.foo);
+        should.deepEqual({ foo: 2 }, fs.readJsonSync(CONFIG_FILE_PATH));
+        fs.removeSync(CONFIG_FILE_PATH);
+        done();
+    });
+
 });
