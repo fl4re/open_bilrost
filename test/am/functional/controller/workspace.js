@@ -220,6 +220,7 @@ describe('Run Workspace related functional tests for the API', function () {
         it('Reset a workspace', function (done) {
             this.timeout(8*this.timeout());
             fs.writeFileSync(path.join(test_util.get_carol_path(), 'test'), 'Hello world!');
+            fs.outputFileSync(path.join(test_util.get_carol_path(), 'foo', 'bar'), 'Hello world!');
             test_util.client
                 .post(`/assetmanager/workspaces/${encodeURIComponent(test_util.get_carol_file_uri())}/reset`)
                 .send()
