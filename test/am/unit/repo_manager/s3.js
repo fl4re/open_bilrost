@@ -9,7 +9,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const crypto = require('crypto');
 
-const _cache = require('../../../../lib/cache')
+const _cache = require('../../../../lib/cache');
 const amazon_client = require('../../../../lib/amazon-client');
 const amazon_s3 = require('../../../../lib/amazon-s3');
 
