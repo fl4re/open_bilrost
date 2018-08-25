@@ -9,6 +9,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const crypto = require('crypto');
 
+const _cache = require('../../../../lib/cache');
 const amazon_client = require('../../../../lib/amazon-client');
 const amazon_s3 = require('../../../../lib/amazon-s3');
 
@@ -34,13 +35,7 @@ const generate_string = charCode => {
 
 const sha256 = content => crypto.createHash('sha256').update(content).digest('hex');
 
-const cache = {
-    get_path: key => path.resolve(test_path, 'Cache', key ? key : ''),
-    get_tmp_path: key => `${cache.get_path(key)}.tmp`,
-    write: () => Promise.resolve(),
-    read: () => Promise.resolve(),
-    exist: () => Promise.reject()
-};
+const cache = _cache(path.join(test_path, 'Cache'));
 
 describe('S3 repo manager', function () {
     let bilrost_client, amazon, context;
