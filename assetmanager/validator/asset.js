@@ -126,7 +126,6 @@ Validator.addSchema(meta_schema, '/meta');
 Validator.addSchema(project_schema, '/projects');
 
 function Asset(workspace) {
-
     this.adapter = workspace.adapter;
     this.database = workspace.database;
 
@@ -147,8 +146,32 @@ function Asset(workspace) {
 
     this.is_valid_schema = asset => Validator.validate(asset, assets_schema_1_1_0);
 
+    // this method checks if equivalent refs, same filename with case sensitive and same ext file with case insensitive
+    this.are_equivalent_refs = deps => deps.map(ref => {
+            const ext_start_index = ref.lastIndexOf('.');
+            const name = ref.substring(0, ext_start_index);
+            const ext = ref.substring(ext_start_index + 1).toUpperCase();
+            return {
+                ref,
+                formatted_ref: `${name}.${ext}`
+            };
+        })
+            .sort((a, b) => a.formatted_ref === b.formatted_ref ? -1 : 1)
+            .reduce((equivalent_refs, current, index, array) => {
+                index ++;
+                if (index < array.length) {
+                    const next = array[index];
+                    if (current.formatted_ref === next.formatted_ref) {
+                        equivalent_refs.push(current.ref);
+                        if (index === array.length - 1) {
+                            equivalent_refs.push(next.ref);
+                        }
+                    }
+                }
+                return equivalent_refs;
+            }, []);
+
     this.is_invalid_paths_in_data = asset => {
-        let ref, deps;
         const is_invalid_ref = ref => {
             if (workspace.utilities.is_resource_ref(ref)) {
                 return this.adapter.access(workspace.utilities.ref_to_relative_path(ref));
@@ -164,10 +187,14 @@ function Asset(workspace) {
             }
         };
 
-        ref = asset.main;
-        deps = asset.dependencies ? asset.dependencies : [];
-        const promises = deps.map(value => is_invalid_ref(value));
-        promises.push(is_invalid_ref(ref));
+        const main_ref = asset.main;
+        const deps = asset.dependencies ? asset.dependencies : [];
+        const equivalent_refs = this.are_equivalent_refs(deps);
+        if (equivalent_refs.length) {
+            return Promise.reject(`Equivalent references have been found, ${equivalent_refs.join(' ')}`);
+        }
+        const promises = deps.map(is_invalid_ref);
+        promises.push(is_invalid_ref(main_ref));
         return Promise.all(promises);
     };
 
