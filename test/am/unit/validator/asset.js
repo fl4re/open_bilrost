@@ -16,20 +16,23 @@ describe('Asset validator', function () {
             'b.ext',
             'a.eXt',
             'a.EXT',
-            'c.ext',
             'C.eXt',
+            'c.ext',
             'a.EXt',
             'a.Ext',
             'd.Ext',
             'a.ext',
             'w.Extss'
         ]);
-        should.deepEqual(res, ['a.ext',
+        should.deepEqual(res, [
+            'a.ext',
             'a.eXt',
             'a.EXT',
             'a.EXt',
             'a.Ext',
-            'a.ext'
+            'a.ext',
+            'c.ext',
+            'C.eXt'
         ]);
         done();
     });
@@ -65,7 +68,8 @@ describe('Asset validator', function () {
             "/resources/a/f/3.random",
             "/resources/a/f/4.random",
             "/resources/a/f/5.random",
-            "/resources/a/f/6.random",
+            "/resources/a/f/fivE.rAndom",
+            "/resources/a/f/Five.ranDom",
             "/resources/a/f/7.random",
             "/resources/a/f/4.raNdom",
             "/resources/a/f/a/1.tga",
@@ -132,12 +136,14 @@ describe('Asset validator', function () {
             '/resources/a/d/1.jpeg',
             '/resources/a/f/4.random',
             '/resources/a/f/4.raNdom',
-            '/resources/a/f/a/1.TGa',
             '/resources/a/f/a/1.tga',
+            '/resources/a/f/a/1.TGa',
             '/resources/a/f/a/11.tga',
             '/resources/a/f/a/11.TGA',
-            '/resources/a/g/a/17.gif',
-            '/resources/a/g/a/17.GiF'
+            "/resources/a/f/fivE.rAndom",
+            "/resources/a/f/Five.ranDom",
+            '/resources/a/g/a/17.GiF',
+            '/resources/a/g/a/17.gif'
         ]);
         done();
     });

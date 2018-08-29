@@ -147,16 +147,11 @@ function Asset(workspace) {
     this.is_valid_schema = asset => Validator.validate(asset, assets_schema_1_1_0);
 
     // this method checks if equivalent refs, same filename with sensitive case and same ext file with insensitive case
-    this.are_equivalent_refs = deps => deps.map((ref, index) => {
-            const ext_start_index = ref.lastIndexOf('.');
-            const name = ref.substring(0, ext_start_index);
-            const ext = ref.substring(ext_start_index + 1).toUpperCase();
-            return {
-                ref,
-                formatted_ref: `${name}.${ext}`
-            };
-        })
-            .sort((a, b) => a.formatted_ref.toUpperCase().localeCompare(b.formatted_ref.toUpperCase()))
+    this.are_equivalent_refs = deps => deps.map((ref, index) => ({
+            ref,
+            formatted_ref: ref.toUpperCase()
+        }))
+            .sort((a, b) => a.formatted_ref.localeCompare(b.formatted_ref))
             .filter((current, index, array) => {
                 const previous = array[index - 1];
                 const next = array[index + 1];
