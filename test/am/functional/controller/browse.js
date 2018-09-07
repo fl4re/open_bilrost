@@ -194,12 +194,51 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
                     obj.items.length.should.be.above(1);
                     obj.totalItems.should.be.above(1);
+                    done();
+                });
+
+        });
+
+        it("Can\'t retrieve example3 workspace by name since not referenced in favorite list", function(done){
+
+            test_util.client
+                .get(`/contentbrowser/workspaces/${test_util.get_example3_workspace().name}`)
+                .set("Content-Type", "application/json")
+                .set("Accept", 'application/json')
+                .expect("Content-Type", "application/json")
+                .expect(404)
+                .end((err, res) => {
+                    const obj = res.body;
+                    if (err) {
+                        return done({ error: err.toString(), status: res.status, body: obj });
+                    }
+                    done();
+                });
+
+        });
+
+        it("Retrieve example3 workspace without being referenced in favorite list using file uri identifier", function(done){
+
+            test_util.client
+                .get('/contentbrowser/workspaces/' + encodeURIComponent(test_util.get_example3_file_uri()))
+                .set("Content-Type", "application/json")
+                .set("Accept", 'application/json')
+                .expect("Content-Type", "application/json")
+                .expect(200)
+                .end((err, res) => {
+                    const obj = res.body;
+                    if (err) {
+                        return done({ error: err.toString(), status: res.status, body: obj });
+                    }
+                    obj.items.length.should.be.equal(1);
+                    obj.totalItems.should.be.equal(1);
+                    obj.items[0].name.should.be.equal(test_util.get_example3_workspace().name);
                     done();
                 });
 
@@ -251,7 +290,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
@@ -312,7 +351,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
@@ -332,7 +371,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
@@ -345,7 +384,7 @@ describe('Run Content Browser related test for content browser api', function ()
                         .expect("Content-Type", "application/json")
                         .expect(200)
                         .end((err, res) => {
-                            let obj = res.body;
+                            const obj = res.body;
                             if (err) {
                                 return done({ error: err.toString(), status: res.status, body: obj });
                             }
@@ -366,7 +405,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
@@ -408,7 +447,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
@@ -426,7 +465,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
@@ -444,7 +483,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
@@ -465,7 +504,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/vnd.bilrost.level+json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
@@ -501,7 +540,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
@@ -521,7 +560,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
@@ -534,7 +573,7 @@ describe('Run Content Browser related test for content browser api', function ()
                         .expect("Content-Type", "application/json")
                         .expect(200)
                         .end((err, res) => {
-                            let obj = res.body;
+                            const obj = res.body;
                             if (err) {
                                 return done({ error: err.toString(), status: res.status, body: obj });
                             }
@@ -555,7 +594,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
@@ -575,7 +614,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
@@ -595,7 +634,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
@@ -615,7 +654,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
@@ -635,7 +674,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
@@ -654,7 +693,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
@@ -674,7 +713,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
@@ -694,7 +733,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
@@ -714,7 +753,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
@@ -734,7 +773,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
@@ -775,7 +814,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
@@ -831,7 +870,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
@@ -852,7 +891,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
@@ -866,7 +905,7 @@ describe('Run Content Browser related test for content browser api', function ()
                         .expect("Content-Type", "application/json")
                         .expect(200)
                         .end((err, res) => {
-                            let obj = res.body;
+                            const obj = res.body;
                             if (err) {
                                 return done({ error: err.toString(), status: res.status, body: obj });
                             }
@@ -887,7 +926,7 @@ describe('Run Content Browser related test for content browser api', function ()
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
-                    let obj = res.body;
+                    const obj = res.body;
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }

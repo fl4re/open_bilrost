@@ -470,14 +470,16 @@ module.exports = context => {
         }
     }
 
-    const find = (identifier) => {
-        let identifiers;
-        if (typeof identifier === 'string') {
-            identifiers = favorite.find(identifier);
+    const find = identifier => {
+        const is_file_uri = /file:\/\/.*/.test(identifier);
+        if (is_file_uri) {
+            return find_by_file_uri(identifier);
+        } else if (typeof identifier === 'string') {
+            const identifiers = favorite.find(identifier);
+            return find_by_identifiers(identifiers);
         } else {
             throw _error_outputs.INTERNALERROR('Identifier is not under string format.');
         }
-        return find_by_identifiers(identifiers);
     };
 
     return {
