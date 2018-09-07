@@ -33,6 +33,7 @@ module.exports = {
                 file_uri: workspace.properties.file_uri,
                 subscriptions: workspace.properties.subscriptions,
                 stage: workspace.properties.stage,
+                status: workspace.properties.status,
                 tags: workspace.properties.tags
             };
         }
