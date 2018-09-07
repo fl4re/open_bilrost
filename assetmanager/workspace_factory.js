@@ -70,7 +70,8 @@ const workspace_factory = {
             file_uri,
             tags: [],
             subscriptions: [],
-            stage: []
+            stage: [],
+            status: []
         };
         return create_internal_file("workspace", workspace)
             .then(() => create_internal_file("project", project))

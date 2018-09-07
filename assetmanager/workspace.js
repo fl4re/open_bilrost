@@ -81,23 +81,6 @@ const Workspace = function Workspace (file_uri, context, options) {
 
     this.utilities = workspace_utilities(this.get_internal_file_path);
 
-    let result = {
-        is_valid: true
-    };
-    const workspace = favorite.find_by_file_uri(file_uri);
-    if (workspace) {
-        if (workspace.status) {
-            workspace.status.forEach(status => {
-                if (status.state !== status_config.integrity.VALID) {
-                    result.reason = status.info;
-                    result.is_valid = false;
-                }
-            });
-        }
-    }
-
-    this.status = result;
-
     const create_ifs_adapter = () => {
         if (fs.existsSync(this.get_internal_absolute_path())) {
             return adapters.set(Math.random().toString(), { type: 'local', path: this.get_base_absolute_path() })
@@ -134,27 +117,36 @@ const Workspace = function Workspace (file_uri, context, options) {
         this.branch = branch_model(git_repo_manager, this.reset.bind(this));
     };
 
-    const read_workspace_properties = () => {
-        return this.adapter.readJson(this.get_internal_file_path('workspace'))
-            .then(workspace_resource => {
-                this.properties = workspace_resource;
+    const read_workspace_properties = () => this.adapter.readJson(this.get_internal_file_path('workspace'))
+        .then(workspace_resource => {
+            this.properties = workspace_resource;
 
-                if (!this.properties.subscriptions) {
-                    this.properties.subscriptions = [];
-                }
+            if (!this.properties.subscriptions) {
+                this.properties.subscriptions = [];
+            }
 
-                if (!this.properties.stage) {
-                    this.properties.stage = [];
-                }
+            if (!this.properties.stage) {
+                this.properties.stage = [];
+            }
 
-                // add other metadata to the resource
-                this.properties.resources_url = "/contentbrowser/workspaces/" + this.get_guid() + "/resources/";
-                this.properties.assets_url = "/contentbrowser/workspaces/" + this.get_guid() + "/assets/";
-            }, err => {
-                this.error = _error_outputs.NOTFOUND(err);
-                throw this;
-            });
-    };
+            this.status = {
+                is_valid: true
+            };
+            if (this.properties.status) {
+                this.properties.status.forEach(status => {
+                    if (status.state !== status_config.integrity.VALID) {
+                        this.status.reason = status.info;
+                        this.status.is_valid = false;
+                    }
+                });
+            }
+            // add other metadata to the resource
+            this.properties.resources_url = "/contentbrowser/workspaces/" + this.get_guid() + "/resources/";
+            this.properties.assets_url = "/contentbrowser/workspaces/" + this.get_guid() + "/assets/";
+        }, err => {
+            this.error = _error_outputs.NOTFOUND(err);
+            throw this;
+        });
 
     const read_project_properties = () => {
         return project_factory.get_project(this)

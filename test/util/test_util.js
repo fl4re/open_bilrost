@@ -46,18 +46,19 @@ class Test_util {
 
         this.git_ssh_url = 'git@github.com:fl4re/open_bilrost_test_project.git';
         this.eloise = {
-            'guid': 'e39d0f72c81c445ba801dsssssss45219sddsdss',
-            'name': 'test-workspace',
-            'description': 'This is your first workspace cloned from DLC_1 branch !',
-            'version': '2.0.0',
-            'pushed_at': '2011-01-26T19:01:12Z',
-            'created_at': '2011-01-26T19:01:12Z',
-            'updated_at': '2011-01-26T19:14:43Z',
-            'type': 'application/vnd.bilrost.workspace+json',
-            'file_uri': this.get_eloise_file_uri(),
-            'tags': ['Hello', 'World'],
-            'subscriptions': [],
-            'stage': [],
+            guid: 'e39d0f72c81c445ba801dsssssss45219sddsdss',
+            name: 'test-workspace',
+            description: 'This is your first workspace cloned from DLC_1 branch !',
+            version: '2.0.0',
+            pushed_at: '2011-01-26T19:01:12Z',
+            created_at: '2011-01-26T19:01:12Z',
+            updated_at: '2011-01-26T19:14:43Z',
+            type: 'application/vnd.bilrost.workspace+json',
+            file_uri: this.get_eloise_file_uri(),
+            tags: ['Hello', 'World'],
+            subscriptions: [],
+            stage: [],
+            status: [],
             project: {
                 full_name: 'fl4re/open_bilrost_test_project',
                 host: 's3'
@@ -65,25 +66,25 @@ class Test_util {
         };
 
         this.project1_file = {
-            'name': 'open_bilrost_test_project',
-            'organization': 'fl4re',
-            'version': '2.0.0',
-            'full_name': 'fl4re/open_bilrost_test_project',
-            'url': 'https://api.github.com/repos/fl4re/open_bilrost_test_project',
-            'tags': [
+            name: 'open_bilrost_test_project',
+            organization: 'fl4re',
+            version: '2.0.0',
+            full_name: 'fl4re/open_bilrost_test_project',
+            url: 'https://api.github.com/repos/fl4re/open_bilrost_test_project',
+            tags: [
                 'Hello',
                 'World'
             ],
-            'description': {
+            description: {
                 'host_vcs': 's3',
             },
-            'ssh_url': 'git@github.com:fl4re/open_bilrost_test_project.git',
+            ssh_url: 'git@github.com:fl4re/open_bilrost_test_project.git',
             https_url: 'https://github.com/fl4re/open_bilrost_test_project.git',
-            'pushed_at': '2016-06-28T16:19:51Z',
-            'created_at': '2016-06-27T18:31:40Z',
-            'updated_at': '2016-11-17T20:15:11Z',
-            'type': 'application/vnd.bilrost.project+json',
-            'properties': {
+            pushed_at: '2016-06-28T16:19:51Z',
+            created_at: '2016-06-27T18:31:40Z',
+            updated_at: '2016-11-17T20:15:11Z',
+            type: 'application/vnd.bilrost.project+json',
+            properties: {
                 'ignore': [
                     '.bilrost/workspace',
                     '.bilrost/search_index_keystore'
@@ -92,18 +93,19 @@ class Test_util {
         };
 
         this.alice = {
-            'guid': 'e39d0f79c81c445ba801dsssssssssssssddsdss',
-            'name': 'alice',
-            'description': 'This is your first workspace cloned from DLC_1 branch !',
-            'version': '2.0.0',
-            'pushed_at': '2011-01-26T19:01:12Z',
-            'created_at': '2011-01-26T19:01:12Z',
-            'updated_at': '2011-01-26T19:14:43Z',
-            'type': 'application/vnd.bilrost.workspace+json',
-            'file_uri': this.get_alice_file_uri(),
-            'tags': ['Hello', 'World'],
-            'subscriptions': [],
-            'stage': [],
+            guid: 'e39d0f79c81c445ba801dsssssssssssssddsdss',
+            name: 'alice',
+            description: 'This is your first workspace cloned from DLC_1 branch !',
+            version: '2.0.0',
+            pushed_at: '2011-01-26T19:01:12Z',
+            created_at: '2011-01-26T19:01:12Z',
+            updated_at: '2011-01-26T19:14:43Z',
+            type: 'application/vnd.bilrost.workspace+json',
+            file_uri: this.get_alice_file_uri(),
+            tags: ['Hello', 'World'],
+            subscriptions: [],
+            stage: [],
+            status: [],
             project: {
                 full_name: 'fl4re/open_bilrost_test_project',
                 host: 's3'
@@ -111,18 +113,19 @@ class Test_util {
         };
 
         this.bob = {
-            'guid': 'e39d0f72c81c445ba8014f3999f576c7sdadswgg',
-            'name': 'second-workspace',
-            'description': 'This is your first workspace cloned from DLC_2 branch !',
-            'version': '2.0.0',
-            'pushed_at': '2011-01-26T19:06:43Z',
-            'created_at': '2011-01-26T19:01:12Z',
-            'updated_at': '2011-01-26T19:14:43Z',
-            'type': 'application/vnd.bilrost.workspace+json',
-            'file_uri': this.get_bob_file_uri(),
-            'tags': ['Hello', 'World'],
-            'subscriptions': [],
-            'stage': [],
+            guid: 'e39d0f72c81c445ba8014f3999f576c7sdadswgg',
+            name: 'second-workspace',
+            description: 'This is your first workspace cloned from DLC_2 branch !',
+            version: '2.0.0',
+            pushed_at: '2011-01-26T19:06:43Z',
+            created_at: '2011-01-26T19:01:12Z',
+            updated_at: '2011-01-26T19:14:43Z',
+            type: 'application/vnd.bilrost.workspace+json',
+            file_uri: this.get_bob_file_uri(),
+            tags: ['Hello', 'World'],
+            subscriptions: [],
+            stage: [],
+            status: [],
             project: {
                 full_name: 'fl4re/open_bilrost_test_project',
                 host: 's3'
@@ -172,11 +175,11 @@ class Test_util {
                 'ref': '/assets/levels/test_001.level',
                 'created': '2016-03-16T14:41:10.384Z',
                 'modified': '2016-03-18T10:54:05.870Z',
-                'version':'1.1.0',
+                version:'1.1.0',
                 'author': ''
             },
             'comment': '',
-            'tags': [],
+            tags: [],
             'main': '/resources/test/test_001',
             'dependencies': [
                 '/resources/mall/mall_demo'
@@ -291,7 +294,7 @@ class Test_util {
             if (this.client) {
                 this.client
                     .post('/assetmanager/workspaces/favorites')
-                    .send({'file_uri': this.get_eloise_file_uri()})
+                    .send({file_uri: this.get_eloise_file_uri()})
                     .set('Content-Type', 'application/json')
                     .set('Accept', 'application/json')
                     .expect(200)
@@ -328,6 +331,7 @@ class Test_util {
         this.create_workspace_properties_file(workspace3_path, example3_workspace);
 
         this.get_example3_file_uri = () => example3_file_uri;
+        this.get_example3_path = () => workspace3_path;
         this.get_example3_workspace = () => example3_workspace;
 
     }

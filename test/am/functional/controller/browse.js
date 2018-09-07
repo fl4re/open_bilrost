@@ -4,6 +4,7 @@
 
 'use strict';
 
+const fs = require('fs-extra');
 const should = require('should');
 const path = require('path').posix;
 const Test_util = require('../../../util/test_util');
@@ -209,8 +210,11 @@ describe('Run Content Browser related test for content browser api', function ()
             favorite.add({
                 guid: test_util.get_example3_workspace().guid,
                 name: test_util.get_example3_workspace().name,
-                file_uri: test_util.get_example3_file_uri(),
-                status : [
+                file_uri: test_util.get_example3_file_uri()
+            }).then(function () {
+                const workspace_example_3_path = path.join(test_util.get_example3_path(), '.bilrost', 'workspace');
+                const workspace = fs.readJsonSync(workspace_example_3_path);
+                workspace.status = [
                     {
                         context: "asset_validator",
                         state: "INVALID",
@@ -223,8 +227,8 @@ describe('Run Content Browser related test for content browser api', function ()
                         description: "The validation is missing!",
                         info: {}
                     }
-                ]
-            }).then(function () {
+                ];
+                fs.writeJsonSync(workspace_example_3_path, workspace);
                 test_util.client
                     .get('/contentbrowser/workspaces/' + test_util.get_example3_workspace().guid)
                     .set("Content-Type", "application/json")
@@ -263,8 +267,11 @@ describe('Run Content Browser related test for content browser api', function ()
             favorite.update(test_util.get_example3_workspace().guid, {
                 guid: test_util.get_example3_workspace().guid,
                 name: test_util.get_example3_workspace().name,
-                url: test_util.get_example3_file_uri(),
-                status : [
+                url: test_util.get_example3_file_uri()
+            }).then(function () {
+                const workspace_example_3_path = path.join(test_util.get_example3_path(), '.bilrost', 'workspace');
+                const workspace = fs.readJsonSync(workspace_example_3_path);
+                workspace.status = [
                     {
                         context: "asset_validator",
                         state: "VALID",
@@ -277,8 +284,8 @@ describe('Run Content Browser related test for content browser api', function ()
                         description: "The validation succeeded!",
                         info: {}
                     }
-                ]
-            }).then(function () {
+                ];
+                fs.writeJsonSync(workspace_example_3_path, workspace);
                 test_util.client
                     .get('/contentbrowser/workspaces/' + test_util.get_example3_workspace().guid)
                     .set("Content-Type", "application/json")
