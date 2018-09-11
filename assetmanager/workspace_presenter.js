@@ -6,35 +6,35 @@
 
 module.exports = {
     Workspace_metadata_presenter: {
-        present: workspace => {
+        present: ({ properties }) => {
             return {
-                name: workspace.properties.name,
-                guid: workspace.properties.guid,
-                description: workspace.properties.description,
-                type: workspace.properties.type
+                name: properties.name,
+                guid: properties.guid,
+                description: properties.description,
+                type: properties.type
             };
         }
     },
     Workspace_presenter: {
-        present: workspace => {
+        present: ({ properties, project }) => {
             return {
                 project: {
-                    full_name: workspace.project.get_full_name(),
-                    host: workspace.project.get_host_vcs()
+                    full_name: project.get_full_name(),
+                    host: project.get_host_vcs()
                 },
-                guid: workspace.properties.guid,
-                name: workspace.properties.name,
-                description: workspace.properties.description,
-                version: workspace.properties.version,
-                pushed_at: workspace.properties.pushed_at,
-                created_at: workspace.properties.created_at,
-                updated_at: workspace.properties.updated_at,
-                type: workspace.properties.type,
-                file_uri: workspace.properties.file_uri,
-                subscriptions: workspace.properties.subscriptions,
-                stage: workspace.properties.stage,
-                status: workspace.properties.status,
-                tags: workspace.properties.tags
+                guid: properties.guid,
+                name: properties.name,
+                description: properties.description,
+                version: properties.version,
+                pushed_at: properties.pushed_at,
+                created_at: properties.created_at,
+                updated_at: properties.updated_at,
+                type: properties.type,
+                file_uri: properties.file_uri,
+                subscriptions: properties.subscriptions,
+                stage: properties.stage,
+                statuses: properties.statuses,
+                tags: properties.tags
             };
         }
     },

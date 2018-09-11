@@ -84,9 +84,7 @@ module.exports = function (server, context) {
             .then(project => {
                 handler.sendJSON(project, 200);
             })
-            .catch(err => {
-                handler.handleError(err);
-            });
+            .catch(err => handler.handleError(err));
 
     });
 
@@ -113,9 +111,7 @@ module.exports = function (server, context) {
             .then(project => {
                 handler.sendJSON(project, 200);
             })
-            .catch(project => {
-                handler.handleError(project);
-            });
+            .catch(err => handler.handleError(err));
     });
 
     // WORKSPACES
@@ -147,7 +143,7 @@ module.exports = function (server, context) {
                         handler.sendJSON(output, 200, substr_ext(asset_ref));
                     })
                     .catch(error => {throw({error: error});});
-            }).catch(workspace => handler.handleError(workspace.error));
+            }).catch(err => handler.handleError(err));
     });
 
     // /contentbrowser/workspaces/{workspace_id||workspace_name}/{resource_ref}?{q}{paging}
@@ -181,7 +177,7 @@ module.exports = function (server, context) {
                         }
                         handler.sendJSON(output, 200);
                     });
-             }).catch(workspace => handler.handleError(workspace.error));
+             }).catch(err => handler.handleError(err));
     });
 
     server.get(current_branch_regexp, (req, res, next) => {
@@ -189,7 +185,7 @@ module.exports = function (server, context) {
         const workspace_identifier = decodeURIComponent(req.params[0]);
         Workspace.find(workspace_identifier)
             .then(workspace => handler.sendJSON(workspace.get_branch(), 200))
-            .catch(workspace => handler.handleError(workspace.error));
+            .catch(err => handler.handleError(err));
     });
 
     server.get(branches_regexp, function (req, res, next) {
@@ -207,7 +203,7 @@ module.exports = function (server, context) {
                 };
                 handler.sendJSON(output, 200);
             })
-            .catch(workspace => handler.handleError(workspace.error));
+            .catch(err => handler.handleError(err));
     });
 
     // /contentbrowser/workspaces?{filter}{paging}
@@ -234,7 +230,7 @@ module.exports = function (server, context) {
                 output.totalItems = length;
                 handler.sendJSON(output, 200);
             })
-            .catch(workspaces => handler.handleError(workspaces.error));
+            .catch(err => handler.handleError(err));
     });
 
     // /contentbrowser/workspaces/{workspace_id||workspace_name}
@@ -253,7 +249,7 @@ module.exports = function (server, context) {
                 };
                 output.totalItems = output.items.length;
                 handler.sendJSON(output, 200);
-            }).catch(workspace => handler.handleError(workspace.error));
+            }).catch(err => handler.handleError(err));
     });
 
 };

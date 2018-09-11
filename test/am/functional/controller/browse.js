@@ -253,7 +253,7 @@ describe('Run Content Browser related test for content browser api', function ()
             }).then(function () {
                 const workspace_example_3_path = path.join(test_util.get_example3_path(), '.bilrost', 'workspace');
                 const workspace = fs.readJsonSync(workspace_example_3_path);
-                workspace.status = [
+                workspace.statuses = [
                     {
                         context: "asset_validator",
                         state: "INVALID",
@@ -310,7 +310,7 @@ describe('Run Content Browser related test for content browser api', function ()
             }).then(function () {
                 const workspace_example_3_path = path.join(test_util.get_example3_path(), '.bilrost', 'workspace');
                 const workspace = fs.readJsonSync(workspace_example_3_path);
-                workspace.status = [
+                workspace.statuses = [
                     {
                         context: "asset_validator",
                         state: "VALID",
