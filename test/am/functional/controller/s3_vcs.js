@@ -5,7 +5,6 @@
 'use strict';
 
 const should = require('should');
-const path = require('path').posix;
 const Test_util = require('../../../util/test_util');
 const start_bilrost_client = require('../../../util/local_bilrost_client');
 
@@ -41,20 +40,19 @@ describe('Run Version Control related functional tests for the API', function ()
             obj = test_util.get_example_project();
         });
 
-        let workspace_guid;
         let new_subscription_id;
         let new_subscription_url;
-
+        const workspace_name = test_util.get_example_project().name;
         it('Create a Workspace by cloning repository', function (done) {
             this.timeout(8*this.timeout());
             test_util.client
                 .post('/assetmanager/workspaces')
                 .send({
                     file_uri: test_util.get_ken_file_uri(),
-                    name: test_util.get_example_project().name,
+                    name: workspace_name,
                     description: test_util.get_example_project().description.comment,
                     organization: test_util.get_example_project().owner.login,
-                    project_name: test_util.get_example_project().name,
+                    project_name: workspace_name,
                     branch: 'production_repo',
                 })
                 .set("Content-Type", "application/json")
@@ -68,7 +66,6 @@ describe('Run Version Control related functional tests for the API', function ()
                     let obj = test_util.get_favorite().search(test_util.get_ken_file_uri());
                     // jshint expr:true
                     obj.should.be.an.Object;
-                    workspace_guid = res.body.guid;
                     done();
                 });
         });
@@ -76,7 +73,7 @@ describe('Run Version Control related functional tests for the API', function ()
         it('Add Asset Subscription to Workspace', function (done) {
             this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
             test_util.client
-                .post(path.join('/assetmanager/workspaces/', workspace_guid, '/subscriptions'))
+                .post(`/assetmanager/workspaces/${workspace_name}/subscriptions`)
                 .send({
                         type: "ASSET",
                         descriptor: "/assets/test_1_1_0.level"
@@ -100,7 +97,7 @@ describe('Run Version Control related functional tests for the API', function ()
         it('Add Namespace Subscription to Workspace', function (done) {
             this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
             test_util.client
-                .post(path.join('/assetmanager/workspaces/', workspace_guid, '/subscriptions'))
+                .post(`/assetmanager/workspaces/${workspace_name}/subscriptions`)
                 .send({
                         type: "NAMESPACE",
                         descriptor: "/assets/prefab/"
@@ -119,7 +116,7 @@ describe('Run Version Control related functional tests for the API', function ()
         it('Add Search Subscription to Workspace', function (done) {
             this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
             test_util.client
-                .post(path.join('/assetmanager/workspaces/', workspace_guid, '/subscriptions'))
+                .post(`/assetmanager/workspaces/${workspace_name}/subscriptions`)
                 .send({
                         type: "SEARCH",
                         descriptor: "test created:> 2004 type: prefab"
@@ -141,7 +138,7 @@ describe('Run Version Control related functional tests for the API', function ()
 
         it('Fail to add invalid Namespace Subscription to Workspace', function (done) {
             test_util.client
-                .post(path.join('/assetmanager/workspaces/', workspace_guid, '/subscriptions'))
+                .post(`/assetmanager/workspaces/${workspace_name}/subscriptions`)
                 .send({
                         type: "NAMESPACE",
                         descriptor: "/invalid"
@@ -157,7 +154,7 @@ describe('Run Version Control related functional tests for the API', function ()
 
         it('Get Subscription List with most recent entry', function (done) {
             test_util.client
-                .get(path.join('/assetmanager/workspaces/', workspace_guid, '/subscriptions'))
+                .get(`/assetmanager/workspaces/${workspace_name}/subscriptions`)
                 .set("Accept", 'application/json')
                 .expect(200)
                 .end((err, res) => {
@@ -177,7 +174,7 @@ describe('Run Version Control related functional tests for the API', function ()
             test_util.remove_asset_file('/assets/test_1_1_0.level');
             this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
             test_util.client
-                .post(path.join('/assetmanager/workspaces/', workspace_guid, '/stage', '/assets/test_1_1_0.level'))
+                .post(`/assetmanager/workspaces/${workspace_name}/stage/assets/test_1_1_0.level`)
                 .send()
                 .set("Accept", 'application/json')
                 .expect(200)
@@ -195,7 +192,7 @@ describe('Run Version Control related functional tests for the API', function ()
         it('Succeed to add non subscribed Asset to Workspace Stage', function (done) {
             this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
             test_util.client
-                .post(path.join('/assetmanager/workspaces/', workspace_guid, '/stage', '/assets/levels/test_001.level'))
+                .post(`/assetmanager/workspaces/${workspace_name}/stage/assets/levels/test_001.level`)
                 .send()
                 .set("Accept", 'application/json')
                 .expect(200)
@@ -210,7 +207,7 @@ describe('Run Version Control related functional tests for the API', function ()
         it('Fail to add non existent Asset to Workspace Stage', function (done) {
             this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
             test_util.client
-                .post(path.join('/assetmanager/workspaces/', workspace_guid, '/stage', '/invalid/path'))
+                .post(`/assetmanager/workspaces/${workspace_name}/stage/invalid/path`)
                 .send()
                 .set("Accept", 'application/json')
                 .expect(200)
@@ -224,7 +221,7 @@ describe('Run Version Control related functional tests for the API', function ()
 
         it('Get Workspace Stage with most recent entry', function (done) {
             test_util.client
-                .get(path.join('/assetmanager/workspaces/', workspace_guid, '/stage'))
+                .get(`/assetmanager/workspaces/${workspace_name}/stage`)
                 .set("Accept", 'application/json')
                 .expect(200)
                 .end((err, res) => {
@@ -240,7 +237,7 @@ describe('Run Version Control related functional tests for the API', function ()
 
         it('Delete Asset from Workspace Stage', function (done) {
             test_util.client
-                .delete(path.join('/assetmanager/workspaces/', workspace_guid, '/stage', '/assets/test_1_1_0.level'))
+                .delete(`/assetmanager/workspaces/${workspace_name}/stage/assets/test_1_1_0.level`)
                 .set("Accept", 'application/json')
                 .expect(200)
                 .end((err, res) => {
@@ -274,7 +271,7 @@ describe('Run Version Control related functional tests for the API', function ()
             this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
 
             test_util.client
-                .get(path.join('/assetmanager/workspaces/', workspace_guid, '/commits?maxResults=3'))
+                .get(`/assetmanager/workspaces/${workspace_name}/commits?maxResults=3`)
                 .set("Accept", 'application/json')
                 .expect(200)
                 .end((err, res) => {
@@ -295,7 +292,7 @@ describe('Run Version Control related functional tests for the API', function ()
             this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
 
             test_util.client
-                .get(path.join('/assetmanager/workspaces/', workspace_guid, '/commits', '/assets/test_1_1_0.level'))
+                .get(`/assetmanager/workspaces/${workspace_name}/commits/assets/test_1_1_0.level`)
                 .set("Accept", 'application/json')
                 .expect(200)
                 .end((err, res) => {
@@ -315,7 +312,7 @@ describe('Run Version Control related functional tests for the API', function ()
             this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
 
             test_util.client
-                .get(path.join('/assetmanager/workspaces/', workspace_guid, '/commits?start_at_revision=r238&maxResults=2'))
+                .get(`/assetmanager/workspaces/${workspace_name}/commits?start_at_revision=r238&maxResults=2`)
                 .set("Accept", 'application/json')
                 .expect(200)
                 .end((err, res) => {
@@ -335,7 +332,7 @@ describe('Run Version Control related functional tests for the API', function ()
 
         it('Hard delete the initialized Workspace', function(done){
             test_util.client
-                .delete(path.join('/assetmanager/workspaces/', workspace_guid))
+                .delete(`/assetmanager/workspaces/${workspace_name}`)
                 .send({ hard_delete: true })
                 .set("Accept", 'application/json')
                 .set("Content-Type", "application/json")

@@ -326,7 +326,7 @@ class Test_util {
 
         var example3_workspace = JSON.parse(JSON.stringify(this.get_bob_workspace()));
         example3_workspace.guid = 'e39d0f72czzz445ba8014f3999f576c7sdadswgg';
-        example3_workspace.name = 'feat/example3_workspace';
+        example3_workspace.name = 'example3_workspace';
 
         fs.copySync(this.get_eloise_path(), workspace3_path);
         this.create_workspace_properties_file(workspace3_path, example3_workspace);

@@ -104,7 +104,7 @@ describe('Run set of test for asset management methods', function () {
 
     after("Flush search index map", function (done) {
         workspace.database.close()
-            .then(() => favorite.remove(workspace_identifiers.guid))
+            .then(() => favorite.remove(workspace_identifiers.name))
             .then(done, done);
     });
 
