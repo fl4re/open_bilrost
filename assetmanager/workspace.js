@@ -135,8 +135,8 @@ const Workspace = function (file_uri, context) {
             }
 
             // add other metadata to the resource
-            this.properties.resources_url = "/contentbrowser/workspaces/" + this.get_guid() + "/resources/";
-            this.properties.assets_url = "/contentbrowser/workspaces/" + this.get_guid() + "/assets/";
+            this.properties.resources_url = `/contentbrowser/workspaces/${this.get_name()}/resources/`;
+            this.properties.assets_url = `/contentbrowser/workspaces/${this.get_name()}/assets/`;
         }, err => {
             this.error = _error_outputs.NOTFOUND(err);
             throw this;

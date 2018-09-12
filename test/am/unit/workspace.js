@@ -110,11 +110,9 @@ describe('Workspace object', function () {
 
     before('Insert workspace references to favorite list', function(){
         return favorite.add({
-            guid: example1_workspace.guid,
             name: example1_workspace.name,
             file_uri: example1_workspace.file_uri
         }).then(favorite.add({
-            guid: example2_workspace.guid,
             name: example2_workspace.name,
             file_uri: example2_workspace.file_uri
         }));

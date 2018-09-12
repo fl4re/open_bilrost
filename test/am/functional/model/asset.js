@@ -48,7 +48,6 @@ const test_level = {
 };
 
 const workspace_identifiers = {
-    guid: "e39d0f72c81c445ba801dsssssss45219sddsdss",
     name: "test-workspace",
     file_uri: example_file_uri,
     version_id: "5"

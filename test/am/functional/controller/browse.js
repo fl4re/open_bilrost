@@ -179,7 +179,7 @@ describe('Run Content Browser related test for content browser api', function ()
 
         after("Remove example3 workspace settings", function (done) {
 
-            favorite.remove(test_util.get_example3_workspace().guid)
+            favorite.remove(test_util.get_example3_workspace().name)
                 .then(() => done())
                 .catch(done);
 
@@ -208,7 +208,7 @@ describe('Run Content Browser related test for content browser api', function ()
         it("Can\'t retrieve example3 workspace by name since not referenced in favorite list", function(done){
 
             test_util.client
-                .get(`/contentbrowser/workspaces/${test_util.get_example3_workspace().guid}`)
+                .get(`/contentbrowser/workspaces/${test_util.get_example3_workspace().name}`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -246,7 +246,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
         it("Can't retrieve example3 workspace with its associated invalid statuses", function(done){
             favorite.add({
-                guid: test_util.get_example3_workspace().guid,
                 name: test_util.get_example3_workspace().name,
                 file_uri: test_util.get_example3_file_uri()
             }).then(function () {
@@ -302,8 +301,7 @@ describe('Run Content Browser related test for content browser api', function ()
 
         it("Retrieve example3 workspace after changing its associated statuses to valid", function(done){
 
-            favorite.update(test_util.get_example3_workspace().guid, {
-                guid: test_util.get_example3_workspace().guid,
+            favorite.update(test_util.get_example3_workspace().name, {
                 name: test_util.get_example3_workspace().name,
                 url: test_util.get_example3_file_uri()
             }).then(function () {
@@ -416,7 +414,7 @@ describe('Run Content Browser related test for content browser api', function ()
 
         it("Can't retrieve example3 workspace since it has been removed from favorite list", function(done){
 
-            favorite.remove(test_util.get_example3_workspace().guid)
+            favorite.remove(test_util.get_example3_workspace().name)
                 .then(function () {
                     test_util.client
                         .get(`/contentbrowser/workspaces/${test_util.get_example3_workspace().name}`)
