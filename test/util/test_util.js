@@ -45,9 +45,10 @@ class Test_util {
         fs.mkdirpSync(this.get_fixtures());
 
         this.git_ssh_url = 'git@github.com:fl4re/open_bilrost_test_project.git';
+        this.eloise_workspace_name = 'test-workspace';
         this.eloise = {
             guid: 'e39d0f72c81c445ba801dsssssss45219sddsdss',
-            name: 'test-workspace',
+            name: this.eloise_workspace_name,
             description: 'This is your first workspace cloned from DLC_1 branch !',
             version: '2.0.0',
             pushed_at: '2011-01-26T19:01:12Z',
@@ -338,7 +339,7 @@ class Test_util {
 
     remove_fixtures (done) {
         this.client
-            .delete('/assetmanager/workspaces/'+this.get_workspace_guid()+'/favorites')
+            .delete(`/assetmanager/workspaces/${this.get_workspace_name()}/favorites`)
             .set('accept', 'application/json')
             .end((err, res) => {
                 should.not.exist(err);
@@ -372,7 +373,7 @@ class Test_util {
     get_eloise_identifiers () {
         return {
             file_uri: this.get_eloise_file_uri(),
-            name: 'eloise',
+            name: this.eloise_workspace_name,
             guid: this.eloise.guid
         };
     }
@@ -447,6 +448,10 @@ class Test_util {
 
     get_s3_example_project () {
         return this.s3_example_project;
+    }
+
+    get_workspace_name () {
+        return this.eloise_workspace_name;
     }
 
     get_workspace_guid () {
