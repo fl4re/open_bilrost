@@ -70,7 +70,7 @@ describe('Run Asset related functional tests for the API', function () {
             const heap_size = v8.getHeapStatistics().total_heap_size;
 
             test_util.client
-                .put(path.join('/assetmanager/workspaces/', test_util.get_workspace_guid(), asset_ref))
+                .put(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), asset_ref))
                 .send(asset)
                 .set("Content-Type", "application/vnd.bilrost.level+json")
                 .set("Accept", 'application/json')
