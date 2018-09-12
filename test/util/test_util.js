@@ -58,7 +58,7 @@ class Test_util {
             tags: ['Hello', 'World'],
             subscriptions: [],
             stage: [],
-            status: [],
+            statuses: [],
             project: {
                 full_name: 'fl4re/open_bilrost_test_project',
                 host: 's3'
@@ -105,7 +105,7 @@ class Test_util {
             tags: ['Hello', 'World'],
             subscriptions: [],
             stage: [],
-            status: [],
+            statuses: [],
             project: {
                 full_name: 'fl4re/open_bilrost_test_project',
                 host: 's3'
@@ -125,7 +125,7 @@ class Test_util {
             tags: ['Hello', 'World'],
             subscriptions: [],
             stage: [],
-            status: [],
+            statuses: [],
             project: {
                 full_name: 'fl4re/open_bilrost_test_project',
                 host: 's3'
@@ -300,7 +300,7 @@ class Test_util {
                     .expect(200)
                     .end((err, res) => {
                         if (err) {
-                            reject({ error: err.toString(), status: res.status, body: res.body });
+                            reject({ error: err.toString(), statuses: res.status, body: res.body });
                         }
                         this.get_favorite().search(this.get_eloise_file_uri()).should.be.an.instanceOf(Object);
                         resolve();

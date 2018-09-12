@@ -34,6 +34,7 @@ const favorite = require('./favorite')();
 const WORKSPACE_INTERNAL_FOLDER_PATH = '.bilrost';
 
 const transform_error = err => {
+    console.log(err);
     this.error = _error_outputs.INTERNALERROR(err);
     throw this;
 };
@@ -50,11 +51,10 @@ const is_locked = file_uri => workspace_locks.find(lock_uri => lock_uri === file
 
 let database_semaphores = {};
 
-const Workspace = function Workspace (file_uri, context, options) {
+const Workspace = function (file_uri, context) {
     if (!file_uri) {
         throw new Error('Cannot instantiate a Workspace without an file uri');
     }
-    const include_workspace_with_errors = options && options.include_error;
 
     this.get_file_uri = () => file_uri;
     this.get_base_absolute_path = () => utilities.convert_file_uri_to_path(this.get_file_uri());
@@ -121,6 +121,11 @@ const Workspace = function Workspace (file_uri, context, options) {
         .then(workspace_resource => {
             this.properties = workspace_resource;
 
+            const invalid_status = this.properties.statuses && this.properties.statuses.find(({ state }) => state !== status_config.integrity.VALID);
+            if (invalid_status) {
+                throw _error_outputs.RESTRICTED("Invalid workspace", JSON.stringify(invalid_status.reason));
+            }
+
             if (!this.properties.subscriptions) {
                 this.properties.subscriptions = [];
             }
@@ -129,17 +134,6 @@ const Workspace = function Workspace (file_uri, context, options) {
                 this.properties.stage = [];
             }
 
-            this.status = {
-                is_valid: true
-            };
-            if (this.properties.status) {
-                this.properties.status.forEach(status => {
-                    if (status.state !== status_config.integrity.VALID) {
-                        this.status.reason = status.info;
-                        this.status.is_valid = false;
-                    }
-                });
-            }
             // add other metadata to the resource
             this.properties.resources_url = "/contentbrowser/workspaces/" + this.get_guid() + "/resources/";
             this.properties.assets_url = "/contentbrowser/workspaces/" + this.get_guid() + "/assets/";
@@ -160,13 +154,6 @@ const Workspace = function Workspace (file_uri, context, options) {
             database_semaphores[file_uri] = this.populate_db();
         }
         return database_semaphores[file_uri];
-    };
-
-    const check_invalid_status = () => {
-        if (!this.status.is_valid) {
-            this.error = _error_outputs.RESTRICTED("Invalid workspace", JSON.stringify(this.status.reason));
-            throw this;
-        }
     };
 
     const instantiate_status_manager = () => {
@@ -417,21 +404,13 @@ const Workspace = function Workspace (file_uri, context, options) {
         .then(read_project_properties)
         .then(read_workspace_properties)
         .then(build_database)
-        .then(check_invalid_status)
         .then(instantiate_subscription_manager)
         .then(instantiate_stage_manager)
         .then(instantiate_branch_manager)
         .then(instantiate_resource)
         .then(instantiate_asset)
         .then(instantiate_status_manager)
-        .then(() => this)
-        .catch(err => {
-            if (include_workspace_with_errors) {
-                return this;
-            } else {
-                throw err;
-            }
-        });
+        .then(() => this);
 };
 
 module.exports = context => {
@@ -439,26 +418,14 @@ module.exports = context => {
     const find_by_file_uri = file_uri => new Workspace(file_uri, context);
 
     const list = options => {
-        if (!options) {
-            options = {};
-        }
-
-        // retrieve all workspaces from favorite list, check if it is valid and returns the list of resources
+        const name_filter = options && options.filterName;
         const favorite_list = favorite.list();
-        const convert_to_resources = workspaces => workspaces
-            .filter(workspace => workspace.status.is_valid);
-
-        const filter_by_name = name => workspaces => {
-            if (name) {
-                return workspaces.filter(workspace => minimatch(workspace.properties.name || '', name || '*'));
-            } else {
-                return workspaces;
-            }
-        };
-
-        return Promise.all(favorite_list.map(workspace => new Workspace(workspace.file_uri, context, {include_error: true})))
-            .then(convert_to_resources)
-            .then(filter_by_name(options.filterName))
+        const list_promise = favorite_list.map(workspace => new Workspace(workspace.file_uri, context).then(obj => obj, () => {}));
+        const filter_undefined_workspaces = workspaces => workspaces.filter(workspace => workspace !== undefined);
+        const filter_by_name = workspaces => name_filter ? workspaces.filter(workspace => minimatch(workspace.properties.name || '', name_filter || '*')) : workspaces;
+        return Promise.all(list_promise)
+            .then(filter_undefined_workspaces)
+            .then(filter_by_name)
             .catch(transform_error);
     };
 
