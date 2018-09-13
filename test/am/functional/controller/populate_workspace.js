@@ -8,7 +8,6 @@
 global.debug = true;
 
 const should = require('should');
-const path = require('path').posix;
 const Test_util = require('../../../util/test_util');
 
 var test_util = new Test_util('populate_workspace', 'good_repo');
@@ -48,7 +47,6 @@ describe('Run Workspace related functional tests for the API', function () {
             obj = test_util.get_example_project();
         });
 
-        let workspace_guid;
         it('Populate a workspace', function (done) {
             this.timeout(8*this.timeout());
             test_util.client
@@ -70,13 +68,12 @@ describe('Run Workspace related functional tests for the API', function () {
                     obj.should.be.an.Object;
                     should.equal(test_util.does_workspace_exist('good_repo'), true);
                     should.equal(test_util.does_workspace_internals_valid('good_repo'), true);
-                    workspace_guid = res.body.guid;
                     done();
                 });
         });
         it('Delete well the populated workspace', function(done){
             test_util.client
-                .delete(path.join('/assetmanager/workspaces/', workspace_guid))
+                .delete(`/assetmanager/workspaces/${test_util.get_example_project().name}`)
                 .send()
                 .set("Accept", 'application/json')
                 .set("Content-Type", "application/json")

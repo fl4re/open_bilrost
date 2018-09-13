@@ -31,7 +31,7 @@ describe('Run Status related functional tests for the API', function () {
         it('Retrieve general Status of the Workspace', function(done) {
             this.timeout(7*this.timeout()); // = 5 * default = 5 * 2000 = 10000
             test_util.client
-                .get(path.join('/assetmanager/workspaces/', test_util.get_workspace_guid(), '/status'))
+                .get(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), '/status'))
                 .set("Accept", 'application/json')
                 .expect(200)
                 .end((err, res) => {
@@ -47,7 +47,7 @@ describe('Run Status related functional tests for the API', function () {
         it('Add Asset Subscription to Workspace', function (done) {
             this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
             test_util.client
-                .post(path.join('/assetmanager/workspaces/', test_util.get_workspace_guid(), '/subscriptions'))
+                .post(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), '/subscriptions'))
                 .send({
                         type: "ASSET",
                         descriptor: "/assets/test_1_1_0.level"
@@ -69,7 +69,7 @@ describe('Run Status related functional tests for the API', function () {
         it('Retrieve status of specific Asset from Workspace', function(done) {
             this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
             test_util.client
-                .get(path.join('/assetmanager/workspaces/', test_util.get_workspace_guid(), '/status', '/assets/test_1_1_0.level'))
+                .get(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), '/status', '/assets/test_1_1_0.level'))
                 .set("Accept", 'application/json')
                 .expect(200)
                 .end((err, res) => {

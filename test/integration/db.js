@@ -63,7 +63,7 @@ describe('Check database behaviors', function () {
                 .then(() => test_util.add_eloise_to_favorite())
                 .then(() => {
                     test_util.client
-                        .get('/contentbrowser/workspaces/' + test_util.get_workspace_guid() + '/assets/')
+                        .get('/contentbrowser/workspaces/' + test_util.get_workspace_name() + '/assets/')
                         .set("Content-Type", "application/json")
                         .set("Accept", 'application/json')
                         .expect("Content-Type", "application/json")
@@ -109,7 +109,7 @@ describe('Check database behaviors', function () {
 
         it('List persisted asset', function(done){
             test_util.client
-                .get('/contentbrowser/workspaces/' + test_util.get_workspace_guid() + '/assets/')
+                .get('/contentbrowser/workspaces/' + test_util.get_workspace_name() + '/assets/')
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")

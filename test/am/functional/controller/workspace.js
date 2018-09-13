@@ -132,7 +132,7 @@ describe('Run Workspace related functional tests for the API', function () {
         it('Remove "example1" Workspace from favorites', function(done){
 
             test_util.client
-                .delete(path.join('/assetmanager/workspaces/', test_util.get_alice_workspace().guid, 'favorites'))
+                .delete(`/assetmanager/workspaces/${test_util.get_alice_workspace().name}/favorites`)
                 .set("Accept", 'application/json')
                 .expect(200)
                 .end((err, res) => {
@@ -148,7 +148,7 @@ describe('Run Workspace related functional tests for the API', function () {
         it('Remove "example2" Workspace from favorites', function(done){
 
             test_util.client
-                .delete(path.join('/assetmanager/workspaces/', test_util.get_bob_workspace().guid, 'favorites'))
+                .delete(`/assetmanager/workspaces/${test_util.get_bob_workspace().name}/favorites`)
                 .set("Accept", 'application/json')
                 .expect(200)
                 .end((err, res) => {
@@ -164,7 +164,7 @@ describe('Run Workspace related functional tests for the API', function () {
         it('Check workspace removal is idempotent', function(done){
             test_util.get_favorite().search(test_util.get_bob_file_uri()).should.equal(false);
             test_util.client
-                .delete(path.join('/assetmanager/workspaces/', test_util.get_alice_workspace().guid, 'favorites'))
+                .delete(`/assetmanager/workspaces/${test_util.get_bob_workspace().name}/favorites`)
                 .set("Accept", 'application/json')
                 .expect(200)
                 .end((err, res) => {
@@ -187,7 +187,6 @@ describe('Run Workspace related functional tests for the API', function () {
             obj = test_util.get_example_project();
         });
 
-        let workspace_guid;
         it('Create a workspace', function (done) {
             this.timeout(8*this.timeout());
             test_util.client
@@ -212,7 +211,6 @@ describe('Run Workspace related functional tests for the API', function () {
                     // jshint expr:true
                     obj.should.be.an.Object;
                     should.equal(test_util.does_workspace_exist('new_workspace_v2'), true);
-                    workspace_guid = res.body.guid;
                     done();
                 });
         });
@@ -239,7 +237,7 @@ describe('Run Workspace related functional tests for the API', function () {
 
         it('Forget the copied Workspace from favorite list', function(done){
             test_util.client
-                .delete(path.join('/assetmanager/workspaces/', workspace_guid, 'favorites'))
+                .delete(`/assetmanager/workspaces/${encodeURIComponent(test_util.get_carol_file_uri())}/favorites`)
                 .send()
                 .set("Accept", 'application/json')
                 .set("Content-Type", "application/json")
@@ -274,7 +272,7 @@ describe('Run Workspace related functional tests for the API', function () {
 
         it('Delete the created Workspace', function(done){
             test_util.client
-                .delete(path.join('/assetmanager/workspaces/', workspace_guid))
+                .delete(`/assetmanager/workspaces/${encodeURIComponent(test_util.get_carol_file_uri())}`)
                 .send()
                 .set("Accept", 'application/json')
                 .set("Content-Type", "application/json")

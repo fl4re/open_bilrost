@@ -135,8 +135,8 @@ const Workspace = function (file_uri, context) {
             }
 
             // add other metadata to the resource
-            this.properties.resources_url = "/contentbrowser/workspaces/" + this.get_guid() + "/resources/";
-            this.properties.assets_url = "/contentbrowser/workspaces/" + this.get_guid() + "/assets/";
+            this.properties.resources_url = `/contentbrowser/workspaces/${this.get_name()}/resources/`;
+            this.properties.assets_url = `/contentbrowser/workspaces/${this.get_name()}/assets/`;
         }, err => {
             this.error = _error_outputs.NOTFOUND(err);
             throw this;
@@ -433,7 +433,7 @@ module.exports = context => {
         if (identifiers && identifiers.file_uri) {
             return find_by_file_uri(identifiers.file_uri);
         } else {
-            return Promise.reject({error: _error_outputs.CORRUPT("Invalid workspace identifier")});
+            return Promise.reject({error: _error_outputs.NOTFOUND('workspace identifier in favorite list')});
         }
     }
 

@@ -10,13 +10,11 @@ describe('Favorite object', function () {
     const favorite = require('../../../assetmanager/favorite')();
 
     const example_1 = {
-        "guid": "0001",
         "name": "example_1",
         "file_uri": "file:///a/b/example_1"
     };
 
     const example_2 = {
-        "guid": "002",
         "name": "example_2",
         "file_uri": "file:///a/b/example2"
     };
@@ -52,21 +50,16 @@ describe('Favorite object', function () {
     });
 
     describe("Removing", function(){
-        it('removes a workspace index by guid', function(){
-            return favorite.remove(example_1.guid).then(() => {
+
+        it('removes a workspace by file_uri', function(){
+            return favorite.remove(example_2.file_uri).then(() => {
                 return favorite.list().length.should.equal(1);
             });
         });
 
-        it('removes a workspace by file_uri', function(){
-            return favorite.remove(example_2.file_uri).then(() => {
-                return favorite.list().length.should.equal(0);
-            });
-        });
-
         it('doesnt complain removing unexisting workspaces', function () {
-            return favorite.remove(example_1.guid).then(() => {
-                return favorite.list().length.should.equal(0);
+            return favorite.remove(example_2.file_uri).then(() => {
+                return favorite.list().length.should.equal(1);
             });
         });
 
@@ -75,9 +68,6 @@ describe('Favorite object', function () {
     describe('Finding', () => {
         before(function () {
             return favorite.flush().then(() => favorite.add(example_1));
-        });
-        it('finds by guid', () => {
-            favorite.find_by_guid(example_1.guid).should.equal(example_1);
         });
         it('finds by name', () => {
             favorite.find_by_name(example_1.name).should.equal(example_1);
