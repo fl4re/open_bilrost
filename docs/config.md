@@ -16,7 +16,6 @@ This is used by the [content browser api]() for storing the workspace favorite l
 {
     favorite:[{
         url: "file:///path/to/workspace",
-        guid: 1234512345123451234512345123451234512345,
         name: feat/first-workspace
     }]
 }
