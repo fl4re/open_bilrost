@@ -127,7 +127,7 @@ describe('Run set of test for asset management methods', function () {
             cache: {}
         });
         let this_workspace;
-        before(() => Workspace.find(test_util.eloise.guid)
+        before(() => Workspace.find(test_util.eloise.name)
             .then(wrkspc => this_workspace = wrkspc));
 
         it('retrieves test asset', function() {

@@ -48,7 +48,6 @@ const test_level = {
 };
 
 const workspace_identifiers = {
-    guid: "e39d0f72c81c445ba801dsssssss45219sddsdss",
     name: "test-workspace",
     file_uri: example_file_uri,
     version_id: "5"
@@ -104,7 +103,7 @@ describe('Run set of test for asset management methods', function () {
 
     after("Flush search index map", function (done) {
         workspace.database.close()
-            .then(() => favorite.remove(workspace_identifiers.guid))
+            .then(() => favorite.remove(workspace_identifiers.name))
             .then(done, done);
     });
 

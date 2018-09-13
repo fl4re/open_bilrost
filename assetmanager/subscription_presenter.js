@@ -9,7 +9,7 @@ module.exports = {
         present: (subscription, workspace) => {
             return {
                 id: subscription.id,
-                url: '/assetmanager/workspaces/' + workspace.guid + '/subscriptions/' + subscription.id,
+                url: `/assetmanager/workspaces/${workspace.name}/subscriptions/${subscription.id}`,
                 type: subscription.type,
                 descriptor: subscription.descriptor,
             };

@@ -53,7 +53,6 @@ const save = (list) => {
     });
 };
 
-const _workspace_guid_regex = /^[a-zA-Z0-9]{40}$/;
 const _workspace_name_regex = /^[[\w\/\.-]{0,100}$/;
 const _workspace_file_uri_regex = /^file:\/\/\/.*$/;
 
@@ -62,10 +61,6 @@ module.exports = () => {
     const favorite = {
 
         list,
-
-        find_by_guid (guid) {
-            return list().find(item => item.guid === guid);
-        },
 
         find_by_file_uri (file_uri) {
             return list().find(item => item.file_uri === file_uri);
@@ -77,9 +72,7 @@ module.exports = () => {
 
         find (identifier) {
             if (typeof identifier === 'string') {
-                if (_workspace_guid_regex.test(identifier)) {
-                    return favorite.find_by_guid(identifier);
-                } else if (_workspace_name_regex.test(identifier)) {
+                if (_workspace_name_regex.test(identifier)) {
                     return favorite.find_by_name(identifier);
                 } else if (_workspace_file_uri_regex.test(identifier)) {
                     return favorite.find_by_file_uri(identifier);

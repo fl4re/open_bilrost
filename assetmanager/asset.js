@@ -10,7 +10,6 @@
 /* jshint expr: true */
 
 'use strict';
-const Path = require('path').posix;
 
 const utilities = require('./utilities');
 const _error_outputs = require('../lib/errors')("Asset");
@@ -201,7 +200,7 @@ asset_model = workspace => {
                         directory_path = `${directory_path}/`;
                         const ref = `${workspace_utilities.relative_path_to_ref(directory_path)}/`;
                         return {
-                            url: Path.join("/contentbrowser/workspaces/", workspace.get_guid(), ref),
+                            url: `/contentbrowser/workspaces/${workspace.get_name()}${ref}`,
                             ref
                         };
                     });
