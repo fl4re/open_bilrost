@@ -7,12 +7,16 @@
 const path = require('path').posix;
 const Test_util = require('../../../util/test_util');
 const status_config = require('../../../../assetmanager/status.config.json');
+const bilrost = require('../../../util/bilrost');
 
-var test_util = new Test_util("status", "good_repo");
+let client, test_util;
 
 describe('Run Status related functional tests for the API', function() {
 
-    before("Starting a Content Browser server", done => test_util.start_server(done));
+    before("Starting a Content Browser server", async () => {
+        client = await bilrost.start();
+        test_util = new Test_util("status", "good_repo", client);
+    });
 
     before("Creating fixtures", function(done) {
         this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
@@ -30,7 +34,7 @@ describe('Run Status related functional tests for the API', function() {
     describe('Retrieve Status', function() {
         it('Retrieve general Status of the Workspace', function(done) {
             this.timeout(7*this.timeout()); // = 5 * default = 5 * 2000 = 10000
-            test_util.client
+            client
                 .get(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), '/status'))
                 .set("Accept", 'application/json')
                 .expect(200)
@@ -46,7 +50,7 @@ describe('Run Status related functional tests for the API', function() {
 
         it('Add Asset Subscription to Workspace', function(done) {
             this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
-            test_util.client
+            client
                 .post(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), '/subscriptions'))
                 .send({
                     type: "ASSET",
@@ -68,7 +72,7 @@ describe('Run Status related functional tests for the API', function() {
 
         it('Retrieve status of specific Asset from Workspace', function(done) {
             this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
-            test_util.client
+            client
                 .get(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), '/status', '/assets/test_1_1_0.level'))
                 .set("Accept", 'application/json')
                 .expect(200)

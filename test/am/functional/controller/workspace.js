@@ -11,8 +11,9 @@ const should = require('should');
 const path = require('path').posix;
 const fs = require('fs-extra');
 const Test_util = require('../../../util/test_util');
+const bilrost = require('../../../util/bilrost');
 
-var test_util = new Test_util("workspace", "good_repo");
+let client, test_util;
 
 describe('Run Workspace related functional tests for the API', function() {
     /* faking bilrost-client
@@ -26,10 +27,13 @@ describe('Run Workspace related functional tests for the API', function() {
         get: (url, callback) => callback(err, req, res, obj)
     };
 
-    before("Starting a Content Browser server", done => test_util.start_server(done, {
-        bilrost_client: bilrost_client,
-        protocol: 'ssh'
-    }));
+    before("Starting a Content Browser server", async () => {
+        client = await bilrost.start({
+            bilrost_client,
+            protocol: 'ssh'
+        });
+        test_util = new Test_util("workspace", "good_repo", client);
+    });
 
     before("Creating fixtures", function(done) {
         this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
@@ -51,7 +55,7 @@ describe('Run Workspace related functional tests for the API', function() {
     describe('Add Workspaces to favorites', function(){
         it('Add "example1" Workspace to favorites', function(done) {
 
-            test_util.client
+            client
                 .post('/assetmanager/workspaces/favorites')
                 .send({ file_uri: test_util.get_alice_file_uri() })
                 .set("Content-Type", "application/json")
@@ -71,7 +75,7 @@ describe('Run Workspace related functional tests for the API', function() {
 
         it('Add "example2" Workspace to favorites', function(done){
 
-            test_util.client
+            client
                 .post('/assetmanager/workspaces/favorites')
                 .send({file_uri: test_util.get_bob_file_uri()})
                 .set("Content-Type", "application/json")
@@ -90,7 +94,7 @@ describe('Run Workspace related functional tests for the API', function() {
         });
 
         it("Fail to add an already existing Workspace to favorites", function(done){
-            test_util.client
+            client
                 .post('/assetmanager/workspaces/favorites')
                 .send({file_uri: test_util.get_alice_file_uri()})
                 .set("Content-Type", "application/json")
@@ -110,7 +114,7 @@ describe('Run Workspace related functional tests for the API', function() {
 
         it("Fail to add invalid Workspace to favorites", function(done){
 
-            test_util.client
+            client
                 .post('/assetmanager/workspaces/favorites')
                 .send({file_uri: test_util.get_philippe_file_uri()})
                 .set("Content-Type", "application/json")
@@ -131,7 +135,7 @@ describe('Run Workspace related functional tests for the API', function() {
 
         it('Remove "example1" Workspace from favorites', function(done){
 
-            test_util.client
+            client
                 .delete(`/assetmanager/workspaces/${test_util.get_alice_workspace().name}/favorites`)
                 .set("Accept", 'application/json')
                 .expect(200)
@@ -147,7 +151,7 @@ describe('Run Workspace related functional tests for the API', function() {
 
         it('Remove "example2" Workspace from favorites', function(done){
 
-            test_util.client
+            client
                 .delete(`/assetmanager/workspaces/${test_util.get_bob_workspace().name}/favorites`)
                 .set("Accept", 'application/json')
                 .expect(200)
@@ -163,7 +167,7 @@ describe('Run Workspace related functional tests for the API', function() {
 
         it('Check workspace removal is idempotent', function(done){
             test_util.get_favorite().search(test_util.get_bob_file_uri()).should.equal(false);
-            test_util.client
+            client
                 .delete(`/assetmanager/workspaces/${test_util.get_bob_workspace().name}/favorites`)
                 .set("Accept", 'application/json')
                 .expect(200)
@@ -189,7 +193,7 @@ describe('Run Workspace related functional tests for the API', function() {
 
         it('Create a workspace', function(done) {
             this.timeout(8*this.timeout());
-            test_util.client
+            client
                 .post('/assetmanager/workspaces')
                 .send({
                     file_uri: test_util.get_carol_file_uri(),
@@ -219,7 +223,7 @@ describe('Run Workspace related functional tests for the API', function() {
             this.timeout(8*this.timeout());
             fs.writeFileSync(path.join(test_util.get_carol_path(), 'test'), 'Hello world!');
             fs.outputFileSync(path.join(test_util.get_carol_path(), 'foo', 'bar'), 'Hello world!');
-            test_util.client
+            client
                 .post(`/assetmanager/workspaces/${encodeURIComponent(test_util.get_carol_file_uri())}/reset`)
                 .send()
                 .set("Content-Type", "application/json")
@@ -236,7 +240,7 @@ describe('Run Workspace related functional tests for the API', function() {
 
 
         it('Forget the copied Workspace from favorite list', function(done){
-            test_util.client
+            client
                 .delete(`/assetmanager/workspaces/${encodeURIComponent(test_util.get_carol_file_uri())}/favorites`)
                 .send()
                 .set("Accept", 'application/json')
@@ -253,7 +257,7 @@ describe('Run Workspace related functional tests for the API', function() {
         });
 
         it('Add to favorite list', function(done) {
-            test_util.client
+            client
                 .post('/assetmanager/workspaces/favorites')
                 .send({file_uri: test_util.get_carol_file_uri()})
                 .set("Content-Type", "application/json")
@@ -271,7 +275,7 @@ describe('Run Workspace related functional tests for the API', function() {
         });
 
         it('Delete the created Workspace', function(done){
-            test_util.client
+            client
                 .delete(`/assetmanager/workspaces/${encodeURIComponent(test_util.get_carol_file_uri())}`)
                 .send()
                 .set("Accept", 'application/json')
@@ -292,7 +296,7 @@ describe('Run Workspace related functional tests for the API', function() {
             this.timeout(8*this.timeout());
             test_util.ensure_carol_dir()
                 .then(() => {
-                    test_util.client
+                    client
                         .post('/assetmanager/workspaces')
                         .send({
                             file_uri: test_util.get_carol_file_uri(),
@@ -325,7 +329,7 @@ describe('Run Workspace related functional tests for the API', function() {
 
         it('Fail to create Workspace', function(done) {
 
-            test_util.client
+            client
                 .put('/assetmanager/workspaces')
                 .expect(501)
                 .end((err, res) => {
@@ -339,7 +343,7 @@ describe('Run Workspace related functional tests for the API', function() {
 
         it('Fail to update Workspace', function(done) {
 
-            test_util.client
+            client
                 .patch('/assetmanager/workspaces/')
                 .expect(501)
                 .end((err, res) => {
@@ -353,7 +357,7 @@ describe('Run Workspace related functional tests for the API', function() {
 
         it('Fail to replace Workspace', function(done) {
 
-            test_util.client
+            client
                 .put('/assetmanager/workspaces/')
                 .expect(501)
                 .end((err, res) => {

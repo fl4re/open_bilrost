@@ -8,14 +8,16 @@ const should = require('should');
 const path = require('path');
 const fs = require('fs-extra');
 const Test_util = require('../../../util/test_util');
+const bilrost = require('../../../util/bilrost');
 
-var test_util = new Test_util("asset", "good_repo");
+let client, test_util;
 
 describe('Run Asset related functional tests for the API', function() {
 
-    before("Starting a Content Browser server", done => test_util.start_server(done, {
-        bilrost_client: {}
-    }));
+    before("Starting a Content Browser server", async () => {
+        client = await bilrost.start();
+        test_util = new Test_util("asset", "good_repo", client);
+    });
     before("Creating fixtures", function(done) {
         this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
         test_util.create_eloise_fixtures()
@@ -43,7 +45,7 @@ describe('Run Asset related functional tests for the API', function() {
                 semantics: []
             };
             const asset_ref = '/assets/levels/test_002.level';
-            test_util.client
+            client
                 .put(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), asset_ref))
                 .send(asset)
                 .set("Content-Type", "application/json")
@@ -70,7 +72,7 @@ describe('Run Asset related functional tests for the API', function() {
             this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
 
             const asset_ref = '/assets/levels';
-            test_util.client
+            client
                 .put(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), asset_ref))
                 .send()
                 .set("Content-Type", "application/json")
@@ -101,7 +103,7 @@ describe('Run Asset related functional tests for the API', function() {
                 semantics: []
             };
             const asset_ref = '/assets/levels/random_ext_asset.' + random_extension;
-            test_util.client
+            client
                 .put(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), asset_ref))
                 .send(asset)
                 .set("Accept", 'application/json')
@@ -134,7 +136,7 @@ describe('Run Asset related functional tests for the API', function() {
                 main: ""
             };
             const asset_ref = '/assets/levels/test_003.level';
-            test_util.client
+            client
                 .put(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), asset_ref))
                 .send(asset)
                 .set("Content-Type", "application/json")
@@ -168,7 +170,7 @@ describe('Run Asset related functional tests for the API', function() {
                 tags: []
             };
             const asset_ref = '/assets/levels/test_006.level';
-            test_util.client
+            client
                 .put(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), asset_ref))
                 .send(asset)
                 .set("Content-Type", "application/json")
@@ -201,7 +203,7 @@ describe('Run Asset related functional tests for the API', function() {
             };
 
             const asset_ref = "/assets/levels/test_011.level";
-            test_util.client
+            client
                 .put(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), asset_ref))
                 .send(asset)
                 .set("Content-Type", "application/json")
@@ -225,7 +227,7 @@ describe('Run Asset related functional tests for the API', function() {
             };
 
             const asset_ref = "/assets/levels/test_011.level";
-            test_util.client
+            client
                 .put(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), asset_ref))
                 .send(asset)
                 .set("Content-Type", "application/json")
@@ -252,7 +254,7 @@ describe('Run Asset related functional tests for the API', function() {
 
             const asset_ref = "/assets/levels/test_011.level";
 
-            test_util.client
+            client
                 .put(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), asset_ref))
                 .send(asset)
                 .set("Content-Type", "application/json")
@@ -350,7 +352,7 @@ describe('Run Asset related functional tests for the API', function() {
             const asset_path = path.join(test_util.get_eloise_path(), '.bilrost', asset_ref);
 
             const new_asset_ref = '/assets/levels/test/004/test_004.level';
-            test_util.client
+            client
                 .post(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), 'rename', test_util.get_test_level().meta.ref))
                 .send({ new: new_asset_ref})
                 .set("Content-Type", "application/vnd.bilrost.asset+json")
@@ -404,7 +406,7 @@ describe('Run Asset related functional tests for the API', function() {
         it('Cannot rename an unexisted asset', function(done){
 
             const new_asset_ref = '/assets/levels/test/004/test_004.level';
-            test_util.client
+            client
                 .post(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), 'rename', '/assets/unvalid'))
                 .send({ new: new_asset_ref})
                 .set("Content-Type", "application/vnd.bilrost.asset+json")
@@ -422,7 +424,7 @@ describe('Run Asset related functional tests for the API', function() {
         it('Cannot rename an asset with a none matching modified date', function(done) {
 
             const new_asset_ref = '/assets/levels/test/004/test_004.level';
-            test_util.client
+            client
                 .post(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), 'rename', new_asset_ref))
                 .send({ new: new_asset_ref})
                 .set("Content-Type", "application/vnd.bilrost.asset+json")
@@ -440,7 +442,7 @@ describe('Run Asset related functional tests for the API', function() {
 
         it('Cannot rename an unexisted asset', function(done){
 
-            test_util.client
+            client
                 .post(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), 'rename', test_003.meta.ref))
                 .send({ new: '/invalid' })
                 .set("Content-Type", "application/json")
@@ -458,7 +460,7 @@ describe('Run Asset related functional tests for the API', function() {
 
         it('Cannot rename an asset with invalid content-type header', function(done){
 
-            test_util.client
+            client
                 .post(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), 'rename', test_003.meta.ref))
                 .send({ new: '/invalid' })
                 .set("Content-Type", "application/json")
@@ -488,7 +490,7 @@ describe('Run Asset related functional tests for the API', function() {
                 "semantics": []
             };
 
-            test_util.client
+            client
                 .put(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), test_util.get_test_level().meta.ref))
                 .send(asset)
                 .set("Content-Type", "application/json")
@@ -519,7 +521,7 @@ describe('Run Asset related functional tests for the API', function() {
                 "semantics": []
             };
 
-            test_util.client
+            client
                 .put(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), test_util.get_test_level().meta.ref))
                 .send(asset)
                 .set("Content-Type", "application/json")
@@ -547,7 +549,7 @@ describe('Run Asset related functional tests for the API', function() {
 
             const modified = test_util.read_asset_file(test_util.get_test_level().meta.ref).meta.modified;
 
-            test_util.client
+            client
                 .put(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), test_util.get_test_level().meta.ref))
                 .send(asset)
                 .set("Content-Type", "application/json")
@@ -575,7 +577,7 @@ describe('Run Asset related functional tests for the API', function() {
 
             const modified = test_util.read_asset_file(test_util.get_test_level().meta.ref).meta.modified;
 
-            test_util.client
+            client
                 .put(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), test_util.get_test_level().meta.ref))
                 .send(asset)
                 .set("Content-Type", "application/json")
@@ -599,7 +601,7 @@ describe('Run Asset related functional tests for the API', function() {
 
             const asset_path = path.join(test_util.get_eloise_path(), '.bilrost', test_util.get_test_level().meta.ref);
 
-            test_util.client
+            client
                 .delete(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), test_util.get_test_level().meta.ref))
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
@@ -626,7 +628,7 @@ describe('Run Asset related functional tests for the API', function() {
             const asset_path = path.join(test_util.get_eloise_path(), '.bilrost', ref);
 
             test_util.remove_resource_file("/test/test");
-            test_util.client
+            client
                 .delete(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), ref))
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
@@ -646,7 +648,7 @@ describe('Run Asset related functional tests for the API', function() {
 
         it('Cannot delete an asset with an not unexisted ref', function(done){
 
-            test_util.client
+            client
                 .delete(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), 'assets/invalid'))
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
@@ -685,7 +687,7 @@ describe('Run Asset related functional tests for the API', function() {
 
             test_util.get_database().add(reference_asset).then(() => {
 
-                test_util.client
+                client
                     .delete(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), test_util.get_test_level().meta.ref))
                     .set("Content-Type", "application/json")
                     .set("Accept", 'application/json')
