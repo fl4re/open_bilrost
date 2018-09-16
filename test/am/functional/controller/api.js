@@ -8,13 +8,13 @@ const Test_util = require('../../../util/test_util');
 
 var test_util = new Test_util("api", "api");
 
-describe('Run functional tests for the API Description', function () {
+describe('Run functional tests for the API Description', function() {
 
     before("Starting a Content Browser server", done => test_util.start_server(done));
 
-    describe('API description', function () {
+    describe('API description', function() {
         it('Retrieve information about Asset Manager API', function(done) {
-            
+
             test_util.client
                 .get('/assetmanager')
                 .set("Content-Type", "application/json")

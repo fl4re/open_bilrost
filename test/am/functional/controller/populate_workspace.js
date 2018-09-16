@@ -12,7 +12,7 @@ const Test_util = require('../../../util/test_util');
 
 var test_util = new Test_util('populate_workspace', 'good_repo');
 
-describe('Run Workspace related functional tests for the API', function () {
+describe('Run Workspace related functional tests for the API', function() {
     /* faking bilrost-client
        we define a bilrost_client that simply calls the callback with
        the predefined parameters.
@@ -38,16 +38,16 @@ describe('Run Workspace related functional tests for the API', function () {
             });
     });
 
-    describe('Populate eloise workspaces', function () {
+    describe('Populate eloise workspaces', function() {
 
-        before('Set bilrost_client answer', function () {
+        before('Set bilrost_client answer', function() {
             err = false;
             req = null;
             res = null;
             obj = test_util.get_example_project();
         });
 
-        it('Populate a workspace', function (done) {
+        it('Populate a workspace', function(done) {
             this.timeout(8*this.timeout());
             test_util.client
                 .post('/assetmanager/workspaces/populate')
@@ -64,7 +64,7 @@ describe('Run Workspace related functional tests for the API', function () {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
                     let obj = test_util.get_favorite().search(test_util.get_carol_file_uri());
-                    // jshint expr:true
+
                     obj.should.be.an.Object;
                     should.equal(test_util.does_workspace_exist('good_repo'), true);
                     should.equal(test_util.does_workspace_internals_valid('good_repo'), true);

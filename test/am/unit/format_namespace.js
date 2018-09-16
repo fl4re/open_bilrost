@@ -9,7 +9,7 @@ const _path = require('path').posix;
 
 const utilities = require('../../../assetmanager/workspace_utilities')(path => _path.join('.bilrost', path ? path : '/'));
 
-describe('Format namespaces', function () {
+describe('Format namespaces', function() {
 
     it('/assets/', done => {
         const formatted_path = utilities.format_namespaces('.bilrost/assets/');
@@ -22,7 +22,7 @@ describe('Format namespaces', function () {
         should.equal(formatted_path, '.bilrost/assets/foo');
         done();
     });
-    
+
     it('/assets/foo/bar', done => {
         const formatted_path = utilities.format_namespaces('.bilrost/assets/foo/bar');
         should.equal(formatted_path, '.bilrost/assets/$foo/bar');
@@ -37,7 +37,7 @@ describe('Format namespaces', function () {
 
 });
 
-describe('Unformat namespaces', function () {
+describe('Unformat namespaces', function() {
 
     it('/assets/', done => {
         const formatted_path = utilities.unformat_namespaces('.bilrost/assets/');
@@ -50,7 +50,7 @@ describe('Unformat namespaces', function () {
         should.equal(formatted_path, '.bilrost/assets/foo');
         done();
     });
-    
+
     it('/assets/foo/bar', done => {
         const formatted_path = utilities.unformat_namespaces('.bilrost/assets/$foo/bar');
         should.equal(formatted_path, '.bilrost/assets/foo/bar');

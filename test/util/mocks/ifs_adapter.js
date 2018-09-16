@@ -28,7 +28,7 @@ module.exports = (path, maps) => {
         getFilesRecursively: path => Promise.resolve(maps.getFilesRecursively[path]),
         outputJson: (path, json) => Promise.resolve(json),
         outputFormattedJson: (path, content) => Promise.resolve(content),
-        writeJson: path => Promise.resolve(),
+        writeJson: () => Promise.resolve(),
         removeFile: () => Promise.resolve(),
         getDirectories: path => maps.getDirectories[path]
     };

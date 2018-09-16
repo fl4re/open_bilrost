@@ -53,7 +53,7 @@ const get_utilities = get_internal_file_path => {
         },
 
         filter_by_meta_ref_property (list, name_filter) {
-            return list.filter(function (el) {
+            return list.filter(function(el) {
                 let name;
                 if(el.meta && el.meta.ref) {
                     name = utilities.get_asset_basename(el.meta.ref);
@@ -69,17 +69,17 @@ const get_utilities = get_internal_file_path => {
         unformat_namespaces (path) {
             return rename_namespaces(path, 'unformat');
         },
-        
+
         ref_to_relative_path (ref) {
             if (ref.startsWith('/assets/')) {
                 return utilities.format_namespaces(get_internal_file_path(ref));
             } else if (ref.startsWith('/resources/')) {
                 return ref.slice(11);
             }
-            
+
             return null;
         },
-        
+
         relative_path_to_ref (path) {
             path = path.replace(/\\/g, '/');
             if (is_asset_path(path)) {
@@ -131,7 +131,7 @@ const get_utilities = get_internal_file_path => {
         is_resource_ref (ref) {
             return resource_ref_regexp.test(ref);
         },
-        
+
         is_asset_and_not_namespace (ref) {
             return utilities.is_asset_ref(ref) && !has_last_slash(ref);
         },

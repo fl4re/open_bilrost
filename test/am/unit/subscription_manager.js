@@ -99,14 +99,14 @@ describe('Subscription Manager', function() {
                             favorite.add(workspace_identifiers),
                             workspace.database.add(test_util.read_asset_file("/assets/test_1_1_0.level")),
                             workspace.database.add(test_util.read_asset_file("/assets/levels/test_001.level")),
-                        ]).then(function () {
+                        ]).then(function() {
                             done();
                         }).catch(done);
                     });
             });
     });
 
-    after("Flush search index map", function (done) {
+    after("Flush search index map", function(done) {
         workspace_instance.database.close()
             .then(() => favorite.remove(workspace_identifiers.guid))
             .then(done, done);
@@ -143,7 +143,7 @@ describe('Subscription Manager', function() {
         this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
 
         subscription_manager.add_subscription(Subscription.ASSET, "/assets/test_1_1_0.level")
-           .then(subscription => {
+            .then(subscription => {
                 s_id = subscription.id;
 
                 subscription_manager.get_subscriptions().should.not.be.empty();
@@ -209,7 +209,7 @@ describe('Subscription Manager', function() {
     it('Update workspace subscription list', function(done){
         test_util.eloise.subscriptions = subscription_manager.get_subscriptions();
         Workspace_factory.save(test_util.eloise)
-            .then(function () {
+            .then(function() {
                 subscription_manager.get_subscriptions().should.be.empty();
                 test_util.eloise.subscriptions.should.be.empty();
 

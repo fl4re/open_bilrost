@@ -14,7 +14,7 @@ const Path = require('path');
 const Test_util = require('../util/test_util');
 const test_util = new Test_util("integration__db_sync", "good_repo");
 
-describe('Check database behaviors', function () {
+describe('Check database behaviors', function() {
 
     const sample_asset = {
         "meta":{
@@ -32,16 +32,17 @@ describe('Check database behaviors', function () {
         "semantics": []
     };
 
-    describe('Verify synchronisation', function () {
+    describe('Verify synchronisation', function() {
         let server;
 
-        before('Start node server', function (done) {
+        before('Start node server', function(done) {
             server = spawn('node', ['index']);
             readline.createInterface({input: server.stdout}).on('line', line => {
                 let msg;
                 try {
                     msg = JSON.parse(line).msg;
                 } catch(e) {
+                    // eslint-disable-next-line no-console
                     console.log(line.toString());
                 }
                 if (msg === 'Listening at port: 9224') {
@@ -51,7 +52,7 @@ describe('Check database behaviors', function () {
             });
         });
 
-        it('Add an asset to fs and retrieve it from the database by searching', function (done) {
+        it('Add an asset to fs and retrieve it from the database by searching', function(done) {
             this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
             const path = Path.join(test_util.get_eloise_path(), '.bilrost', 'assets', 'sync_test.level');
             test_util.create_eloise_fixtures()
@@ -80,23 +81,24 @@ describe('Check database behaviors', function () {
                 })
                 .catch(done);
         });
-        after('Stop node server', function (done) {
+        after('Stop node server', function(done) {
             server.on('close', () => done());
             server.kill('SIGINT');
         });
 
     });
 
-    describe('Verify database persistence', function () {
+    describe('Verify database persistence', function() {
         let server;
 
-        before('Start node server', function (done) {
+        before('Start node server', function(done) {
             server = spawn('node', ['index']);
             readline.createInterface({input: server.stdout}).on('line', line => {
                 let msg;
                 try {
                     msg = JSON.parse(line).msg;
                 } catch(e) {
+                    // eslint-disable-next-line no-console
                     console.log(line.toString());
                 }
 
@@ -130,7 +132,7 @@ describe('Check database behaviors', function () {
             test_util.remove_fixtures(done);
         });
 
-        after('Stop node server', function (done) {
+        after('Stop node server', function(done) {
             server.on('close', () => done());
             server.kill('SIGINT');
         });

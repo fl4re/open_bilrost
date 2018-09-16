@@ -202,13 +202,13 @@ const workspace_identifiers = {
     file_uri: example_url
 };
 
-describe("Run set of test for github status manager", function () {
+describe("Run set of test for github status manager", function() {
 
     before("create fixtures", function(done) {
         //cleanup fixtures
         fs.removeSync(fixtures);
         fs.mkdirpSync(fixtures);
-        exec("git init", {cwd: fixtures}, function (error, stdout, stderr) {
+        exec("git init", {cwd: fixtures}, function(error, stdout, stderr) {
             if (error||stderr) {
                 done(error||stderr);
             } else {
@@ -233,11 +233,11 @@ describe("Run set of test for github status manager", function () {
                 fs.outputJsonSync(Path.join(fixtures, 'test/test'), {});
                 fs.outputJsonSync(Path.join(fixtures, 'prefab/test'), {});
                 fs.outputJsonSync(Path.join(fixtures, 'test/prefab/test'), {});
-                exec("git add --all", {cwd: fixtures}, function (error, stdout, stderr) {
+                exec("git add --all", {cwd: fixtures}, error => {
                     if (error) {
                         done(error);
                     } else {
-                        exec('git commit -m "First commit"', {cwd: fixtures}, function (error, stdout, stderr) {
+                        exec('git commit -m "First commit"', {cwd: fixtures}, error => {
                             if (error) {
                                 done(error);
                             } else {
@@ -263,7 +263,7 @@ describe("Run set of test for github status manager", function () {
                                                     done();
                                                 });
                                             });
-                                }).catch(done);
+                                    }).catch(done);
                             }
                         });
                     }
@@ -279,11 +279,11 @@ describe("Run set of test for github status manager", function () {
             .then(done);
     });
 
-    it("Fail validation check", function (done) {
+    it("Fail validation check", function(done) {
         this.timeout(3*this.timeout()); // = 2 * default = 2 * 2000 = 4000
         status_manager_instance
             .check_overall_validation()
-            .then(function () {
+            .then(function() {
                 done("This shouldn't pass");
             })
             .catch(() => Promise.all([
@@ -299,7 +299,7 @@ describe("Run set of test for github status manager", function () {
             })
             .catch(done);
     });
-    it("Success validation check with diff", function (done) {
+    it("Success validation check with diff", function(done) {
         fs.removeSync(Path.join(fixtures, '.bilrost', asset_wrong_type.meta.ref));
         fs.removeSync(Path.join(fixtures, '.bilrost', asset_wrong_schema.meta.ref));
         fs.removeSync(Path.join(fixtures, '.bilrost', asset_invalid_path.meta.ref));
@@ -322,13 +322,13 @@ describe("Run set of test for github status manager", function () {
                     should.equal(workspace_status.state, "VALID");
                     should.equal(asset_status.state, "VALID");
                     done();
-                }).catch(function (err) {
+                }).catch(function(err) {
                     done(err);
                 });
         });
     });
-    it("Success validation check with new commit", function (done) {
-        exec('git commit -am "Second commit"', {cwd: fixtures}, function (error, stdout, stderr) {
+    it("Success validation check with new commit", function(done) {
+        exec('git commit -am "Second commit"', {cwd: fixtures}, () => {
             status_manager_instance
                 .check_overall_validation()
                 .then(() => Promise.all([
@@ -344,7 +344,7 @@ describe("Run set of test for github status manager", function () {
                 });
         });
     });
-    it("Success validation check with same commit_id", function (done) {
+    it("Success validation check with same commit_id", function(done) {
         status_manager_instance
             .check_overall_validation()
             .then(() => Promise.all([
@@ -359,7 +359,7 @@ describe("Run set of test for github status manager", function () {
                 done();
             });
     });
-    it("Fail validation check with new invalid diff by modifying an asset", function (done) {
+    it("Fail validation check with new invalid diff by modifying an asset", function(done) {
         const asset_path = Path.join(fixtures, '.bilrost', level_1_1_0.meta.ref);
         asset_wrong_type.meta.ref = level_1_1_0.meta.ref;
         fs.outputJsonSync(asset_path, asset_wrong_type);
@@ -368,7 +368,7 @@ describe("Run set of test for github status manager", function () {
             .then(() => {
                 status_manager_instance
                     .check_overall_validation()
-                    .then(function () {
+                    .then(function() {
                         done("This shouldn't pass!");
                     })
                     .catch(() => Promise.all([
@@ -384,39 +384,39 @@ describe("Run set of test for github status manager", function () {
                         database.remove(level_1_1_0.meta.ref)
                             .then(() => database.add(level_1_1_0))
                             .then(() => done());
-                            }).catch(function (err) {
-                                done(err);
-                            });
+                    }).catch(function(err) {
+                        done(err);
+                    });
             });
     });
-    it("Fail validation check with new status by adding again same asset previously removed", function (done) {
+    it("Fail validation check with new status by adding again same asset previously removed", function(done) {
         this.timeout(2*this.timeout()); // = 2 * default = 2 * 2000 = 4000
         const asset_path = Path.join(fixtures, '.bilrost', asset_wrong_schema.meta.ref);
         fs.outputJsonSync(asset_path, asset_wrong_schema);
         database
             .add(asset_wrong_schema)
             .then(() => {
-                status_manager_instance.check_overall_validation().then(function () {
+                status_manager_instance.check_overall_validation().then(function() {
                     done("This shouldn't pass!");
                 })
-                .catch(() => Promise.all([
-                    collection.get("workspace_validator"),
-                    collection.get("assets_validator")
-                ]))
-                .then(statuses => {
-                    const workspace_status = statuses[0];
-                    const asset_status = statuses[1];
-                    should.equal(workspace_status.state, "VALID");
-                    should.equal(asset_status.state, "INVALID");
-                    fs.removeSync(asset_path);
-                    return database.remove(asset_wrong_schema.meta.ref)
-                        .then(() => done());
-                }).catch(function (err) {
-                    done(err);
-                });
+                    .catch(() => Promise.all([
+                        collection.get("workspace_validator"),
+                        collection.get("assets_validator")
+                    ]))
+                    .then(statuses => {
+                        const workspace_status = statuses[0];
+                        const asset_status = statuses[1];
+                        should.equal(workspace_status.state, "VALID");
+                        should.equal(asset_status.state, "INVALID");
+                        fs.removeSync(asset_path);
+                        return database.remove(asset_wrong_schema.meta.ref)
+                            .then(() => done());
+                    }).catch(function(err) {
+                        done(err);
+                    });
             });
     });
-    it("Fail validation check with unstaged file list by adding invalid asset", function (done) {
+    it("Fail validation check with unstaged file list by adding invalid asset", function(done) {
         this.timeout(2*this.timeout()); // = 2 * default = 2 * 2000 = 4000
         const asset_path_1 = Path.join(fixtures, "example/.bilrost/assets/new/asset_wrong_type.prefab");
         const asset_path_2 = Path.join(fixtures, "example/.bilrost/assets/wrong_schema.prefab");
@@ -428,7 +428,7 @@ describe("Run set of test for github status manager", function () {
         ]).then(() => {
             status_manager_instance
                 .check_overall_validation()
-                .then(function () {
+                .then(function() {
                     done("This shouldn't pass!");
                 })
                 .catch(() => Promise.all([
@@ -443,13 +443,13 @@ describe("Run set of test for github status manager", function () {
                     fs.removeSync(asset_path_1);
                     fs.removeSync(asset_path_2);
                     done();
-                }).catch(function (err) {
+                }).catch(function(err) {
                     done(err);
                 });
         });
     });
 
-   describe('Get Manager Status', function() {
+    describe('Get Manager Status', function() {
         it('Valid General Status', function(done){
             Promise.all([
                 collection.update("workspace_validator", { state: 'VALID' }),
@@ -461,7 +461,7 @@ describe("Run set of test for github status manager", function () {
                         should.exist(general_status);
                         should.equal(general_status.get_state(), "VALID");
                         done();
-                    }).catch(function (err) {
+                    }).catch(function(err) {
                         done(err);
                     });
             });
@@ -478,7 +478,7 @@ describe("Run set of test for github status manager", function () {
                         should.exist(general_status);
                         should.equal(general_status.get_state(), "DELETED");
                         done();
-                    }).catch(function (err) {
+                    }).catch(function(err) {
                         done(err);
                     });
             });
@@ -495,7 +495,7 @@ describe("Run set of test for github status manager", function () {
                         should.exist(general_status);
                         should.equal(general_status.get_state(), "INVALID");
                         done();
-                    }).catch(function (err) {
+                    }).catch(function(err) {
                         done(err);
                     });
             });

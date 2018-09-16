@@ -28,7 +28,7 @@ const utilities = {
     },
 
     includes (str, to_find) {
-        return !!+~str.indexOf(to_find);  // jshint ignore:line
+        return !!+~str.indexOf(to_find);
     },
 
     //Convert file url to a node js readable path. This is cross platform

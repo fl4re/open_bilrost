@@ -14,18 +14,18 @@ var maps = {};
 
 module.exports = {
 
-    list: function () {
+    list: function() {
         return maps;
     },
 
-    get: function (id) {
+    get: function(id) {
         if (!maps[id]) { return; }
         return maps[id];
     },
 
-    set: function (id, options) {
+    set: function(id, options) {
         if (options.type === 'local') {
-            return local_FS_adapter(options.path).then(function (adapter) {
+            return local_FS_adapter(options.path).then(function(adapter) {
                 maps[id] = adapter;
                 return adapter;
             });

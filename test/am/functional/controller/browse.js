@@ -10,7 +10,7 @@ const path = require('path').posix;
 const Test_util = require('../../../util/test_util');
 const favorite = require('../../../../assetmanager/favorite')();
 
-describe('Run Content Browser related test for content browser api', function () {
+describe('Run Content Browser related test for content browser api', function() {
 
     var test_util = new Test_util("browse", "good_repo");
 
@@ -158,7 +158,7 @@ describe('Run Content Browser related test for content browser api', function ()
 
     describe('-- [GET] /contentbrowser/workspaces/', function() {
 
-        before("Add example2 workspace", function (done) {
+        before("Add example2 workspace", function(done) {
 
             test_util.client.post('/assetmanager/workspaces/favorites')
                 .send({ "file_uri": test_util.get_bob_file_uri() })
@@ -177,7 +177,7 @@ describe('Run Content Browser related test for content browser api', function ()
         });
 
 
-        after("Remove example3 workspace settings", function (done) {
+        after("Remove example3 workspace settings", function(done) {
 
             favorite.remove(test_util.get_example3_workspace().name)
                 .then(() => done())
@@ -205,7 +205,7 @@ describe('Run Content Browser related test for content browser api', function ()
 
         });
 
-        it("Can\'t retrieve example3 workspace by name since not referenced in favorite list", function(done){
+        it("Can't retrieve example3 workspace by name since not referenced in favorite list", function(done){
 
             test_util.client
                 .get(`/contentbrowser/workspaces/${test_util.get_example3_workspace().name}`)
@@ -248,7 +248,7 @@ describe('Run Content Browser related test for content browser api', function ()
             favorite.add({
                 name: test_util.get_example3_workspace().name,
                 file_uri: test_util.get_example3_file_uri()
-            }).then(function () {
+            }).then(function() {
                 const workspace_example_3_path = path.join(test_util.get_example3_path(), '.bilrost', 'workspace');
                 const workspace = fs.readJsonSync(workspace_example_3_path);
                 workspace.statuses = [
@@ -304,7 +304,7 @@ describe('Run Content Browser related test for content browser api', function ()
             favorite.update(test_util.get_example3_workspace().name, {
                 name: test_util.get_example3_workspace().name,
                 url: test_util.get_example3_file_uri()
-            }).then(function () {
+            }).then(function() {
                 const workspace_example_3_path = path.join(test_util.get_example3_path(), '.bilrost', 'workspace');
                 const workspace = fs.readJsonSync(workspace_example_3_path);
                 workspace.statuses = [
@@ -406,7 +406,7 @@ describe('Run Content Browser related test for content browser api', function ()
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
-                     obj.items.should.have.lengthOf(1);
+                    obj.items.should.have.lengthOf(1);
                     obj.totalItems.should.equal(1);
                     done();
                 });
@@ -415,7 +415,7 @@ describe('Run Content Browser related test for content browser api', function ()
         it("Can't retrieve example3 workspace since it has been removed from favorite list", function(done){
 
             favorite.remove(test_util.get_example3_workspace().name)
-                .then(function () {
+                .then(function() {
                     test_util.client
                         .get(`/contentbrowser/workspaces/${test_util.get_example3_workspace().name}`)
                         .set("Content-Type", "application/json")
@@ -473,7 +473,7 @@ describe('Run Content Browser related test for content browser api', function ()
         });
     });
 
-    describe('-- [GET] /contentbrowser/workspaces/{workspace_name}/assets/', function () {
+    describe('-- [GET] /contentbrowser/workspaces/{workspace_name}/assets/', function() {
 
         it('Retrieve test asset', function(done){
             test_util.client
@@ -767,7 +767,7 @@ describe('Run Content Browser related test for content browser api', function ()
 
     describe('-- [GET] /contentbrowser/workspaces/{workspace_name}/resources/', function(){
 
-        after("Remove example2 workspace", function (done) {
+        after("Remove example2 workspace", function(done) {
 
             test_util.client
                 .delete(`/assetmanager/workspaces/${test_util.get_bob_workspace().name}`)
@@ -861,7 +861,7 @@ describe('Run Content Browser related test for content browser api', function ()
 
         });
 
-        it('Check "paging" query paramaters for retrieving resources in root folder', function (done) {
+        it('Check "paging" query paramaters for retrieving resources in root folder', function(done) {
 
             test_util.client
                 .get(`/contentbrowser/workspaces/${test_util.get_bob_workspace().name}/resources/?maxResults=1`)

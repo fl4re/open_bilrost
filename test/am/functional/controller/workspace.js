@@ -14,7 +14,7 @@ const Test_util = require('../../../util/test_util');
 
 var test_util = new Test_util("workspace", "good_repo");
 
-describe('Run Workspace related functional tests for the API', function () {
+describe('Run Workspace related functional tests for the API', function() {
     /* faking bilrost-client
        we define a bilrost_client that simply calls the callback with
        the predefined parameters.
@@ -62,7 +62,7 @@ describe('Run Workspace related functional tests for the API', function () {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    // jshint expr:true
+
                     test_util.get_favorite().search(test_util.get_alice_file_uri()).should.be.an.Object;
                     done();
                 });
@@ -82,7 +82,7 @@ describe('Run Workspace related functional tests for the API', function () {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    // jshint expr:true
+
                     test_util.get_favorite().search(test_util.get_bob_file_uri()).should.be.an.Object;
                     done();
                 });
@@ -101,7 +101,7 @@ describe('Run Workspace related functional tests for the API', function () {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    // jshint expr:true
+
                     test_util.get_favorite().search(test_util.get_alice_file_uri()).should.be.an.Object;
                     done();
                 });
@@ -168,7 +168,7 @@ describe('Run Workspace related functional tests for the API', function () {
                 .set("Accept", 'application/json')
                 .expect(200)
                 .end((err, res) => {
-                      if (err) {
+                    if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
                     test_util.get_favorite().search(test_util.get_bob_file_uri()).should.equal(false);
@@ -178,16 +178,16 @@ describe('Run Workspace related functional tests for the API', function () {
 
     });
 
-    describe("Create workspaces", function () {
+    describe("Create workspaces", function() {
 
-        before('Set bilrost_client answer', function () {
+        before('Set bilrost_client answer', function() {
             err = false;
             req = null;
             res = null;
             obj = test_util.get_example_project();
         });
 
-        it('Create a workspace', function (done) {
+        it('Create a workspace', function(done) {
             this.timeout(8*this.timeout());
             test_util.client
                 .post('/assetmanager/workspaces')
@@ -208,14 +208,14 @@ describe('Run Workspace related functional tests for the API', function () {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
                     let obj = test_util.get_favorite().search(test_util.get_carol_file_uri());
-                    // jshint expr:true
+
                     obj.should.be.an.Object;
                     should.equal(test_util.does_workspace_exist('new_workspace_v2'), true);
                     done();
                 });
         });
 
-        it('Reset a workspace', function (done) {
+        it('Reset a workspace', function(done) {
             this.timeout(8*this.timeout());
             fs.writeFileSync(path.join(test_util.get_carol_path(), 'test'), 'Hello world!');
             fs.outputFileSync(path.join(test_util.get_carol_path(), 'foo', 'bar'), 'Hello world!');
@@ -252,7 +252,7 @@ describe('Run Workspace related functional tests for the API', function () {
 
         });
 
-        it('Add to favorite list', function (done) {
+        it('Add to favorite list', function(done) {
             test_util.client
                 .post('/assetmanager/workspaces/favorites')
                 .send({file_uri: test_util.get_carol_file_uri()})
@@ -264,7 +264,7 @@ describe('Run Workspace related functional tests for the API', function () {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
                     let obj = test_util.get_favorite().search(test_util.get_carol_file_uri());
-                    // jshint expr:true
+
                     obj.should.be.an.Object;
                     done();
                 });
@@ -288,7 +288,7 @@ describe('Run Workspace related functional tests for the API', function () {
 
         });
 
-        it('Dont create a workspace when the target location already exists', function (done) {
+        it('Dont create a workspace when the target location already exists', function(done) {
             this.timeout(8*this.timeout());
             test_util.ensure_carol_dir()
                 .then(() => {
@@ -321,7 +321,7 @@ describe('Run Workspace related functional tests for the API', function () {
 
     });
 
-    describe('Not implemented Workspace routes', function () {
+    describe('Not implemented Workspace routes', function() {
 
         it('Fail to create Workspace', function(done) {
 

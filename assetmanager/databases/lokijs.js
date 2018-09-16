@@ -12,7 +12,7 @@ const filter_error = err => {
     let error;
     if (err.statusCode && err.message) {
         error = err;
-    } else if (err instanceof Error) { 
+    } else if (err instanceof Error) {
         error = _error_outputs.INTERNALERROR(err.toString());
     } else {
         error = _error_outputs.INTERNALERROR(JSON.stringify(err));
@@ -97,8 +97,8 @@ const loki = workspace_guid => {
             const query = { ref: ref };
             return is_ready()
                 .then(() => that.findAndUpdate(query, doc => {
-                    doc = Object.assign(doc, doc_subset);
-                }));            
+                    Object.assign(doc, doc_subset);
+                }));
         };
 
         const total_docs = () => is_ready()
@@ -116,7 +116,7 @@ const loki = workspace_guid => {
             close: close
         };
     };
-    
+
     return {
         get_adapter: get_adapter,
         get_collection: get_collection

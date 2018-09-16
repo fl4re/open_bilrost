@@ -18,22 +18,22 @@ const mock_config = {
 };
 
 Object.defineProperty(mock_config, 'foo', {
-    get: key => sample.foo,
+    get: () => sample.foo,
     set: (key, new_value) => {
         sample.foo = new_value;
     }
 });
 
 Object.defineProperty(mock_config, 'bar', {
-    get: key => sample.bar,
+    get: () => sample.bar,
     set: new_value => {
         sample.bar = new_value;
     }
 });
 
-describe('Authentication', function () {
+describe('Authentication', function() {
     var server;
-    before('create server', function (done) {
+    before('create server', function(done) {
         server = restify.createServer({});
         server.use(restify.queryParser());
         server.use(restify.bodyParser()); // POST mapped in req.params, req.body
@@ -41,13 +41,13 @@ describe('Authentication', function () {
         server.listen(PORT, done);
         server.server.setTimeout(10);
     });
-    after('remove server', function (done) {
+    after('remove server', function(done) {
         this.timeout(10000);
         server.close(done);
     });
-    it('#GET /config', function (done) {
+    it('#GET /config', function(done) {
         var client = restify.createJSONClient({url: 'http://localhost:' + PORT});
-        client.get('/config', function (err, req, res, obj) {
+        client.get('/config', function(err, req, res, obj) {
             assert.ifError(err);
             assert.equal(200, res.statusCode);
             assert.equal(Object.keys(obj).length, 2);
@@ -55,21 +55,21 @@ describe('Authentication', function () {
             done();
         });
     });
-    it('#GET /config/:key', function (done) {
+    it('#GET /config/:key', function(done) {
         var client = restify.createJSONClient({url: 'http://localhost:' + PORT});
-        client.get('/config/foo', function (err, req, res, obj) {
+        client.get('/config/foo', function(err, req, res, obj) {
             assert.ifError(err);
             assert.equal(200, res.statusCode);
             assert.deepEqual(obj, sample.foo);
             done();
         });
     });
-    it('#PUT /config/:key', function (done) {
+    it('#PUT /config/:key', function(done) {
         var client = restify.createJSONClient({url: 'http://localhost:' + PORT});
-        client.put('/config/bar', { value: 2 }, function (err, req, res, obj) {
+        client.put('/config/bar', { value: 2 }, function(err, req, res) {
             assert.ifError(err);
             assert.equal(204, res.statusCode);
-            client.get('/config/bar', function (err, req, res, obj) {
+            client.get('/config/bar', function(err, req, res, obj) {
                 assert.ifError(err);
                 assert.equal(200, res.statusCode);
                 assert.deepEqual(obj, sample.bar);
@@ -78,12 +78,12 @@ describe('Authentication', function () {
             });
         });
     });
-    it('#DELETE /config/:key', function (done) {
+    it('#DELETE /config/:key', function(done) {
         var client = restify.createJSONClient({url: 'http://localhost:' + PORT});
-        client.del('/config/bar', function (err, req, res, obj) {
+        client.del('/config/bar', function(err, req, res) {
             assert.ifError(err);
             assert.equal(204, res.statusCode);
-            client.get('/config/bar', function (err, req, res, obj) {
+            client.get('/config/bar', function(err, req, res, obj) {
                 assert.ifError(err);
                 assert.equal(200, res.statusCode);
                 assert.deepEqual(obj, 'N/A');

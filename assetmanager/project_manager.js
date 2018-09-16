@@ -39,22 +39,22 @@ module.exports = context => {
                             resolve(obj);
                         }
                     }
-               );
+                );
             } catch (err) {
                 reject(errors.INTERNALERROR(err));
             }
         });
     };
     return {
-        get : function (identifier, options) {
+        get : function(identifier, options) {
             let url = Path.join("/contentbrowser", "projects", identifier);
             return redirect_to_bilrost(url, options);
         },
-        branches : function (repo, branch_name, options) {
+        branches : function(repo, branch_name, options) {
             let url = Path.join("/contentbrowser", "projects", repo, branch_name);
             return redirect_to_bilrost(url, options);
         },
-        assets : function (identifier, repo, branch_name, options) {
+        assets : function(identifier, repo, branch_name, options) {
             let url = Path.join("/contentbrowser", "projects", repo, branch_name, identifier);
             return redirect_to_bilrost(url, options);
         }

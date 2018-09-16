@@ -30,7 +30,7 @@ class Namespace_subscription extends Subscription {
         return this.workspace.asset.validator.run_full_validation(this.descriptor)
             .then(result => {
                 if (result.error) {
-                   throw _error_outputs.INTERNALERROR(result.error);
+                    throw _error_outputs.INTERNALERROR(result.error);
                 }
                 result.forEach(item => {
                     if (item.error) {

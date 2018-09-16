@@ -23,7 +23,7 @@ const test_path = path.join(process.cwd(), 'tmp', 's3-repo-manager');
 fs.mkdirpSync(test_path);
 
 const KB = 1024;
-const generate_string = charCode => {
+const generate_string = () => {
     const size = 1 * KB;
     const get_random_string = () => String.fromCharCode(parseInt(Math.random() * 255, 10));
     let content = new Array(size - 3).join(get_random_string());
@@ -37,16 +37,15 @@ const sha256 = content => crypto.createHash('sha256').update(content).digest('he
 
 const cache = _cache(path.join(test_path, 'Cache'));
 
-describe('S3 repo manager', function () {
-    let bilrost_client, amazon, context;
-    before('Init bilrost', function (done) {
+describe('S3 repo manager', function() {
+    let amazon, context;
+    before('Init bilrost', function(done) {
         this.timeout(20000);
         start_bilrost_client()
             .then(client => {
                 client.set_session_id("1234");
                 const amz_client = amazon_client(client);
                 amazon = amazon_s3(amz_client, cache);
-                bilrost_client = client;
                 context = {
                     bilrost_client: client,
                     amazon_client: amz_client,
@@ -100,7 +99,7 @@ describe('S3 repo manager', function () {
                 done();
             });
     });
-    it('Push files', function (done) {
+    it('Push files', function(done) {
         this.timeout(20000);
         const added_resource_content = generate_string(0);
         const added_key = sha256(added_resource_content);
@@ -114,10 +113,10 @@ describe('S3 repo manager', function () {
         fs.writeFileSync(modified_resource_path, modified_resource_content);
         const get_resource_hash = ref => {
             switch (ref) {
-                case added_resource_ref:
-                    return Promise.resolve(added_key);
-                case modified_resource_ref:
-                    return Promise.resolve(modified_key);
+            case added_resource_ref:
+                return Promise.resolve(added_key);
+            case modified_resource_ref:
+                return Promise.resolve(modified_key);
             }
         };
         const repo_manager = Repo_manager.create({
@@ -198,14 +197,14 @@ describe('S3 repo manager', function () {
         const identity = {
             compare: ref => {
                 switch (ref) {
-                    case unchanged_ref:
-                        return true;
-                    case modified_ref:
-                        return false;
-                    case new_ref:
-                        throw { code: 1 };
-                    case deleted_ref:
-                        throw { code: 2 };
+                case unchanged_ref:
+                    return true;
+                case modified_ref:
+                    return false;
+                case new_ref:
+                    throw { code: 1 };
+                case deleted_ref:
+                    throw { code: 2 };
                 }
             },
             get_resource_hash

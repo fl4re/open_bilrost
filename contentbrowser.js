@@ -19,17 +19,17 @@ const Workspace_presenter = require("./assetmanager/workspace_presenter").Worksp
 const _url = require('url');
 const _path = require('path').posix;
 
-const projects_regexp = /^\/contentbrowser\/projects\/([^\/]*)?(?:\/)?([^\/]*)?/;
-const projects_assets_regexp = /^\/contentbrowser\/projects\/([^\/]*)\/([^\/]*)(?:\/)?(.*)?\/(assets\/.*)/;
-const projects_resources_regexp = /^\/contentbrowser\/projects\/([^\/]*)\/([^\/]*)(?:\/)?(.*)?\/(resources\/.*)/;
+const projects_regexp = /^\/contentbrowser\/projects\/([^/]*)?(?:\/)?([^/]*)?/;
+const projects_assets_regexp = /^\/contentbrowser\/projects\/([^/]*)\/([^/]*)(?:\/)?(.*)?\/(assets\/.*)/;
+const projects_resources_regexp = /^\/contentbrowser\/projects\/([^/]*)\/([^/]*)(?:\/)?(.*)?\/(resources\/.*)/;
 const workspaces_regexp = /^\/contentbrowser\/workspaces(\/)?$/;
-const workspace_regexp = /^\/contentbrowser\/workspaces\/([^\/]*)$/;
-const worspaces_assets_regexp = /^\/contentbrowser\/workspaces\/([^\/]*)(\/assets\/.*)/;
-const worspaces_resources_regexp = /^\/contentbrowser\/workspaces\/([^\/]*)(\/resources\/.*)/;
+const workspace_regexp = /^\/contentbrowser\/workspaces\/([^/]*)$/;
+const worspaces_assets_regexp = /^\/contentbrowser\/workspaces\/([^/]*)(\/assets\/.*)/;
+const worspaces_resources_regexp = /^\/contentbrowser\/workspaces\/([^/]*)(\/resources\/.*)/;
 const current_branch_regexp = /^\/contentbrowser\/workspaces\/(.*)\/branch$/;
 const branches_regexp = /^\/contentbrowser\/workspaces\/(.*)\/branches$/;
 
-const sanitize = function (query_argument) {
+const sanitize = function(query_argument) {
     if (query_argument === undefined) {
         query_argument = '';
     }
@@ -50,13 +50,13 @@ const get_next_url = (url, next) => {
 // Get extension from path
 const substr_ext = path => _path.extname(path).split('.').join('');
 
-module.exports = function (server, context) {
+module.exports = function(server, context) {
     const Workspace = require('./assetmanager/workspace')(context);
     const Project = require('./assetmanager/project_manager')(context);
 
     // API DESCRIPTION
 
-    server.get("/contentbrowser",  function (req, res, next) {
+    server.get("/contentbrowser",  function(req, res, next) {
         new Handler(req, res, next).sendJSON({
             name: "Content browser",
             version: "1.1",
@@ -69,7 +69,7 @@ module.exports = function (server, context) {
 
     // PROJECTS
     // /contentbrowser/projects/{project_full_name}/{branch_name}/{asset_ref}?{filter}{paging}
-    server.get(projects_assets_regexp, function (req, res, next) {
+    server.get(projects_assets_regexp, function(req, res, next) {
         let handler = new Handler(req, res, next);
         let organization = sanitize(req.params[0]);
         let name = sanitize(req.params[1]);
@@ -89,14 +89,14 @@ module.exports = function (server, context) {
     });
 
     // /contentbrowser/projects/{project_full_name}/{branch_name}/{resource_ref}?{filter}{paging}
-    server.get(projects_resources_regexp, function (req, res, next) {
+    server.get(projects_resources_regexp, function(req, res, next) {
         res.status(501);
         res.end();
         next();
     });
 
     // /contentbrowser/projects/{project_full_name}?{filter}{paging}
-    server.get(projects_regexp, function (req, res, next) {
+    server.get(projects_regexp, function(req, res, next) {
         let handler = new Handler(req, res, next);
         let org = sanitize(req.params[0]);
         let project_name = sanitize(req.params[1]);
@@ -116,7 +116,7 @@ module.exports = function (server, context) {
 
     // WORKSPACES
     // /contentbrowser/workspaces/{workspace_id||workspace_name}/{asset_ref}?{q}{paging}
-    server.get(worspaces_assets_regexp, function (req, res, next) {
+    server.get(worspaces_assets_regexp, function(req, res, next) {
         let handler = new Handler(req, res, next);
         let workspace_identifier = decodeURIComponent(req.params[0]);
         let asset_ref = decodeURIComponent(req.params[1]);
@@ -147,7 +147,7 @@ module.exports = function (server, context) {
     });
 
     // /contentbrowser/workspaces/{workspace_id||workspace_name}/{resource_ref}?{q}{paging}
-    server.get(worspaces_resources_regexp, function (req, res, next) {
+    server.get(worspaces_resources_regexp, function(req, res, next) {
         let workspace_identifier = decodeURIComponent(req.params[0]);
         let ref = decodeURIComponent(req.params[1]);
 
@@ -156,7 +156,7 @@ module.exports = function (server, context) {
             handler.handleError(errors('Asset').RESTRICTED('.bilrost directory'));
         }
         Workspace.find(workspace_identifier)
-            .then(function (workspace) {
+            .then(function(workspace) {
                 let options = {
                     filterName: req.query.uri,
                     maxResults: parseInt(req.query.maxResults, 10),
@@ -164,7 +164,7 @@ module.exports = function (server, context) {
                     q: req.query.q
                 };
                 return workspace.resource.get(ref, options)
-                    .then(function (resource) {
+                    .then(function(resource) {
                         let output = resource.output;
                         if (resource.indexOfMoreResults) {
                             output.nextLink = get_next_url(req.url, resource.indexOfMoreResults);
@@ -177,7 +177,7 @@ module.exports = function (server, context) {
                         }
                         handler.sendJSON(output, 200);
                     });
-             }).catch(err => handler.handleError(err));
+            }).catch(err => handler.handleError(err));
     });
 
     server.get(current_branch_regexp, (req, res, next) => {
@@ -188,7 +188,7 @@ module.exports = function (server, context) {
             .catch(err => handler.handleError(err));
     });
 
-    server.get(branches_regexp, function (req, res, next) {
+    server.get(branches_regexp, function(req, res, next) {
         const handler = new Handler(req, res, next);
         const workspace_identifier = decodeURIComponent(req.params[0]);
         Workspace.find(workspace_identifier)
@@ -207,7 +207,7 @@ module.exports = function (server, context) {
     });
 
     // /contentbrowser/workspaces?{filter}{paging}
-    server.get(workspaces_regexp, function (req, res, next) {
+    server.get(workspaces_regexp, function(req, res, next) {
         const handler = new Handler(req, res, next);
         const options = {
             filterName: req.query.name,
@@ -234,7 +234,7 @@ module.exports = function (server, context) {
     });
 
     // /contentbrowser/workspaces/{workspace_id||workspace_name}
-    server.get(workspace_regexp, function (req, res, next) {
+    server.get(workspace_regexp, function(req, res, next) {
         let handler = new Handler(req, res, next);
         let workspace_identifier = decodeURIComponent(req.params[0]);
         if (!workspace_identifier) {

@@ -7,8 +7,6 @@
     version 2.0.0
 */
 
-/* jshint expr: true */
-
 'use strict';
 
 const utilities = require('./utilities');
@@ -46,82 +44,82 @@ const run_full_validation_and_reduce_errors = (validator, ref) => {
         });
 };
 
-const apply_logic_operator = function (operator, reference_value, value_to_compare) {
-    let boolean;
+const apply_logic_operator = function(operator, reference_value, value_to_compare) {
+    let boolean, split;
     switch (operator) {
-        case "<":
-            boolean = new Date(reference_value) < new Date(value_to_compare);
-            break;
-        case "<=":
-            boolean = new Date(reference_value) <= new Date(value_to_compare);
-            break;
-        case ">":
-            boolean = new Date(reference_value) > new Date(value_to_compare);
-            break;
-        case ">=":
-            boolean = new Date(reference_value) >= new Date(value_to_compare);
-            break;
-        case "..":
-            let split = value_to_compare.split("..");
-            reference_value = new Date(reference_value);
-            boolean = new Date(split[0]) < reference_value && reference_value < new Date(split[1]);
-            break;
-        default:
-            throw "Operator not defined";
+    case "<":
+        boolean = new Date(reference_value) < new Date(value_to_compare);
+        break;
+    case "<=":
+        boolean = new Date(reference_value) <= new Date(value_to_compare);
+        break;
+    case ">":
+        boolean = new Date(reference_value) > new Date(value_to_compare);
+        break;
+    case ">=":
+        boolean = new Date(reference_value) >= new Date(value_to_compare);
+        break;
+    case "..":
+        split = value_to_compare.split("..");
+        reference_value = new Date(reference_value);
+        boolean = new Date(split[0]) < reference_value && reference_value < new Date(split[1]);
+        break;
+    default:
+        throw "Operator not defined";
     }
     return boolean;
 };
-const filter = function (MHQL_query, asset) {
+const filter = function(MHQL_query, asset) {
     let boolean;
     switch (MHQL_query.type) {
-        case "word":
-            boolean = asset.meta.ref.includes(MHQL_query.value);
-            break;
-        case "tag":
-            boolean = asset.tags.indexOf(MHQL_query.value) !== -1;
-            break;
-        case "comment":
-            boolean = asset.comment.includes(MHQL_query.value);
-            break;
-        case "main":
-            boolean = asset.main === MHQL_query.value;
-            break;
-        case "dependency":
-            boolean =  asset.dependencies.indexOf(MHQL_query.value) !== -1;
-            break;
-        case "author":
-            boolean =  asset.meta.author.includes(MHQL_query.value);
-            break;
-        case "created":
-            boolean = apply_logic_operator(MHQL_query.operator, asset.meta.created, MHQL_query.value);
-            break;
-        case "modified":
-            boolean = apply_logic_operator(MHQL_query.operator, asset.meta.modified, MHQL_query.value);
-            break;
-        case "version":
-            boolean = asset.meta.version === MHQL_query.value;
-            break;
-        case "or":
-            boolean = MHQL_query.values.reduce(function (previous, current, index) {
-                if (index === 1) {
-                    previous = filter(previous, asset);
-                }
-                return previous || filter(current, asset);
-            });
-            break;
-        case "and":
-            boolean = MHQL_query.values.reduce(function (previous, current, index) {
-                if (index === 1) {
-                    previous = filter(previous, asset);
-                }
-                return previous && filter(current, asset);
-            });
-            break;
-        case "not":
-            boolean = !filter(MHQL_query.values[0], asset);
-            break;
-        default:
-            throw "undefined type in search query representation";
+    case "word":
+        boolean = asset.meta.ref.includes(MHQL_query.value);
+        break;
+    case "tag":
+        boolean = asset.tags.indexOf(MHQL_query.value) !== -1;
+        break;
+    case "comment":
+        boolean = asset.comment.includes(MHQL_query.value);
+        break;
+    case "main":
+        boolean = asset.main === MHQL_query.value;
+        break;
+    case "dependency":
+        boolean =  asset.dependencies.indexOf(MHQL_query.value) !== -1;
+        break;
+    case "author":
+        boolean =  asset.meta.author.includes(MHQL_query.value);
+        break;
+    case "created":
+        boolean = apply_logic_operator(MHQL_query.operator, asset.meta.created, MHQL_query.value);
+        break;
+    case "modified":
+        boolean = apply_logic_operator(MHQL_query.operator, asset.meta.modified, MHQL_query.value);
+        break;
+    case "version":
+        boolean = asset.meta.version === MHQL_query.value;
+        break;
+    case "or":
+        boolean = MHQL_query.values.reduce(function(previous, current, index) {
+            if (index === 1) {
+                previous = filter(previous, asset);
+            }
+            return previous || filter(current, asset);
+        });
+        break;
+    case "and":
+        boolean = MHQL_query.values.reduce(function(previous, current, index) {
+            if (index === 1) {
+                previous = filter(previous, asset);
+            }
+            return previous && filter(current, asset);
+        });
+        break;
+    case "not":
+        boolean = !filter(MHQL_query.values[0], asset);
+        break;
+    default:
+        throw "undefined type in search query representation";
     }
     return boolean;
 };
@@ -185,12 +183,12 @@ asset_model = workspace => {
 
         const get_assets_in_namespace = () => {
             const search_assets = workspace.database.search({ namespace : ref }, options)
-                    .then(search_results => {
-                        if (!search_results.items.length) {
-                            throw _error_outputs.NOTFOUND(ref);
-                        }
-                        return search_results;
-                    });
+                .then(search_results => {
+                    if (!search_results.items.length) {
+                        throw _error_outputs.NOTFOUND(ref);
+                    }
+                    return search_results;
+                });
 
             const search_namespaces = workspace.adapter.getDirectories(get_relative_path(ref))
                 .then(directory_paths => {
@@ -209,9 +207,9 @@ asset_model = workspace => {
                 });
 
             return Promise.all([
-                    search_assets,
-                    search_namespaces
-                ])
+                search_assets,
+                search_namespaces
+            ])
                 .then(res => {
                     const asset_results = res[0];
                     const namespace_results = res[1];
@@ -375,10 +373,10 @@ asset_model = workspace => {
             const remove_old_asset = () => workspace.adapter.removeFile(get_relative_path(ref));
 
             return Promise.all([
-                    write_and_index_asset(),
-                    remove_old_asset(),
-                    rename_asset_dependencies()
-                ])
+                write_and_index_asset(),
+                remove_old_asset(),
+                rename_asset_dependencies()
+            ])
                 .then(() => run_full_validation_and_reduce_errors(validator, new_ref))
                 .then(() => asset.meta);
         })
@@ -413,17 +411,17 @@ asset_model = workspace => {
         .catch(error => filter_error(error));
 
     const del = ref => workspace.database.search({
-           '$or': [
-                {
-                    dependencies: {
-                        '$contains': ref
-                    }
-                },
-                {
-                    main : ref
+        '$or': [
+            {
+                dependencies: {
+                    '$contains': ref
                 }
-            ]
-        })
+            },
+            {
+                main : ref
+            }
+        ]
+    })
         .then(search_results => {
             if (search_results.items.length !== 0) {
                 search_results = search_results.items.map(asset => asset.meta.ref);

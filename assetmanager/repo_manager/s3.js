@@ -71,26 +71,30 @@ const Repo_manager_s3 = input => {
                 .then(key => amazon.download(key, full_path))
                 .catch(filter_error);
         },
-        push_files: (mod_paths, add_paths, del_paths) => {
+        push_files: (mod_paths, add_paths) => {
             const push_file = relative_path => {
                 const ref = input.utilities.relative_path_to_ref(relative_path);
                 const absolute_path = path.join(cwd, relative_path);
                 return identity.get_resource_hash(ref)
                     .then(key => amazon.exists(key)
                         .then(() => {
+                            // eslint-disable-next-line no-console
                             console.log(ref + ' already exists in s3 storage');
                         }, () => amazon.upload(absolute_path, key)
-                        .then(uploader => uploader.start())));
+                            .then(uploader => uploader.start())));
             };
             const files_to_push = mod_paths.concat(add_paths);
             return files_to_push.reduce((sequence_of_promises, file_relative_path, index) => {
                 return sequence_of_promises
                     .then(() => {
+                        // eslint-disable-next-line no-console
                         console.log('Uploading ' + (index + 1) + '/' + files_to_push.length + ' resource...');
+                        // eslint-disable-next-line no-console
                         console.log('Resource name: ' + file_relative_path);
                     })
                     .then(() => push_file(file_relative_path))
                     .then(() => {
+                        // eslint-disable-next-line no-console
                         console.log((index + 1) + '/' + files_to_push.length + ' upload(s) done!');
                     });
             }, Promise.resolve()).catch(filter_error);

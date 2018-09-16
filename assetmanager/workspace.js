@@ -34,7 +34,6 @@ const favorite = require('./favorite')();
 const WORKSPACE_INTERNAL_FOLDER_PATH = '.bilrost';
 
 const transform_error = err => {
-    console.log(err);
     this.error = _error_outputs.INTERNALERROR(err);
     throw this;
 };
@@ -51,7 +50,7 @@ const is_locked = file_uri => workspace_locks.find(lock_uri => lock_uri === file
 
 let database_semaphores = {};
 
-const Workspace = function (file_uri, context) {
+const Workspace = function(file_uri, context) {
     if (!file_uri) {
         throw new Error('Cannot instantiate a Workspace without an file uri');
     }
@@ -348,12 +347,9 @@ const Workspace = function (file_uri, context) {
     };
     this.commit_files = message => this.with_lock(() => this.resource.commit_manager.get_commitable_files()
         .then(resource_commitable_files => {
-            let resource_commit_id, asset_commit_id;
+            let asset_commit_id;
             return this.resource.identity.build_and_stage_identity_files(resource_commitable_files)
                 .then(() => this.resource.commit_manager.commit_files(message, resource_commitable_files))
-                .then(id => {
-                    resource_commit_id = id;
-                })
                 .then(() => this.asset.commit_manager.commit_files(message))
                 .then(id => {
                     asset_commit_id = id;
@@ -373,17 +369,17 @@ const Workspace = function (file_uri, context) {
         }));
     this.get_commit_logs = (start_at_revision, maxResults) => {
         return Promise.all([
-                this.resource.commit_manager.get_commit_log('', start_at_revision, maxResults),
-                this.asset.commit_manager.get_commit_log('', start_at_revision, maxResults)
-            ]).then(prom_res => {
-                const resource_logs = prom_res[0];
-                const asset_logs = prom_res[1];
-                resource_logs.forEach((resource_log, index) => {
-                    const asset_log = asset_logs[index];
-                    asset_log.changed_paths = asset_log.changed_paths.concat(resource_log.changed_paths);
-                });
-                return asset_logs;
+            this.resource.commit_manager.get_commit_log('', start_at_revision, maxResults),
+            this.asset.commit_manager.get_commit_log('', start_at_revision, maxResults)
+        ]).then(prom_res => {
+            const resource_logs = prom_res[0];
+            const asset_logs = prom_res[1];
+            resource_logs.forEach((resource_log, index) => {
+                const asset_log = asset_logs[index];
+                asset_log.changed_paths = asset_log.changed_paths.concat(resource_log.changed_paths);
             });
+            return asset_logs;
+        });
     };
     this.get_commit_log = (ref, start_at_revision, maxResults) => {
         const is_asset = this.utilities.is_asset_ref(ref);

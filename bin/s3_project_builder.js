@@ -33,6 +33,7 @@ const copy_and_rename_file_to_upload_to_s3 = (resource_absolute, output_director
         const read_hash = hash.read();
         fd_write_file.on('error', reject);
         fd_write_file.on('end', () => {
+            // eslint-disable-next-line no-console
             console.log('Wrote ' + Path.join(output_directory, read_hash) + ' s3 file!');
             resolve(read_hash);
         });
@@ -53,6 +54,7 @@ const generate_identity_file = (resource_absolute, output_relative, base) => rea
         const identity_file = build_identity_file_path(resource_relative, output_relative, base);
         return write_file(identity_file, format_identity_content(hash))
             .then(() => {
+                // eslint-disable-next-line no-console
                 console.log('Wrote ' + Path.join(output_relative, resource_relative) + ' identity file!');
             });
     });
@@ -74,8 +76,10 @@ program
             .then(resource_absolutes => resource_absolutes.reduce((sequence, resource_absolute) => sequence
                 .then(() => generate_identity_file(to_posix(resource_absolute), to_posix(output_relative), base)), Promise.resolve()))
             .then(() => {
+                // eslint-disable-next-line no-console
                 console.log('done!');
             })
+            // eslint-disable-next-line no-console
             .catch(console.error);
     });
 
@@ -91,8 +95,10 @@ program
             .then(resource_absolutes => resource_absolutes.reduce((sequence, resource_absolute) => sequence
                 .then(() => generate_file_to_upload_to_s3(to_posix(resource_absolute), to_posix(output_relative), base)), Promise.resolve()))
             .then(() => {
+                // eslint-disable-next-line no-console
                 console.log('done!');
             })
+            // eslint-disable-next-line no-console
             .catch(console.error);
     });
 
@@ -113,8 +119,10 @@ program
                 return write_file(output_absolute, content);
             })
             .then(() => {
+            // eslint-disable-next-line no-console
                 console.log('done!');
             })
+            // eslint-disable-next-line no-console
             .catch(console.error);
     });
 
@@ -122,6 +130,7 @@ program
     .command('help')
     .description("display this help.")
     .action(() => {
+        // eslint-disable-next-line no-console
         console.info('identity resource CLI  v', program.version());
         program.help();
     });

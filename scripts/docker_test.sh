@@ -22,6 +22,7 @@ RUN git config --global --add bilrost.protocol ssh
 RUN echo \"https://$GITHUB_USERNAME:$GITHUB_PASSWORD@github.com\" > ~/.git-credentials
 RUN git config --global credential.helper store
 RUN npm install
+CMD [\"npm\", \"run\", \"eslint\"]
 CMD [\"npm\", \"test\"]
 " > Dockerfile
 
@@ -33,7 +34,6 @@ rm -f Dockerfile
 # This section actually runs the tests and cleans up.
 # Note that a docker volume is mounted to retrieve the reports (xunit, coverage, etc).
 
-docker run --rm ${DOCKER_IMAGE} jshint . --exclude ./node_modules
 mkdir -p reports
 docker run --rm -v ${WORKSPACE}/reports:/app/reports ${DOCKER_IMAGE} npm run jenkins
 

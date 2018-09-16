@@ -10,7 +10,7 @@ const status_config = require('../../../../assetmanager/status.config.json');
 
 var test_util = new Test_util("status", "good_repo");
 
-describe('Run Status related functional tests for the API', function () {
+describe('Run Status related functional tests for the API', function() {
 
     before("Starting a Content Browser server", done => test_util.start_server(done));
 
@@ -27,7 +27,7 @@ describe('Run Status related functional tests for the API', function () {
     });
     after("Removing fixtures", done => test_util.remove_fixtures(done));
 
-    describe('Retrieve Status', function () {
+    describe('Retrieve Status', function() {
         it('Retrieve general Status of the Workspace', function(done) {
             this.timeout(7*this.timeout()); // = 5 * default = 5 * 2000 = 10000
             test_util.client
@@ -44,21 +44,21 @@ describe('Run Status related functional tests for the API', function () {
                 });
         });
 
-        it('Add Asset Subscription to Workspace', function (done) {
+        it('Add Asset Subscription to Workspace', function(done) {
             this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
             test_util.client
                 .post(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), '/subscriptions'))
                 .send({
-                        type: "ASSET",
-                        descriptor: "/assets/test_1_1_0.level"
-                    })
+                    type: "ASSET",
+                    descriptor: "/assets/test_1_1_0.level"
+                })
                 .set("Accept", 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    // jshint expr:true
+
                     res.error.should.equal(false);
                     res.body.should.be.an.Object;
                     res.body.type.should.equal('ASSET');

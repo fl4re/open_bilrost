@@ -56,15 +56,15 @@ class Repo_manager {
         return Promise.resolve(this.current_status_callback());
     }
 
-    create_and_populate_workspace (host_url, branch) {
+    create_and_populate_workspace () {
         return Promise.resolve();
     }
 
-    pull_file (file_ref) {
+    pull_file () {
         return Promise.resolve();
     }
 
-    push_files (mod_paths, add_paths, del_paths, message, branch) {
+    push_files () {
         return Promise.resolve(this.push_files_callback());
     }
 }

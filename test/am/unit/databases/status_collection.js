@@ -7,7 +7,7 @@
 const should = require('should');
 const status_collection = require('../../../../assetmanager/databases/status_collection');
 
-describe('Database object', function () {
+describe('Database object', function() {
 
     let collection;
 
@@ -34,12 +34,12 @@ describe('Database object', function () {
             .then(() => done(), done);
     });
 
-    after("Reset database", function () {
+    after("Reset database", function() {
         return collection.close();
     });
 
-    describe('collection', function () {
-        it('#total_docs', function (done) {
+    describe('collection', function() {
+        it('#total_docs', function(done) {
             collection
                 .total_docs()
                 .then(total_docs => {
@@ -49,7 +49,7 @@ describe('Database object', function () {
                 .catch(done);
         });
 
-        it('#add', function (done) {
+        it('#add', function(done) {
             collection
                 .add(alice_status)
                 .then(() => collection.total_docs())
@@ -60,7 +60,7 @@ describe('Database object', function () {
                 .catch(done);
         });
 
-        it('#search', function (done) {
+        it('#search', function(done) {
             collection
                 .search(where('ref', 'alice'))
                 .then(search_results => {
@@ -71,7 +71,7 @@ describe('Database object', function () {
                 .catch(done);
         });
 
-        it('#update', function (done) {
+        it('#update', function(done) {
             collection
                 .update("alice", { comment: 'hello' })
                 .then(() => collection.get("alice"))
@@ -83,7 +83,7 @@ describe('Database object', function () {
                 .catch(done);
         });
 
-        it('#get', function (done) {
+        it('#get', function(done) {
             collection
                 .get("alice")
                 .then(document => {
@@ -92,8 +92,8 @@ describe('Database object', function () {
                 })
                 .catch(done);
         });
-        
-        it('#remove', function (done) {
+
+        it('#remove', function(done) {
             collection
                 .remove("alice")
                 .then(() => collection.total_docs())
@@ -104,7 +104,7 @@ describe('Database object', function () {
                 .catch(done);
         });
 
-        describe('Search', function () {
+        describe('Search', function() {
 
             before("Add test statuses", function(done) {
                 Promise.all([
@@ -113,7 +113,7 @@ describe('Database object', function () {
                 ]).then(() => done(), done);
             });
 
-            it('searches by ref', function (done) {
+            it('searches by ref', function(done) {
                 collection
                     .search(where('ref', 'alice'))
                     .then(result => {
@@ -124,14 +124,14 @@ describe('Database object', function () {
                     .catch(done);
             });
 
-            it('Pagination', function (done) {
+            it('Pagination', function(done) {
                 collection
                     .search({}, { maxResults: 1 })
                     .then((search_results) => {
                         search_results.totalItems.should.equal(2);
                         search_results.items.length.should.equal(1);
                         return collection
-                             
+
                             .search({}, { maxResults: 1, start: 1 })
                             .then((search_results) => {
                                 search_results.totalItems.should.equal(2);
@@ -144,11 +144,11 @@ describe('Database object', function () {
 
         });
 
-        describe('Performance tests', function () {
+        describe('Performance tests', function() {
 
             before("Flush database", () => collection.flush());
 
-            it('test 100 status addition one by one', function (done) {
+            it('test 100 status addition one by one', function(done) {
                 let promises = [];
                 const ref_asset = alice_status;
                 for (let i=0; i<100; i++) {
@@ -166,7 +166,7 @@ describe('Database object', function () {
                     .catch(done);
             });
 
-            it('Search the 100 statuses added', function (done) {
+            it('Search the 100 statuses added', function(done) {
                 collection
                     .search(where('state', 'VALID'))
                     .then((search_results) => {
@@ -176,7 +176,7 @@ describe('Database object', function () {
                     .catch(done);
             });
 
-            it('test 100 status addition by batch', function (done) {
+            it('test 100 status addition by batch', function(done) {
                 let statuses = [];
                 const ref_asset = alice_status;
                 for (let i=100; i<200; i++) {
@@ -196,7 +196,7 @@ describe('Database object', function () {
                     .catch(done);
             });
 
-            it('Search the 200 statuses added', function (done) {
+            it('Search the 200 statuses added', function(done) {
                 collection
                     .search(where('state', 'VALID'), { maxResults: 100 })
                     .then(search_results => {

@@ -21,7 +21,7 @@ const async_relative_path = path.join('tmp', 'fixtures', 'external', 'async.js')
 const async_external = external_service.create(async_relative_path);
 const async_script = 'process.stdin.resume();';
 
-describe('Externals', function () {
+describe('Externals', function() {
 
     before("Create synchronous external script", done => {
         fs.outputFile(sync_external_path, sync_script, err => {
@@ -29,7 +29,7 @@ describe('Externals', function () {
                 return err;
             }
             done();
-        }); 
+        });
     });
 
     before("Create asynchronous external script", done => {
@@ -38,7 +38,7 @@ describe('Externals', function () {
                 return err;
             }
             done();
-        }); 
+        });
     });
 
     it("Start a 'synchronous' external", done => {

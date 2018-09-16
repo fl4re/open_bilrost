@@ -31,20 +31,20 @@ const workspace_factory = {
     create_workspace (url, branch, file_uri, name, credentials) {
         const path = utilities.convert_file_uri_to_path(file_uri);
         return new Promise((resolve, reject) => {
-                fs.exists(path, exists => {
-                    if (exists) {
-                        reject(_error_outputs.ALREADYEXIST(path));
-                    } else {
-                        resolve();
-                    }
-                });
-            })
+            fs.exists(path, exists => {
+                if (exists) {
+                    reject(_error_outputs.ALREADYEXIST(path));
+                } else {
+                    resolve();
+                }
+            });
+        })
             .then(() => promisify(fs.mkdirs)(path))
             .then(() => repo_manager.create({
-                    host_vcs: 'git',
-                    cwd: path,
-                    credentials
-                }).clone_workspace(url, branch))
+                host_vcs: 'git',
+                cwd: path,
+                credentials
+            }).clone_workspace(url, branch))
             .catch(error => {
                 throw error.statusCode === 403 ? error : _error_outputs.INTERNALERROR(error);
             });

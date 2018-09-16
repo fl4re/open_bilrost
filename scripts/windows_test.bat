@@ -13,7 +13,7 @@ copy /Y %AWS_S3_CREDENTIALS% config\
 call npm install
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-call jshint . --exclude ./node_modules
+call npm run eslint
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 call npm run jenkins

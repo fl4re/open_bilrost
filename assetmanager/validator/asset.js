@@ -47,18 +47,18 @@ var project_schema = {
     "properties": {
         "name": {
             "type":"string",
-            "pattern": /^[[\w\/\.-]{0,100}$/
+            "pattern": /^[[\w/.-]{0,100}$/
         },
         "full_name": {
             "type":"string",
-            "pattern": /^[[\w\/\.-].*$/
+            "pattern": /^[[\w/.-].*$/
         },
         "url": {
             "type":"string"
         },
         "branch": {
             "type":"string",
-            "pattern": /^[[\w\/\.-]{0,100}$/
+            "pattern": /^[[\w/.-]{0,100}$/
         }
     },
     required: ["name", "full_name", "url", "branch"]
@@ -82,7 +82,7 @@ const meta_schema = {
         },
         "author": {
             "type": "string",
-            "pattern": /^[[\w\/\.-]{0,100}$/
+            "pattern": /^[[\w/.-]{0,100}$/
         },
         "version": {
             "type": "string",
@@ -147,19 +147,19 @@ function Asset(workspace) {
     this.is_valid_schema = asset => Validator.validate(asset, assets_schema_1_1_0);
 
     // this method checks if equivalent refs, same filename with sensitive case and same ext file with insensitive case
-    this.are_equivalent_refs = deps => deps.map((ref, index) => ({
-            ref,
-            formatted_ref: ref.toUpperCase()
-        }))
-            .sort((a, b) => a.formatted_ref.localeCompare(b.formatted_ref))
-            .filter((current, index, array) => {
-                const previous = array[index - 1];
-                const next = array[index + 1];
-                const is_previous_matching = previous && current.ref !== previous.ref && current.formatted_ref === previous.formatted_ref;
-                const is_next_matching = next && current.ref !== next.ref && current.formatted_ref === next.formatted_ref;
-                return is_previous_matching || is_next_matching;
-            })
-            .map(obj => obj.ref);
+    this.are_equivalent_refs = deps => deps.map(ref => ({
+        ref,
+        formatted_ref: ref.toUpperCase()
+    }))
+        .sort((a, b) => a.formatted_ref.localeCompare(b.formatted_ref))
+        .filter((current, index, array) => {
+            const previous = array[index - 1];
+            const next = array[index + 1];
+            const is_previous_matching = previous && current.ref !== previous.ref && current.formatted_ref === previous.formatted_ref;
+            const is_next_matching = next && current.ref !== next.ref && current.formatted_ref === next.formatted_ref;
+            return is_previous_matching || is_next_matching;
+        })
+        .map(obj => obj.ref);
 
     this.is_invalid_paths_in_data = asset => {
         const is_invalid_ref = ref => {
@@ -350,8 +350,8 @@ function Asset(workspace) {
                     }),
                     this.check_deps_full(asset.dependencies)
                 ]).then(() => this.is_invalid_paths_in_data(asset))
-                .then(handle_success)
-                .catch(handle_error);
+                    .then(handle_success)
+                    .catch(handle_error);
             })));
     };
 }

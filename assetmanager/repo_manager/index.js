@@ -13,12 +13,12 @@ module.exports = {
         input.exec = input.exec || require('child_process').exec;
         input.exec_by_line = input.exec_by_line || require('../../util/exec_by_line');
         switch (input.host_vcs) {
-            case "git":
-                return new Repo_manager_git(input);
-            case "s3":
-                return repo_manager_s3(input);
-            default:
-                throw {error: errors.INTERNALERROR("Workspace vcs host is unknown")};
+        case "git":
+            return new Repo_manager_git(input);
+        case "s3":
+            return repo_manager_s3(input);
+        default:
+            throw {error: errors.INTERNALERROR("Workspace vcs host is unknown")};
         }
     }
 };

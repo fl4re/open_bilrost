@@ -6,7 +6,7 @@
 
 require('should');
 
-describe('Favorite object', function () {
+describe('Favorite object', function() {
     const favorite = require('../../../assetmanager/favorite')();
 
     const example_1 = {
@@ -29,7 +29,7 @@ describe('Favorite object', function () {
             });
         });
 
-        it('Dont add workspace with same name', function (done) {
+        it('Dont add workspace with same name', function(done) {
             favorite.add(example_1)
                 .then(() => {
                     done('This shouldnt pass!');
@@ -57,7 +57,7 @@ describe('Favorite object', function () {
             });
         });
 
-        it('doesnt complain removing unexisting workspaces', function () {
+        it('doesnt complain removing unexisting workspaces', function() {
             return favorite.remove(example_2.file_uri).then(() => {
                 return favorite.list().length.should.equal(1);
             });
@@ -66,7 +66,7 @@ describe('Favorite object', function () {
     });
 
     describe('Finding', () => {
-        before(function () {
+        before(function() {
             return favorite.flush().then(() => favorite.add(example_1));
         });
         it('finds by name', () => {

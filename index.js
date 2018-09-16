@@ -130,8 +130,11 @@ process.on('uncaughtException', function(err) {
 });
 
 process.on('unhandledRejection', (reason, promise_data) => {
+    // eslint-disable-next-line no-console
     console.log("unhandledRejection");
+    // eslint-disable-next-line no-console
     console.log(reason);
+    // eslint-disable-next-line no-console
     console.log(promise_data);
 });
 

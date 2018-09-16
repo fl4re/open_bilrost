@@ -49,7 +49,7 @@ const workspace_schema = {
         },
         "version": {
             "type":"string",
-            "pattern": /^[0-9\.]*$/
+            "pattern": /^[0-9.]*$/
         },
         "guid": {
             "type":"string",
@@ -73,7 +73,7 @@ const workspace_schema = {
         },
         "author": {
             "type": "string",
-            "pattern": /^[[\w\/\.-]{0,100}$/
+            "pattern": /^[[\w/.-]{0,100}$/
         },
         "description": {
             "type": "string"
@@ -108,7 +108,7 @@ const project_schema = {
         },
         "full_name": {
             "type":"string",
-            "pattern": /^[[\w\/\.-]{0,100}$/
+            "pattern": /^[[\w/.-]{0,100}$/
         },
         "url": {
             "type":"string"
@@ -127,7 +127,7 @@ const project_schema = {
         },
         "author": {
             "type": "string",
-            "pattern": /^[[\w\/\.-]{0,100}$/
+            "pattern": /^[[\w/.-]{0,100}$/
         },
         "description": {
             "type": "object"
@@ -149,7 +149,7 @@ const project_schema = {
         }
     },
     required: [ "name", "full_name", "url",
-    "pushed_at", "created_at", "updated_at"]
+        "pushed_at", "created_at", "updated_at"]
 };
 
 const Workspace = function Workspace(workspace_adapter, get_internal_file_path) {
@@ -166,7 +166,7 @@ const Workspace = function Workspace(workspace_adapter, get_internal_file_path) 
                         (file_stats[i].name === 'workspace' && !file_stats[i].isDirectory()) ||
                         (file_stats[i].name === 'project' && !file_stats[i].isDirectory()) ||
                         (file_stats[i].name === 'assets' && file_stats[i].isDirectory())
-                        ) {
+                    ) {
                         valid_count ++;
                     }
                 }

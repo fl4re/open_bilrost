@@ -8,9 +8,9 @@ const should = require('should');
 const Validator = require('../../../../assetmanager/validator/asset');
 const valid = new Validator({ adapter: {}, database: {} });
 
-describe('Asset validator', function () {
+describe('Asset validator', function() {
 
-    it('Check some resources are found equivalents #1', function (done) {
+    it('Check some resources are found equivalents #1', function(done) {
         const res = valid.are_equivalent_refs([
             'a.ext',
             'b.ext',
@@ -37,7 +37,7 @@ describe('Asset validator', function () {
         done();
     });
 
-    it('Check some resources are found equivalents #2', function (done) {
+    it('Check some resources are found equivalents #2', function(done) {
         const deps = [
             "/resources/a/b/1.png",
             "/resources/a/b/2.png",
