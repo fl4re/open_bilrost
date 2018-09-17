@@ -4,18 +4,20 @@
 
 'use strict';
 
-const Test_util = require('../../../util/test_util');
+const bilrost = require('../../../util/bilrost');
 
-var test_util = new Test_util("api", "api");
+let client;
 
-describe('Run functional tests for the API Description', function() {
+describe('Run functional tests for the API Description', function () {
 
-    before("Starting a Content Browser server", done => test_util.start_server(done));
+    before("Starting a Content Browser server", async () => {
+        client = await bilrost.start();
+    });
 
     describe('API description', function() {
         it('Retrieve information about Asset Manager API', function(done) {
 
-            test_util.client
+            client
                 .get('/assetmanager')
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')

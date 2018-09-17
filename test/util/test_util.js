@@ -26,14 +26,14 @@ const fixtures_path = path.join(__dirname.replace(/\\/g, '/'), '../fixtures');
 
 class Test_util {
 
-    constructor (schema, branch) {
+    constructor (schema, branch, client) {
         if (!schema) {throw new Error('Test_util must be create with schema');}
         if (!branch) {throw new Error('Test_util must be create with branch');}
 
         this.externals = [];
 
         this.branch = branch;
-
+        this.client = client;
         this.asset_manager = require('../../assetmanager');
         this.content_browser = require('../../contentbrowser');
 

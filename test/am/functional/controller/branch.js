@@ -10,26 +10,29 @@ global.debug = true;
 const path = require('path');
 const should = require('should');
 const Test_util = require('../../../util/test_util');
+const bilrost = require('../../../util/bilrost');
 
-const test_util = new Test_util("branch", "good_repo");
+let client, test_util;
 
 describe('Run Workspace related functional tests for the API', function() {
 
-    let err, req, res;
+    let name, err, req, res;
     const bilrost_client = {
         get: (url, callback) => callback(err, req, res, test_util.get_example_project())
     };
 
-    before("Starting a Content Browser server", done => test_util.start_server(done, {
-        bilrost_client: bilrost_client,
-        protocol: 'ssh'
-    }));
-
-    let name = test_util.get_example_project().name;
+    before("Starting a Content Browser server", async () => {
+        client = await bilrost.start({
+            bilrost_client,
+            protocol: 'ssh'
+        });
+        test_util = new Test_util("branch", "good_repo", client);
+        name = test_util.get_example_project().name;
+    });
 
     before("Creating fixtures", function(done) {
         this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
-        test_util.client
+        client
             .post('/assetmanager/workspaces')
             .send({
                 file_uri: test_util.get_carol_file_uri(),
@@ -57,7 +60,7 @@ describe('Run Workspace related functional tests for the API', function() {
 
     after('Delete a workspace', function(done) {
         this.timeout(this.timeout * 3);
-        test_util.client
+        client
             .delete(path.join('/assetmanager/workspaces/', name))
             .send()
             .set("Accept", 'application/json')
@@ -74,7 +77,7 @@ describe('Run Workspace related functional tests for the API', function() {
     });
 
     it('Get branch name', function(done) {
-        test_util.client
+        client
             .get('/contentbrowser/workspaces/' + name + '/branch')
             .expect(200)
             .set('Accept', 'application/json')
@@ -88,7 +91,7 @@ describe('Run Workspace related functional tests for the API', function() {
     });
 
     it('Get branch names', function(done) {
-        test_util.client
+        client
             .get('/contentbrowser/workspaces/' + name + '/branches')
             .expect(200)
             .set('Accept', 'application/json')
@@ -102,7 +105,7 @@ describe('Run Workspace related functional tests for the API', function() {
     });
 
     it('Create a branch', function(done) {
-        test_util.client
+        client
             .put('/assetmanager/workspaces/' + name + '/branch/test')
             .send()
             .set('Accept', 'application/json')
@@ -118,7 +121,7 @@ describe('Run Workspace related functional tests for the API', function() {
 
     it('Change to existing branch', function(done) {
         this.timeout(4000);
-        test_util.client
+        client
             .post('/assetmanager/workspaces/' + name + '/branch/good_repo/change')
             .send()
             .set('Accept', 'application/json')
@@ -133,7 +136,7 @@ describe('Run Workspace related functional tests for the API', function() {
     });
 
     it('Delete a branch', function(done) {
-        test_util.client
+        client
             .del('/assetmanager/workspaces/' + name + '/branch/test')
             .send()
             .expect(200)
@@ -148,7 +151,7 @@ describe('Run Workspace related functional tests for the API', function() {
     });
 
     it('Fail to create already existing branch', function(done) {
-        test_util.client
+        client
             .put('/assetmanager/workspaces/' + name + '/branch/good_repo')
             .send()
             .set('Accept', 'application/json')
@@ -161,7 +164,7 @@ describe('Run Workspace related functional tests for the API', function() {
 
     it('Fail to change to an unknown branch', function(done) {
         this.timeout(10000);
-        test_util.client
+        client
             .post('/assetmanager/workspaces/' + name + '/branch/uknown/change')
             .send()
             .set('Accept', 'application/json')

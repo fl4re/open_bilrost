@@ -10,7 +10,9 @@ global.debug = true;
 const should = require('should');
 const Test_util = require('../../../util/test_util');
 
-var test_util = new Test_util('populate_workspace', 'good_repo');
+const bilrost = require('../../../util/bilrost');
+
+let client, test_util;
 
 describe('Run Workspace related functional tests for the API', function() {
     /* faking bilrost-client
@@ -24,10 +26,13 @@ describe('Run Workspace related functional tests for the API', function() {
         get: (url, callback) => callback(err, req, res, obj)
     };
 
-    before('Starting a Content Browser server', done => test_util.start_server(done, {
-        bilrost_client: bilrost_client,
-        protocol: 'ssh'
-    }));
+    before("Starting a Content Browser server", async () => {
+        client = await bilrost.start({
+            bilrost_client,
+            protocol: 'ssh'
+        });
+        test_util = new Test_util('populate_workspace', 'good_repo', client);
+    });
 
     before('Creating fixtures', function(done) {
         this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000

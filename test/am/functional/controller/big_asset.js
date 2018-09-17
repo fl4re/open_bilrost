@@ -12,8 +12,7 @@ const promisify = require('../../../../util/promisify');
 const v8 = require('v8');
 
 const Test_util = require('../../../util/test_util');
-
-const test_util = new Test_util("big_asset", "good_repo");
+const bilrost = require('../../../util/bilrost');
 
 const MB = 1024 * 1024;
 let random_names = [];
@@ -24,11 +23,14 @@ const generate_random_path = () => {
     return path.join(test_util.get_eloise_path(), random_name);
 };
 
-describe('Run Asset related functional tests for the API', function() {
+let client, test_util;
 
-    before("Starting a Content Browser server", done => test_util.start_server(done, {
-        bilrost_client: {}
-    }));
+describe('Run Asset related functional tests for the API', function () {
+
+    before("Starting a Content Browser server", async () => {
+        client = await bilrost.start();
+        test_util = new Test_util("big_asset", "good_repo", client);
+    });
 
     before("Creating fixtures", function(done) {
         this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
@@ -69,7 +71,7 @@ describe('Run Asset related functional tests for the API', function() {
 
             const heap_size = v8.getHeapStatistics().total_heap_size;
 
-            test_util.client
+            client
                 .put(path.join('/assetmanager/workspaces/', test_util.get_workspace_name(), asset_ref))
                 .send(asset)
                 .set("Content-Type", "application/vnd.bilrost.level+json")

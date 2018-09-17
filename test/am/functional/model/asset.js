@@ -23,11 +23,7 @@ let workspace, asset_instance;
 
 const isWin = /^win/.test(process.platform);
 
-var test_util = new Test_util("model_asset", "bad_repo");
-const fixtures = test_util.get_fixtures();
-
-let example_file_uri = path.join(fixtures, svn_repo_name);
-example_file_uri = 'file://'+ (isWin?'/':'') + example_file_uri;
+const bilrost = require('../../../util/bilrost');
 
 const test_level = {
     "meta":{
@@ -47,17 +43,22 @@ const test_level = {
     "semantics": []
 };
 
-const workspace_identifiers = {
-    name: "test-workspace",
-    file_uri: example_file_uri,
-    version_id: "5"
-};
+let client, test_util, example_file_uri, workspace_identifiers;
 
 describe('Run set of test for asset management methods', function() {
 
-    before("Starting a Content Browser server", done => test_util.start_server(done, {
-        bilrost_client: {}
-    }));
+    before("Starting a Content Browser server", async () => {
+        client = await bilrost.start();
+        test_util = new Test_util("model_asset", "bad_repo", client);
+        const fixtures = test_util.get_fixtures();
+        example_file_uri = path.join(fixtures, svn_repo_name);
+        example_file_uri = 'file://'+ (isWin?'/':'') + example_file_uri;
+        workspace_identifiers = {
+            name: "test-workspace",
+            file_uri: example_file_uri,
+            version_id: "5"
+        };
+    });
 
     before(() => favorite.flush());
 
