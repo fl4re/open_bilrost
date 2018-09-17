@@ -40,7 +40,7 @@ module.exports = {
         server.use(restify.queryParser());
         server.use(restify.bodyParser());
 
-        return new Promise((resolve, reject) => {
+        return new Promise(resolve => {
             server.listen(port, () => {
                 const client = supertest(server);
                 asset_manager(server, context);

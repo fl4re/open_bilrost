@@ -4,17 +4,14 @@
 
 'use strict';
 
-const Test_util = require('../../../util/test_util');
 const bilrost = require('../../../util/bilrost');
-
-var test_util = new Test_util("api", "api");
 
 let client;
 
 describe('Run functional tests for the API Description', function () {
 
     before("Starting a Content Browser server", async () => {
-        client = await bilrost.start()
+        client = await bilrost.start();
     });
 
     describe('API description', function() {
