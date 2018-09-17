@@ -14,19 +14,19 @@ class Subscription {
         this.descriptor = descriptor;
     }
 
-    validate_descriptor (workspace) {
+    validate_descriptor () {
         return Promise.reject(_error_outputs.INTERNALERROR("Method not implemented."));
     }
 
-    validate_dependencies (workspace) {
+    validate_dependencies () {
         return Promise.reject(_error_outputs.INTERNALERROR("Method not implemented."));
     }
 
-    list_assets (workspace) {
+    list_assets () {
         return Promise.reject(_error_outputs.INTERNALERROR("Method not implemented."));
     }
 
-    list_dependencies (workspace) {
+    list_dependencies () {
         return Promise.reject(_error_outputs.INTERNALERROR("Method not implemented."));
     }
 

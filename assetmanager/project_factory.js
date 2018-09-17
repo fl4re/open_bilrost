@@ -14,7 +14,7 @@ const transform_error = err => {
 };
 
 let Project_factory = {
-   get_project: workspace => {
+    get_project: workspace => {
         return workspace.adapter.readJson(workspace.get_internal_file_path('project'))
             .then(project, transform_error);
     }

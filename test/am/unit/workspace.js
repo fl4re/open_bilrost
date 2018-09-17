@@ -10,7 +10,7 @@ const path = require('path').posix;
 const favorite = require('../../../assetmanager/favorite')();
 const Test_util = require('../../util/test_util');
 
-describe('Workspace object', function () {
+describe('Workspace object', function() {
 
     const test_util = new Test_util("workspace_object", "bad_repo");
 
@@ -154,8 +154,8 @@ describe('Workspace object', function () {
         });
     });
 
-    describe('-- Check workspace locks', function () {
-        it("Lock workspace when committing", function (done) {
+    describe('-- Check workspace locks', function() {
+        it("Lock workspace when committing", function(done) {
             Workspace.find_by_file_uri(example1_workspace.file_uri)
                 .then(workspace => {
                     workspace.commit_files('foo');
@@ -169,7 +169,7 @@ describe('Workspace object', function () {
                     }
                 });
         });
-        it("Lock workspace when subscribing", function (done) {
+        it("Lock workspace when subscribing", function(done) {
             Workspace.find_by_file_uri(example1_workspace.file_uri)
                 .then(workspace => {
                     workspace.add_subscription('foo', 'bar');
@@ -207,12 +207,12 @@ describe('Workspace object', function () {
             Workspace.find_by_file_uri(example1_workspace.file_uri).then(workspace => {
                 should.not.exist(workspace.error);
                 return Asset.find_asset_by_ref(workspace, 'assets/unknown').then(function(){
-                        done("Test fail, asset shouldn't exist");
-                    }).catch(function(error){
-                        error.should.have.keys('statusCode', 'message', 'stack');
-                        error.statusCode.should.equal(404);
-                        done();
-                    });
+                    done("Test fail, asset shouldn't exist");
+                }).catch(function(error){
+                    error.should.have.keys('statusCode', 'message', 'stack');
+                    error.statusCode.should.equal(404);
+                    done();
+                });
             }).catch(workspace => {
                 done(workspace.error ?workspace.error : workspace);
             });
@@ -339,9 +339,9 @@ describe('Workspace object', function () {
                                 done();
                             });
                     });
-                }).catch(workspace => {
-                    done(workspace.error ?workspace.error : workspace);
-                });
+            }).catch(workspace => {
+                done(workspace.error ?workspace.error : workspace);
+            });
         });
     });
 

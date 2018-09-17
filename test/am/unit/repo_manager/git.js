@@ -10,7 +10,7 @@ const _path = require('path');
 const Repo_manager = require('../../../../assetmanager/repo_manager');
 const workspace_utilities = require('../../../../assetmanager/workspace_utilities');
 
-describe('Github repo manager', function () {
+describe('Github repo manager', function() {
 
     it('#current_status', done => {
         const exec_by_line = (a, b, callback) => Promise.resolve([

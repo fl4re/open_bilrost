@@ -8,10 +8,10 @@ const path = require('path');
 const fs = require('fs');
 const Handler = require('./lib/handler');
 
-module.exports = function (server, bilrost_client) {
+module.exports = function(server, bilrost_client) {
 
     const get_access_token = function get_access_token(access_code, handler) {
-        bilrost_client.get("/auth/access_token?code=" + access_code, function (err, req, res, obj) {
+        bilrost_client.get("/auth/access_token?code=" + access_code, function(err, req, res, obj) {
             if (err) {
                 server.log.error(err);
                 handler.handleError(err);
@@ -34,7 +34,7 @@ module.exports = function (server, bilrost_client) {
     };
 
     const get_access_code = function get_access_code(handler) {
-        bilrost_client.get("/auth/access_code", function (err, req, res, obj) {
+        bilrost_client.get("/auth/access_code", function(err, req, res) {
             if (err) {
                 server.log.error(err);
                 handler.handleError(err);
@@ -47,7 +47,7 @@ module.exports = function (server, bilrost_client) {
     };
 
     const get_user_info = handler => {
-        bilrost_client.get("/rest3d/user", function (err, req, res, obj) {
+        bilrost_client.get("/rest3d/user", function(err, req, res, obj) {
             if (err) {
                 server.log.error(err);
                 handler.handleError(err);
@@ -63,7 +63,7 @@ module.exports = function (server, bilrost_client) {
         return /^[\x21-\x7E]+$/.test(access_code);
     };
 
-    server.get('/auth/access_token', function (req, res, next) {
+    server.get('/auth/access_token', function(req, res, next) {
         var handler = new Handler(req, res, next);
         // Oauth can return an error parameter if something went wrong
         if (req.query.error) {
@@ -80,13 +80,13 @@ module.exports = function (server, bilrost_client) {
         next();
     });
 
-    server.get('/auth/whoami', function (req, res, next) {
+    server.get('/auth/whoami', function(req, res, next) {
         var handler = new Handler(req, res, next);
         get_user_info(handler);
         next();
     });
 
-    server.put('/auth/session', function (req, res, next) {
+    server.put('/auth/session', function(req, res, next) {
         var handler = new Handler(req, res, next);
         const id = req.body.id;
         bilrost_client.set_session_id(id);
@@ -94,7 +94,7 @@ module.exports = function (server, bilrost_client) {
         next();
     });
 
-    server.del('/auth/access_token', function (req, res, next) {
+    server.del('/auth/access_token', function(req, res, next) {
         var handler = new Handler(req, res, next);
         bilrost_client.reset();
         handler.sendJSON({ok: 'Logget out'});

@@ -50,7 +50,7 @@ function normalize(path) {
     return path;
 }
 
-var local_FS_adapter = function (base_path) {
+var local_FS_adapter = function(base_path) {
     base_path = base_path.replace(/\\/g, '/');
 
     function isPlatformWin() {
@@ -71,7 +71,7 @@ var local_FS_adapter = function (base_path) {
 
     function plain_stat(path) {
         return promisify(fs.stat)(absolute_path(path))
-            .catch(function (reason) {
+            .catch(function(reason) {
                 if (reason.errno === -2) {
                     throw reason;
                 }
@@ -79,9 +79,9 @@ var local_FS_adapter = function (base_path) {
     }
 
     function convert_to_plain_stat(path) {
-        return function (files) {
+        return function(files) {
             return Promise.all(
-                files.map(function (file) {
+                files.map(function(file) {
                     return plain_stat(join(path, file));
                 })
             );
@@ -91,8 +91,8 @@ var local_FS_adapter = function (base_path) {
     function hasSubDirectories(path) {
         return promisify(fs.readdir)(absolute_path(path))
             .then(convert_to_plain_stat(path))
-            .then(function (files) {
-                return !!files.find(function (file) {
+            .then(function(files) {
+                return !!files.find(function(file) {
                     return file.isDirectory();
                 });
             });
@@ -100,21 +100,21 @@ var local_FS_adapter = function (base_path) {
 
     function stat(path) {
         return promisify(fs.stat)(absolute_path(path))
-            .then(function (stat) {
+            .then(function(stat) {
                 var file = stat;
                 file.name = basename(path);
                 file.extension = extension(path);
                 file.mime = mime.lookup(path);
                 file.path = absolute_path(path);
                 if (file.isDirectory()) {
-                    return hasSubDirectories(path).then(function (resp) {
+                    return hasSubDirectories(path).then(function(resp) {
                         file.hasChildren = resp;
                         return file;
                     });
                 }
                 return file;
             })
-            .catch(function (reason) {
+            .catch(function(reason) {
                 if (reason.errno === -2) {
                     throw reason;
                 }
@@ -144,27 +144,27 @@ var local_FS_adapter = function (base_path) {
     }
 
     function remove(path) {
-        return stat(path).then(function () {
+        return stat(path).then(function() {
             return promisify(fs.remove)(absolute_path(path));
         });
     }
 
     function filter_name(name_filter) {
-        return function (files) {
-            return files.filter(function (el) {return minimatch(el, name_filter || '*', {dot : true});});
+        return function(files) {
+            return files.filter(function(el) {return minimatch(el, name_filter || '*', {dot : true});});
         };
     }
 
     function slice(start, number) {
-        return function (files) {
+        return function(files) {
             return files.slice(start, start + number);
         };
     }
 
     function convert_to_stat(path) {
-        return function (files) {
+        return function(files) {
             return Promise.all(
-                files.map(function (file) {
+                files.map(function(file) {
                     return stat(join(path, file));
                 })
             );
@@ -189,116 +189,116 @@ var local_FS_adapter = function (base_path) {
     function dir_length(path, name) {
         return promisify(fs.readdir)(absolute_path(path))
             .then(filter_name(name))
-            .then(function (files) { return files.length; });
+            .then(function(files) { return files.length; });
     }
 
     function search (path, query_json, dir_globs) {
-        const apply_operator = function (operator, val1, val2, val3) {
+        const apply_operator = function(operator, val1, val2, val3) {
             let boolean;
             switch (operator) {
-                case "<":
-                    boolean = val1 < val2;
-                    break;
-                case "<=":
-                    boolean = val1 <= val2;
-                    break;
-                case ">":
-                    boolean = val1 > val2;
-                    break;
-                case ">=":
-                    boolean = val1 >= val2;
-                    break;
-                case "..":
-                    boolean = val1 < val2 && val2 < val3;
-                    break;
-                default:
-                    boolean = val1 === Number(val2);
-                    break;
+            case "<":
+                boolean = val1 < val2;
+                break;
+            case "<=":
+                boolean = val1 <= val2;
+                break;
+            case ">":
+                boolean = val1 > val2;
+                break;
+            case ">=":
+                boolean = val1 >= val2;
+                break;
+            case "..":
+                boolean = val1 < val2 && val2 < val3;
+                break;
+            default:
+                boolean = val1 === Number(val2);
+                break;
             }
             return boolean;
         };
-        const filter = function (file, stat) {
+        const filter = function(file, stat) {
             const is_file = stat.isFile();
             const is_directory = stat.isDirectory();
             return (function parse_query_entity (json) {
                 let boolean;
                 switch (json.type) {
-                    case "word":
-                        boolean = stat.name.includes(json.value);
-                        break;
-                    case "kind":
-                        if (json.value === "file" && is_file) {
-                            boolean = true;
-                        } else if (json.value === "directory" && is_directory) {
-                            boolean = true;
-                        } else {
-                            boolean = false;
+                case "word":
+                    boolean = stat.name.includes(json.value);
+                    break;
+                case "kind":
+                    if (json.value === "file" && is_file) {
+                        boolean = true;
+                    } else if (json.value === "directory" && is_directory) {
+                        boolean = true;
+                    } else {
+                        boolean = false;
+                    }
+                    break;
+                case "extension":
+                    boolean = json.value === stat.extension;
+                    break;
+                case "mime":
+                    boolean = json.value === stat.mime;
+                    break;
+                case "size":
+                    if (json.operator === "..") {
+                        let split = json.value.split("..");
+                        boolean = apply_operator(json.operator, split[0], stat.size, split[1]);
+                    } else {
+                        boolean = apply_operator(json.operator, stat.size, json.value);
+                    }
+                    break;
+                case "created":
+                    if (json.operator === "..") {
+                        let split = json.value.split("..");
+                        boolean = apply_operator(json.operator, new Date(split[0]), stat.ctime, new Date(split[1]));
+                    } else {
+                        boolean = apply_operator(json.operator, stat.ctime, new Date(json.value));
+                    }
+                    break;
+                case "modified":
+                    if (json.operator === "..") {
+                        let split = json.value.split("..");
+                        boolean = apply_operator(json.operator, new Date(split[0]), stat.mtime, new Date(split[1]));
+                    } else {
+                        boolean = apply_operator(json.operator, stat.mtime, new Date(json.value));
+                    }
+                    break;
+                case "or":
+                    boolean = json.values.reduce(function(previous, current, index) {
+                        if (index === 1) {
+                            previous = parse_query_entity(previous);
                         }
-                        break;
-                    case "extension":
-                        boolean = json.value === stat.extension;
-                        break;
-                    case "mime":
-                        boolean = json.value === stat.mime;
-                        break;
-                    case "size":
-                        if (json.operator === "..") {
-                            let split = json.value.split("..");
-                            boolean = apply_operator(json.operator, split[0], stat.size, split[1]);
-                        } else {
-                            boolean = apply_operator(json.operator, stat.size, json.value);
+                        return previous || parse_query_entity(current);
+                    });
+                    break;
+                case "and":
+                    boolean = json.values.reduce(function(previous, current, index) {
+                        if (index === 1) {
+                            previous = parse_query_entity(previous);
                         }
-                        break;
-                    case "created":
-                        if (json.operator === "..") {
-                            let split = json.value.split("..");
-                            boolean = apply_operator(json.operator, new Date(split[0]), stat.ctime, new Date(split[1]));
-                        } else {
-                            boolean = apply_operator(json.operator, stat.ctime, new Date(json.value));
-                        }
-                        break;
-                    case "modified":
-                        if (json.operator === "..") {
-                            let split = json.value.split("..");
-                            boolean = apply_operator(json.operator, new Date(split[0]), stat.mtime, new Date(split[1]));
-                        } else {
-                            boolean = apply_operator(json.operator, stat.mtime, new Date(json.value));
-                        }
-                        break;
-                    case "or":
-                        boolean = json.values.reduce(function (previous, current, index) {
-                            if (index === 1) {
-                                previous = parse_query_entity(previous);
-                            }
-                            return previous || parse_query_entity(current);
-                        });
-                        break;
-                    case "and":
-                        boolean = json.values.reduce(function (previous, current, index) {
-                            if (index === 1) {
-                                previous = parse_query_entity(previous);
-                            }
-                            return previous && parse_query_entity(current);
-                        });
-                        break;
-                    case "not":
-                        boolean = !parse_query_entity(json.values[0]);
-                        break;
-                    default:
-                        throw "undefined type in search query representation";
+                        return previous && parse_query_entity(current);
+                    });
+                    break;
+                case "not":
+                    boolean = !parse_query_entity(json.values[0]);
+                    break;
+                default:
+                    throw "undefined type in search query representation";
                 }
                 return boolean;
             })(query_json);
 
         };
 
-        return new Promise(function (resolve, reject){
+        return new Promise(function(resolve, reject){
             let result = [];
             const event_emitter = walker(absolute_path(path));
             if (dir_globs) {
-                event_emitter.filterDir(function(dir, stat) {
+                event_emitter.filterDir(dir => {
                     let boolean = true;
-                    dir_globs.forEach(function (glob) {
+                    dir_globs.forEach(function(glob) {
                         boolean = boolean && !minimatch(dir, glob);
                     });
                     return boolean;
@@ -329,31 +329,29 @@ var local_FS_adapter = function (base_path) {
         base_path = base_path.substring(1);
     }
 
-    return promisify(fs.ensureDir)(base_path).then(function () {
+    return promisify(fs.ensureDir)(base_path).then(function() {
         return {
             type: 'local',
             path: normalize(base_path),
             stat: stat,
-            read: function (path) {
+            read: function(path) {
                 return fs.createReadStream(absolute_path(path));
             },
-            write: function (path) {
+            write: function(path) {
                 return fs.createWriteStream(absolute_path(path));
             },
-            removeFile: function(path, recursive) {
-                return new Promise( function(resolve, reject){
-                    fs.remove( absolute_path(path), function(err){
-                        if(err){
-                            reject(err);
-                        } else {
-                            resolve();
-                        }
-                    });
-                    /*if(recusrive){
-                        TODO remove all folder tree from uri if empty
-                    }*/
+            removeFile: path => new Promise((resolve, reject) => {
+                fs.remove(absolute_path(path), function(err){
+                    if(err){
+                        reject(err);
+                    } else {
+                        resolve();
+                    }
                 });
-            },
+                /*if(recusrive){
+                    TODO remove all folder tree from uri if empty
+                }*/
+            }),
             readJson: function(path) {
                 return new Promise( function(resolve, reject){
                     fs.readJson(absolute_path(path), function(err, json){
@@ -376,19 +374,16 @@ var local_FS_adapter = function (base_path) {
                     });
                 });
             },
-            writeJson: function(path, json, isHidden) {
-                //TODO hidden files for win
-                return new Promise( function(resolve, reject){
-                    path = absolute_path(path);
-                    fs.writeJson(path, json, function(err){
-                        if(err){
-                            reject(err);
-                        } else {
-                            resolve(json);
-                        }
-                    });
+            writeJson: (path, json) => new Promise( function(resolve, reject){
+                path = absolute_path(path);
+                fs.writeJson(path, json, function(err){
+                    if(err){
+                        reject(err);
+                    } else {
+                        resolve(json);
+                    }
                 });
-            },
+            }),
             writeFile: function(path, content) {
                 //TODO hidden files for win
                 return new Promise( function(resolve, reject){
@@ -402,12 +397,12 @@ var local_FS_adapter = function (base_path) {
                     });
                 });
             },
-            createFolder: function(path, isHidden) {
+            createFolder: path => {
                 //TODO hidden files for win
                 path = absolute_path(path);
                 fs.mkdirsSync(path);
             },
-            outputJson: function(path, json, isHidden) {
+            outputJson: (path, json) => {
                 //TODO hidden files for win
                 return new Promise( function(resolve, reject){
                     var fullpath = absolute_path(path);
@@ -438,7 +433,7 @@ var local_FS_adapter = function (base_path) {
                         if(err){
                             reject(err);
                         } else {
-                            resolve(files.map(function (file) {
+                            resolve(files.map(function(file) {
                                 return relative_path(file);
                             }));
                         }

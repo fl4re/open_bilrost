@@ -41,35 +41,35 @@ const external_relative_path = path.join('externals', 'scripts', 'test_amazon_s3
 const KB = 1024;
 const MB = 1024 * KB;
 
-describe('DO_NOT_RUN amazon-s3', function () {
+describe('DO_NOT_RUN amazon-s3', function() {
 
     let amazon;
-    before('Init bilrost', function (done) {
+    before('Init bilrost', function(done) {
         this.timeout(20000);
         start_bilrost_client()
             .then(bilrost_client => {
                 bilrost_client.set_session_id("1234");
                 const amz_client = amazon_client(bilrost_client);
                 amazon = amazon_s3(amz_client,
-                cache,
-                {
-                    up_coefficient: 1.1,
-                    nb_workers: 3
-                });
+                    cache,
+                    {
+                        up_coefficient: 1.1,
+                        nb_workers: 3
+                    });
                 done();
             });
     });
 
-    describe('-- Exists', function () {
+    describe('-- Exists', function() {
 
-        it('Exists', function (done) {
+        it('Exists', function(done) {
             amazon.exists(key_file_to_download)
                 .then(() => {
                     done();
                 }).catch(done);
         });
 
-        it("Doesn't exist", function (done) {
+        it("Doesn't exist", function(done) {
             amazon.exists('1234')
                 .then(() => {
                     done("This resource shouldn't exist!");
@@ -80,7 +80,7 @@ describe('DO_NOT_RUN amazon-s3', function () {
 
     });
 
-    describe('-- Simple upload', function () {
+    describe('-- Simple upload', function() {
 
         const filename = 's3_file_to_simple_upload.txt';
         const file_to_upload_path = path.join(test_path, filename);
@@ -92,7 +92,7 @@ describe('DO_NOT_RUN amazon-s3', function () {
             fs.outputFile(file_to_upload_path, content, done);
         });
 
-        it('Simple upload', function (done) {
+        it('Simple upload', function(done) {
             this.timeout(1000000);
             const size = fs.statSync(file_to_upload_path).size;
             const upload = amazon.simple_upload(file_to_upload_path, file_key, size);
@@ -104,12 +104,12 @@ describe('DO_NOT_RUN amazon-s3', function () {
 
     });
 
-    describe('-- Download', function () {
+    describe('-- Download', function() {
 
         const filename = 's3_downloaded_file.txt';
         const download_location = path.join(test_path, filename);
 
-        it('Download', function (done) {
+        it('Download', function(done) {
             this.timeout(1000000);
             amazon.download(key_file_to_download, download_location)
                 .then(() => {
@@ -125,7 +125,7 @@ describe('DO_NOT_RUN amazon-s3', function () {
 
     });
 
-    describe('-- Multipart upload', function () {
+    describe('-- Multipart upload', function() {
 
         const alice_filename = 'alice_file_to_multipart_upload.txt';
         const alice_file_to_upload_path = path.join(test_path, alice_filename);
@@ -150,7 +150,7 @@ describe('DO_NOT_RUN amazon-s3', function () {
             fs.outputFile(kevin_file_to_upload_path, content, done);
         });
 
-        it('Dont multipart upload too small file', function (done) {
+        it('Dont multipart upload too small file', function(done) {
             const size = fs.statSync(alice_file_to_upload_path).size;
             try {
                 amazon.multipart_upload(alice_file_to_upload_path, alice_file_key, size);
@@ -160,7 +160,7 @@ describe('DO_NOT_RUN amazon-s3', function () {
             }
         });
 
-        it('Multipart upload', function (done) {
+        it('Multipart upload', function(done) {
             this.timeout(1000000);
             const size = fs.statSync(kevin_file_to_upload_path).size;
             const upload = amazon.multipart_upload(kevin_file_to_upload_path, kevin_file_key, size);
@@ -173,7 +173,7 @@ describe('DO_NOT_RUN amazon-s3', function () {
                     should.equal(new_key, kevin_file_key);
                     done();
                 })
-                .catch(err => {
+                .catch(() => {
                     upload.abort()
                         .then(() => {
                             done();
@@ -183,7 +183,7 @@ describe('DO_NOT_RUN amazon-s3', function () {
 
     });
 
-    describe('-- Abort multipart upload', function () {
+    describe('-- Abort multipart upload', function() {
 
         const john_filename = 'john_file_to_multipart_upload.txt';
         const john_file_to_upload_path = path.join(test_path, john_filename);
@@ -195,7 +195,7 @@ describe('DO_NOT_RUN amazon-s3', function () {
             fs.outputFile(john_file_to_upload_path, content, done);
         });
 
-        it('Abort multipart upload', function (done) {
+        it('Abort multipart upload', function(done) {
             this.timeout(1000000);
             let is_aborted = false;
             let call_begin_part_only_once_flag = false;
@@ -205,7 +205,7 @@ describe('DO_NOT_RUN amazon-s3', function () {
                 .then(() => {
                     done('This promise shouldnt resolve!');
                 })
-                .catch(err => {
+                .catch(() => {
                     should.equal(is_aborted, true);
                     done();
                 });
@@ -224,7 +224,7 @@ describe('DO_NOT_RUN amazon-s3', function () {
 
     });
 
-    describe('-- Multipart upload progress', function () {
+    describe('-- Multipart upload progress', function() {
 
         const scrievner_filename = 'scrievner_file_to_multipart_upload.txt';
         const scrievner_file_to_upload_path = path.join(test_path, scrievner_filename);
@@ -236,7 +236,7 @@ describe('DO_NOT_RUN amazon-s3', function () {
             fs.outputFile(scrievner_file_to_upload_path, content, done);
         });
 
-        it('Multipart upload progress', function (done) {
+        it('Multipart upload progress', function(done) {
             this.timeout(1000000);
             let call_progress_only_once_flag = false;
             const size = fs.statSync(scrievner_file_to_upload_path).size;
@@ -262,7 +262,7 @@ describe('DO_NOT_RUN amazon-s3', function () {
 
     });
 
-    describe('-- Resume multipart upload', function () {
+    describe('-- Resume multipart upload', function() {
 
         const matt_filename = 'matt_file_to_multipart_upload.txt';
         const matt_file_to_upload_path = path.join(test_path, matt_filename);
@@ -274,7 +274,7 @@ describe('DO_NOT_RUN amazon-s3', function () {
             fs.outputFile(matt_file_to_upload_path, content, done);
         });
 
-        it('Resume multipart upload', function (done) {
+        it('Resume multipart upload', function(done) {
             this.timeout(1000000);
             const size = fs.statSync(matt_file_to_upload_path).size;
             const upload = amazon.multipart_upload(matt_file_to_upload_path, matt_file_key, size);
@@ -302,7 +302,7 @@ describe('DO_NOT_RUN amazon-s3', function () {
 
     });
 
-    describe('-- Upload decider', function () {
+    describe('-- Upload decider', function() {
 
         const stephen_filename = 'stephen_file_to_decide_upload.txt';
         const stephen_file_to_upload_path = path.join(test_path, stephen_filename);
@@ -324,7 +324,7 @@ describe('DO_NOT_RUN amazon-s3', function () {
             fs.outputFile(helen_file_to_upload_path, content, done);
         });
 
-        it('Decide to simple upload', function (done) {
+        it('Decide to simple upload', function(done) {
             amazon.upload(stephen_file_to_upload_path, stephen_file_key)
                 .then(output => {
                     should.equal(output.id, 'simple');
@@ -332,7 +332,7 @@ describe('DO_NOT_RUN amazon-s3', function () {
                 });
         });
 
-        it('Decide to multipart upload', function (done) {
+        it('Decide to multipart upload', function(done) {
             amazon.upload(helen_file_to_upload_path, helen_file_key)
                 .then(output => {
                     should.equal(output.id, 'multipart');

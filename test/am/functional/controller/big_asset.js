@@ -24,7 +24,7 @@ const generate_random_path = () => {
     return path.join(test_util.get_eloise_path(), random_name);
 };
 
-describe('Run Asset related functional tests for the API', function () {
+describe('Run Asset related functional tests for the API', function() {
 
     before("Starting a Content Browser server", done => test_util.start_server(done, {
         bilrost_client: {}
@@ -47,12 +47,12 @@ describe('Run Asset related functional tests for the API', function () {
         test_util.remove_fixtures(done);
     });
 
-    before("Create 10^5 dependencies", function () {
+    before("Create 10^5 dependencies", function() {
         this.timeout(300000); // = 10 * default = 10 * 2000 = 20000
         return Promise.all(Array.from(new Array(20000)).map(() => promisify(fs.outputFile)(generate_random_path(), "0")));
     });
 
-    describe('Create big assets', function () {
+    describe('Create big assets', function() {
 
         it('Create an asset', function(done){
             this.timeout(300000); // = 5 * default = 5 * 2000 = 10000

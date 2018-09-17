@@ -18,6 +18,7 @@
     "bunyan": "^1.8.1",
     "config": "^1.30.0",
     "drivelist": "^5.0.20",
+    "eslint-config-google": "^0.10.0",
     "event-emitter": "^0.3.4",
     "fs-extra": "^3.0.1",
     "jsonschema": "^1.1.0",
@@ -40,7 +41,7 @@
   },
   "devDependencies": {
     "commander": "^2.11.0",
-    "jshint": "^2.9.4",
+    "eslint": "^5.6.0",
     "mocha": "^5.2.0",
     "mocha-multi": "^0.11.0",
     "open_bilrost_server": "https://github.com/fl4re/open_bilrost_server.git#0.0.5",
@@ -52,7 +53,7 @@
     "start": "node ./index.js | ./node_modules/.bin/bunyan",
     "test": "./node_modules/.bin/mocha --exit --recursive --grep DO_NOT_RUN --invert",
     "jenkins": "./node_modules/.bin/mocha --exit --timeout 10000 --recursive --grep DO_NOT_RUN --invert --reporter mocha-multi --reporter-options spec=-,xunit=reports/xunit.xml",
-    "jshint": "./node_modules/.bin/jshint . --exclude node_modules",
+    "eslint": "./node_modules/.bin/eslint .",
     "all": "./node_modules/.bin/mocha --exit",
     "build": "echo 'Ok, nothing to build.'"
   },

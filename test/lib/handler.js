@@ -8,7 +8,7 @@ const assert = require('assert');
 const sinon = require('sinon');
 const http = require('http');
 
-describe('handler', function () {
+describe('handler', function() {
     const Handler = require('../../lib/handler');
     const req = {headers: {accept: ['application/json']}};
     const res = new http.ServerResponse({});

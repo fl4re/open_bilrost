@@ -12,9 +12,9 @@ const identity = require('../../../assetmanager/identity');
 const workspace_utilities = require('../../../assetmanager/workspace_utilities')(p => _path.join('.bilrost', p ? p : '/'));
 const s = require('stream');
 
-describe("Identity", function () {
+describe("Identity", function() {
 
-    it('Get resource hash', function (done) {
+    it('Get resource hash', function(done) {
         const hash_example = 'c0535e4be2b79ffd93291305436bf889314e4a3faec05ecffcbb7df31ad9e51a';
         const ref = "/resources/a/b.json";
         const ifs_adapter = {
@@ -35,7 +35,7 @@ describe("Identity", function () {
             .catch(done);
     });
 
-    it('build and stage identity files', function (done) {
+    it('build and stage identity files', function(done) {
         let success_count = 0;
         const add_path = "/added/a.json";
         const modified_path = "/modified/m.json";
@@ -97,7 +97,7 @@ describe("Identity", function () {
                 });
             }
         };
-        const list_parent_assets = ref => Promise.resolve([
+        const list_parent_assets = () => Promise.resolve([
             '/assets/foo'
         ]);
         const id = identity(ifs_adapter, git_repo_manager, workspace_utilities, list_parent_assets);
@@ -114,7 +114,7 @@ describe("Identity", function () {
             }).catch(done);
     });
 
-    it('build and stage identity files with a resource removal which is referenced by two assets', function (done) {
+    it('build and stage identity files with a resource removal which is referenced by two assets', function(done) {
         let success_count = 0;
         const removed_path = "/removed/r.json";
         const ifs_adapter = {
@@ -136,7 +136,7 @@ describe("Identity", function () {
                 });
             }
         };
-        const list_parent_assets = ref => Promise.resolve([
+        const list_parent_assets = () => Promise.resolve([
             '/assets/foo',
             '/assets/bar'
         ]);
@@ -154,7 +154,7 @@ describe("Identity", function () {
             }).catch(done);
     });
 
-    it('Compare identity file', function (done) {
+    it('Compare identity file', function(done) {
         const unchanged_path = "/unchanged/a.json";
         const modified_path = "/modified/m.json";
         const removed_path = "/removed/r.json";
@@ -171,9 +171,7 @@ describe("Identity", function () {
                     return Promise.resolve('renamed');
                 }
             },
-            createReadStream: path => {
-                return fs.createReadStream('/dsadsadsafaf');
-            }
+            createReadStream: () => fs.createReadStream('/dsadsadsafaf')
         };
         const git_repo_manager = {};
         const id = identity(ifs_adapter, git_repo_manager, workspace_utilities);
@@ -186,13 +184,13 @@ describe("Identity", function () {
             should.equal(unchanged, true);
             should.equal(modified, false);
             return id.compare(removed_ref);
-        }).then(res => {
+        }).then(() => {
             done('This comparaison shouldnt be valid!');
         })
-        .catch(err => {
-            err.code.should.equal(2);
-            done();
-        });
+            .catch(err => {
+                err.code.should.equal(2);
+                done();
+            });
 
     });
 

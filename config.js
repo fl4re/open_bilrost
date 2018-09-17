@@ -7,7 +7,7 @@
 const Handler = require('./lib/handler');
 
 module.exports = (server, config) => {
-    server.get('/config', function (req, res, next) {
+    server.get('/config', function(req, res, next) {
         const handler = new Handler(req, res, next);
         try {
             const conf = config.get_all();
@@ -17,7 +17,7 @@ module.exports = (server, config) => {
         }
     });
 
-    server.get('/config/:key', function (req, res, next) {
+    server.get('/config/:key', function(req, res, next) {
         const handler = new Handler(req, res, next);
         try {
             const key = req.params.key;
@@ -28,7 +28,7 @@ module.exports = (server, config) => {
         }
     });
 
-    server.put('/config/:key', function (req, res, next) {
+    server.put('/config/:key', function(req, res, next) {
         const handler = new Handler(req, res, next);
         try {
             const key = req.params.key;
@@ -40,7 +40,7 @@ module.exports = (server, config) => {
         }
     });
 
-    server.del('/config/:key', function (req, res, next) {
+    server.del('/config/:key', function(req, res, next) {
         const handler = new Handler(req, res, next);
         try {
             const key = req.params.key;

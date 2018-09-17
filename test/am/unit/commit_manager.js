@@ -103,14 +103,14 @@ describe('Commit Manager', function() {
                             favorite.add(workspace_identifiers),
                             workspace.database.add(test_util.read_asset_file( "/assets/test_1_1_0.level")),
                             workspace.database.add(test_util.read_asset_file( "/assets/levels/test_001.level")),
-                        ]).then(function () {
+                        ]).then(function() {
                             done();
                         });
                     }).catch(done);
             });
     });
 
-    after("Flush search index map", function (done) {
+    after("Flush search index map", function(done) {
         workspace_instance.database.close()
             .then(() => favorite.remove(workspace_identifiers.guid))
             .then(done, done);

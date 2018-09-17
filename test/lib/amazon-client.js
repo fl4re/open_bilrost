@@ -7,10 +7,10 @@ const should = require('should');
 const amazon_client = require('../../lib/amazon-client');
 const start_bilrost_client = require('../util/local_bilrost_client');
 
-describe('amazon-client', function () {
+describe('amazon-client', function() {
 
     let amazon;
-    before('Init bilrost', function (done) {
+    before('Init bilrost', function(done) {
         this.timeout(20000);
         start_bilrost_client()
             .then(bilrost_client => {
@@ -20,7 +20,7 @@ describe('amazon-client', function () {
             });
     });
 
-    it('Simple client', function (done) {
+    it('Simple client', function(done) {
         const input = {
             method: 'post',
             path: '56dsagdsfadasant8684ujnuolrydasdsd8wqeqwe'
@@ -36,7 +36,7 @@ describe('amazon-client', function () {
     });
 
 
-    it('XML client', function (done) {
+    it('XML client', function(done) {
         const hash = 'c6535e4be2b79ffd93291305436bf889314e4a3faec05ecffcbb7df31ad9e51a';
         const input = {
             method: 'post',

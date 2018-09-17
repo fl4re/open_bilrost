@@ -5,7 +5,7 @@
 'use strict';
 var should = require('should');
 
-describe('module', function () {
+describe('module', function() {
 
     const am_project = require('../../assetmanager/project_manager');
 
@@ -20,15 +20,15 @@ describe('module', function () {
         get: (url, callback) => callback(err, req, res, obj)
     };
 
-    describe("#get", function () {
-        describe('with bilrost successful answer', function () {
-            before('set bilrost answer', function () {
+    describe("#get", function() {
+        describe('with bilrost successful answer', function() {
+            before('set bilrost answer', function() {
                 err = false;
                 req = null;
                 res = null;
                 obj = {one: 1};
             });
-            it('return an object', function () {
+            it('return an object', function() {
                 const project = am_project({ bilrost_client: bilrost_client });
                 return project.get('fake_project_id').then((project) => {
                     should.exist(project);
@@ -37,14 +37,14 @@ describe('module', function () {
             });
         });
 
-        describe('with bilrost error answer', function () {
-            before('create setting', function () {
+        describe('with bilrost error answer', function() {
+            before('create setting', function() {
                 err = true;
                 req = null;
                 res = {statusCode: 500, body: "Fake explanation of why it failed."};
                 obj = {one: 1};
             });
-            it('return an object', function () {
+            it('return an object', function() {
                 const project = am_project({ bilrost_client: bilrost_client });
                 return project.get('fake_project_id').then(() => {
                     throw new Error("should have failed and it didn't");
@@ -54,7 +54,7 @@ describe('module', function () {
                     reason.statusCode.should.equal(500);
                 });
             });
-            after('remove setting', function (done) {
+            after('remove setting', function(done) {
                 done();
             });
         });

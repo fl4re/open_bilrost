@@ -9,13 +9,13 @@ const authentication = require('../../authentication');
 const restify = require('restify');
 const PORT = require('./../util/port_factory')();
 
-describe('Authentication', function () {
+describe('Authentication', function() {
     var server;
     // backend is a complete fake of the bilrost used in this test
     var backend = {
         get: () => {}
     };
-    before('create server', function (done) {
+    before('create server', function(done) {
         server = restify.createServer({});
         server.use(restify.queryParser());
         server.use(restify.bodyParser()); // POST mapped in req.params, req.body
@@ -23,13 +23,13 @@ describe('Authentication', function () {
         server.listen(PORT, done);
         server.server.setTimeout(10);
     });
-    after('remove server', function (done) {
+    after('remove server', function(done) {
         this.timeout(10000);
         server.close(done);
     });
-    describe('#GET /auth/access_token without access code', function () {
+    describe('#GET /auth/access_token without access code', function() {
         before(function() {
-            backend.get = function (path, callback) {
+            backend.get = function(path, callback) {
                 assert.equal('/auth/access_code', path);
                 const res = {
                     statusCode: 302,
@@ -41,9 +41,9 @@ describe('Authentication', function () {
             };
         });
 
-        it('redirects to github', function (done) {
+        it('redirects to github', function(done) {
             var client = restify.createJSONClient({url: 'http://localhost:' + PORT});
-            client.get('/auth/access_token', function (err, req, res, obj) {
+            client.get('/auth/access_token', function(err, req, res) {
                 assert.ifError(err);
                 assert.equal(302, res.statusCode);
                 assert.equal('github', res.headers.location);
@@ -53,9 +53,9 @@ describe('Authentication', function () {
 
     });
 
-    describe('#GET /auth/access_token with access code', function () {
+    describe('#GET /auth/access_token with access code', function() {
         before(function() {
-            backend.get = function (path, callback) {
+            backend.get = function(path, callback) {
                 assert.equal('/auth/access_token?code=1234', path);
                 callback(null, {}, {}, {
                     session_id: 'authenticated_session_id',
@@ -65,9 +65,9 @@ describe('Authentication', function () {
             };
         });
 
-        it('returns and access token', function (done) {
+        it('returns and access token', function(done) {
             var client = restify.createJSONClient({url: 'http://localhost:' + PORT});
-            client.get('/auth/access_token?code=1234', function (err, req, res, obj) {
+            client.get('/auth/access_token?code=1234', function(err, req, res) {
                 assert.ifError(err);
                 assert.equal(200, res.statusCode);
                 assert.equal(res.body.includes('test_user_name'), true);
@@ -77,9 +77,9 @@ describe('Authentication', function () {
     });
 
 
-    describe('#GET /auth/whoami', function () {
+    describe('#GET /auth/whoami', function() {
         before(function() {
-            backend.get = function (path, callback) {
+            backend.get = function(path, callback) {
                 assert.equal('/rest3d/user', path);
                 callback(null, {}, { statusCode: 200 }, {
                     displayName: "foo",
@@ -88,9 +88,9 @@ describe('Authentication', function () {
             };
         });
 
-        it('returns and access token', function (done) {
+        it('returns and access token', function(done) {
             var client = restify.createJSONClient({url: 'http://localhost:' + PORT});
-            client.get('/auth/whoami', function (err, req, res, obj) {
+            client.get('/auth/whoami', function(err, req, res, obj) {
                 assert.ifError(err);
                 assert.equal(200, res.statusCode);
                 assert.equal('foo', obj.displayName);
@@ -100,12 +100,12 @@ describe('Authentication', function () {
         });
     });
 
-    describe('#PUT /auth/session', function () {
+    describe('#PUT /auth/session', function() {
 
-        it('returns and access token', function (done) {
+        it('returns and access token', function(done) {
             var client = restify.createJSONClient({url: 'http://localhost:' + PORT});
             backend.set_session_id = sinon.stub();
-            client.put('/auth/session', { id: '1234' }, function (err, req, res, obj) {
+            client.put('/auth/session', { id: '1234' }, function(err, req, res, obj) {
                 assert.ifError(err);
                 assert.equal(200, res.statusCode);
                 assert.equal('Ok', obj);

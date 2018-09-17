@@ -163,7 +163,7 @@ const workspace_identifiers = {
     file_uri: test_util.get_eloise_file_uri()
 };
 
-describe('Integrity status', function () {
+describe('Integrity status', function() {
 
     before("create fixtures", function(done) {
 
@@ -191,7 +191,7 @@ describe('Integrity status', function () {
                     database.add(test_util.read_asset_file("/assets/prefab/test_2_1_0.prefab")),
                     database.add(test_util.read_asset_file("/assets/asset_wrong_type.prefab")),
                     database.add(test_util.read_asset_file("/assets/asset_wrong_schema.prefab"))
-                ]).then(function () {
+                ]).then(function() {
                     done();
                 }).catch(done);
             });
@@ -201,7 +201,7 @@ describe('Integrity status', function () {
         favorite.remove(workspace_identifiers.guid).then(done);
     });
 
-    after("Reset database", function (done) {
+    after("Reset database", function(done) {
         database.close()
             .then(done, done);
     });

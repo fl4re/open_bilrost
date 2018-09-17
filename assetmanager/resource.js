@@ -28,7 +28,7 @@ function Resource (workspace) {
         utilities: workspace.utilities
     });
     const list_assets = ref => workspace.database.search({
-       '$or': [
+        '$or': [
             {
                 dependencies: {
                     '$contains': ref
@@ -109,15 +109,15 @@ function Resource (workspace) {
             }
             _this.output = result;
             return _this;
-        }).catch(function (err) {
+        }).catch(function(err) {
             _this.error = errors.NOTFOUND(path);
             switch (err) {
-                case "Not found":
-                    _this.error = errors.NOTFOUND(path);
-                    break;
-                case "Not support":
-                    _this.error = errors.FILETYPENOTSUPPORTED();
-                    break;
+            case "Not found":
+                _this.error = errors.NOTFOUND(path);
+                break;
+            case "Not support":
+                _this.error = errors.FILETYPENOTSUPPORTED();
+                break;
             }
             throw _this;
         });

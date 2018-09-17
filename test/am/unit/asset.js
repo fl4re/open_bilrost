@@ -9,7 +9,7 @@ const mock_workspace = require('../../util/mocks/workspace');
 const favorite = require('../../../assetmanager/favorite')();
 const Test_util = require('../../util/test_util');
 
-describe('Run set of test for asset management methods', function () {
+describe('Run set of test for asset management methods', function() {
     const Asset = require('../../../assetmanager/asset');
     const test_util = new Test_util("unit_asset", "good_repo");
 
@@ -115,7 +115,7 @@ describe('Run set of test for asset management methods', function () {
     before(() => favorite.flush());
     before(() => favorite.add(test_util.get_eloise_identifiers()));
 
-    after("Flush search index map", function (done) {
+    after("Flush search index map", function(done) {
         workspace.database.close()
             .then(() => favorite.remove(test_util.eloise.guid))
             .then(done, done);
@@ -274,7 +274,7 @@ describe('Run set of test for asset management methods', function () {
         });
     });
 
-    describe('Creating assets!', function () {
+    describe('Creating assets!', function() {
 
         it('Create an asset', function(done){
             this.timeout(3*this.timeout()); // = 3 * default = 3 * 2000 = 6000
@@ -316,7 +316,7 @@ describe('Run set of test for asset management methods', function () {
                     version: '1.1.0'
                 });
                 test_util.remove_asset_file(asset_ref);
-                workspace.database.remove(asset_ref).then(function () {
+                workspace.database.remove(asset_ref).then(function() {
                     done();
                 }).catch(done);
             }).catch(done);
@@ -418,7 +418,7 @@ describe('Run set of test for asset management methods', function () {
 
     });
 
-    describe('Renaming assets!', function () {
+    describe('Renaming assets!', function() {
 
         const test_002 = {
             "meta":{
@@ -485,7 +485,7 @@ describe('Run set of test for asset management methods', function () {
         });
 
         it('Rename an asset', function(done){
-/*            let asset_data = {
+            /*            let asset_data = {
                 "comment": "",
                 "tags": [],
                 "main": "/resources/test/test_001",
@@ -521,12 +521,12 @@ describe('Run set of test for asset management methods', function () {
                 should.equal(test003_asset.dependencies.indexOf(new_asset_ref),0);
 
                 asset.database.search({ ref: test_level.meta.ref })
-                    .then(function (search_results) {
+                    .then(function(search_results) {
                         search_results.totalItems.should.equal(0);
                         asset.database.search({ ref: new_asset_ref })
-                        .then(function (search_results) {
+                        .then(function(search_results) {
                             search_results.totalItems.should.equal(1);
-                            test_util.read_asset_file(asset_ref, function (read_output) {
+                            test_util.read_asset_file(asset_ref, function(read_output) {
                                 should.equal(read_output.code, 'ENOENT');
                                 done();
                             });
@@ -541,7 +541,7 @@ describe('Run set of test for asset management methods', function () {
 
             const new_asset_ref = '/assets/levels/test/004/test_004.level';
 
-            asset_instance.rename("/assets/invalid_ref", new_asset_ref, test_level.meta.modified).then(function(asset){
+            asset_instance.rename("/assets/invalid_ref", new_asset_ref, test_level.meta.modified).then(function(){
                 done("this asset shouldn't exist");
             }).catch(function(error) {
                 should.exist(error);
@@ -555,7 +555,7 @@ describe('Run set of test for asset management methods', function () {
 
             const new_asset_ref = '/assets/levels/test/004/test_004?.level';
 
-            asset_instance.rename(test_003.meta.ref, new_asset_ref, test_level.meta.modified).then(function(asset){
+            asset_instance.rename(test_003.meta.ref, new_asset_ref, test_level.meta.modified).then(function(){
                 done("this asset shouldn't exist");
             }).catch(function(error) {
                 should.exist(error);
@@ -569,7 +569,7 @@ describe('Run set of test for asset management methods', function () {
 
             const new_asset_ref = '/assets/levels/test/004/test_004.level';
 
-            asset_instance.rename(test_003.meta.ref, new_asset_ref, "2016-03-18T10:54:05.860Z").then(function(asset){
+            asset_instance.rename(test_003.meta.ref, new_asset_ref, "2016-03-18T10:54:05.860Z").then(function(){
                 done("this asset shouldn't exist");
             }).catch(function(error) {
                 should.exist(error);
@@ -581,7 +581,7 @@ describe('Run set of test for asset management methods', function () {
 
         it('Cannot rename an asset with an invalid new ref', function(done) {
 
-            asset_instance.rename(test_003.meta.ref, "/invalid_ref", test_level.meta.modified).then(function(asset){
+            asset_instance.rename(test_003.meta.ref, "/invalid_ref", test_level.meta.modified).then(function(){
                 done("this asset shouldn't exist");
             }).catch(function(error){
                 should.exist(error);
@@ -593,13 +593,13 @@ describe('Run set of test for asset management methods', function () {
 
     });
 
-    describe('Deleting assets!', function () {
+    describe('Deleting assets!', function() {
 
         it('Delete an asset', function(done){
 
             asset_instance.delete(test_level.meta.ref).then(function(){
                 workspace.database.search({ ref: test_level.meta.ref })
-                    .then(function (search_results) {
+                    .then(function(search_results) {
                         search_results.totalItems.should.equal(0);
                         workspace.database.add(test_level).then(function() {
                             done();
@@ -653,7 +653,7 @@ describe('Run set of test for asset management methods', function () {
         });
     });
 
-    describe('Replacing asset resources!', function () {
+    describe('Replacing asset resources!', function() {
 
         it('Replace asset data', function(done){
 
@@ -667,7 +667,7 @@ describe('Run set of test for asset management methods', function () {
 
             asset_instance.replace(test_level.meta.ref, asset_data, test_level.meta.modified).then(function(){
                 workspace.database.search({ ref: test_level.meta.ref })
-                    .then(function (search_results) {
+                    .then(function(search_results) {
                         should.equal(search_results.items.length, 1);
                         done();
                     });

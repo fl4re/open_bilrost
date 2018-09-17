@@ -11,7 +11,7 @@ const config = require('../../lib/config');
 const CONFIG_DIRECTORY_PATH = './tmp/config';
 const CONFIG_FILE_PATH = './tmp/config/config.json';
 
-describe('Check config', function () {
+describe('Check config', function() {
 
     before('Setup test directory', () => fs.mkdirSync(CONFIG_DIRECTORY_PATH));
 

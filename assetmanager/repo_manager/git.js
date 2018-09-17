@@ -68,7 +68,7 @@ class Repo_manager_git extends Repo_manager {
         this.diff_command = "git diff";
         this.status_command = "git status --short";
         this.list_untracked_files_regex = /\?\? (.*)/g;
-        this.file_status_regex = /([MADRCU?!\h])([MDAU?!\h])\h(.*)/g;
+        this.file_status_regex = /([MADRCU?! ])([MDAU?! ]) (.*)/g;
         this.commit_file_status_command = (old_commit_id, new_commit_id) => "git diff "+old_commit_id+" "+new_commit_id+" --name-status";
         this.diff_local_command = "git diff --name-status";
         this.validate_vcs_command = 'git rev-parse --is-inside-work-tree';
@@ -83,11 +83,11 @@ class Repo_manager_git extends Repo_manager {
         this.commit_id_regex = /commit ([a-zA-Z0-9]{40})/;
         this.commit_author_regex = /Author: (.*)/;
         this.commit_date_regex = /Date: (.*)/;
-        this.commit_message_regex = /    (.*)/;
-        this.commit_statuses_regex = /(A|C|D|M|R|T|U|X|B)(\*?)       (.*)/g;
+        this.commit_message_regex = / {4}(.*)/;
+        this.commit_statuses_regex = /(A|C|D|M|R|T|U|X|B)(\*?) {7}(.*)/g;
         this.status_regex = /( |A|C|D|M|R|U|\??)(A|C|D|M|R|U|\?)[\s]+([\S].*)/;
-        this.remote_branch_name_regex = /^    ([^\s]*).*$/;
-        this.local_branch_name_regex = /^    ([^\s]*).*\((.*)\)$/;
+        this.remote_branch_name_regex = /^ {4}([^\s]*).*$/;
+        this.local_branch_name_regex = /^ {4}([^\s]*).*\((.*)\)$/;
         this.branch_name_regex = /..(.*)/g;
     }
 
@@ -123,43 +123,43 @@ class Repo_manager_git extends Repo_manager {
 
     parse_commit_status (status_letter) {
         switch (status_letter) {
-            case 'A':
-            case 'C':
-                return status_config.sync.NEW;
-            case 'X':
-                return status_config.sync.NEW;
-            case 'R':
-                return status_config.sync.RENAMED;
-            case 'M':
-            case 'T':
-                return status_config.sync.MODIFIED;
-            case 'D':
-                return status_config.sync.DELETED;
-            case 'U':
-            case 'B':
-                return status_config.sync.CONFLICTED;
-            default:
-                throw errors.INTERNALERROR(status_letter+" first status upper case letter isn't defined!");
+        case 'A':
+        case 'C':
+            return status_config.sync.NEW;
+        case 'X':
+            return status_config.sync.NEW;
+        case 'R':
+            return status_config.sync.RENAMED;
+        case 'M':
+        case 'T':
+            return status_config.sync.MODIFIED;
+        case 'D':
+            return status_config.sync.DELETED;
+        case 'U':
+        case 'B':
+            return status_config.sync.CONFLICTED;
+        default:
+            throw errors.INTERNALERROR(status_letter+" first status upper case letter isn't defined!");
         }
     }
 
     parse_status (X, Y) {
         switch (Y) {
-            case '?':
-                return status_config.sync.NEW;
-            case 'A':
-            case 'C':
-                return status_config.sync.NEW;
-            case 'M':
-                return status_config.sync.MODIFIED;
-            case 'D':
-                return status_config.sync.DELETED;
-            case 'R':
-                return status_config.sync.RENAMED;
-            case 'U':
-                return status_config.sync.CONFLICTED;
-            default:
-                throw errors.INTERNALERROR(Y +" second status upper case letter isn't defined!");
+        case '?':
+            return status_config.sync.NEW;
+        case 'A':
+        case 'C':
+            return status_config.sync.NEW;
+        case 'M':
+            return status_config.sync.MODIFIED;
+        case 'D':
+            return status_config.sync.DELETED;
+        case 'R':
+            return status_config.sync.RENAMED;
+        case 'U':
+            return status_config.sync.CONFLICTED;
+        default:
+            throw errors.INTERNALERROR(Y +" second status upper case letter isn't defined!");
         }
     }
 
@@ -395,10 +395,12 @@ class Repo_manager_git extends Repo_manager {
         });
         return this._fetch_all()
             .then(() => this._pull(), err => {
+                // eslint-disable-next-line no-console
                 console.warn(err);
                 return this._pull();
             })
             .then(change, err => {
+                // eslint-disable-next-line no-console
                 console.warn(err);
                 return change();
             });

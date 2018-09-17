@@ -42,7 +42,7 @@ function Status_manager (workspace) {
             this.general_status.set_state(status_config.integrity.VALID);
             let result_priority = map_states_to_priorities[this.general_status.get_state()];
             this.get_statuses()
-                .forEach((item, index, array) => {
+                .forEach(item => {
                     let current_priority = map_states_to_priorities[item.get_state()];
                     if (current_priority > result_priority) {
                         this.general_status.set_state(item.get_state());

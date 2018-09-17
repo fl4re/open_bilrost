@@ -9,7 +9,7 @@ const loki = require('../../../../assetmanager/databases/lokijs');
 
 const deep_clone = obj => JSON.parse(JSON.stringify(obj));
 
-describe('Database object', function () {
+describe('Database object', function() {
 
     let db_instance;
 
@@ -17,7 +17,7 @@ describe('Database object', function () {
         ref: 'level'
     };
 
-    const prefab_1_1_0 = { 
+    const prefab_1_1_0 = {
         ref: 'prefab'
     };
 
@@ -34,11 +34,11 @@ describe('Database object', function () {
             .then(() => done(), done);
     });
 
-    after("Reset database", function () {
+    after("Reset database", function() {
         return db_instance.get_collection('test').close();
     });
 
-    describe("has singleton db connection", function () {
+    describe("has singleton db connection", function() {
         let db_instance_2;
 
         before(function(done) {
@@ -47,7 +47,7 @@ describe('Database object', function () {
                 .then(() => done(), done);
         });
 
-        it("returns same database for different objects sharing guid", function (done) {
+        it("returns same database for different objects sharing guid", function(done) {
             Promise.all([db_instance.get_adapter(), db_instance_2.get_adapter()])
                 .then(dbs => {
                     let db1 = dbs[0];
@@ -78,13 +78,13 @@ describe('Database object', function () {
         });
     });
 
-    describe('collection', function () {
+    describe('collection', function() {
         let collection;
         before(() => {
             collection = db_instance.get_collection('test');
         });
 
-        it('#total_docs', function (done) {
+        it('#total_docs', function(done) {
             collection
                 .total_docs()
                 .then(total_docs => {
@@ -94,7 +94,7 @@ describe('Database object', function () {
                 .catch(done);
         });
 
-        it('#add', function (done) {
+        it('#add', function(done) {
             collection
                 .add(deep_clone(level_1_1_0))
                 .then(() => db_instance.get_collection('test').total_docs())
@@ -105,7 +105,7 @@ describe('Database object', function () {
                 .catch(done);
         });
 
-        it('#search', function (done) {
+        it('#search', function(done) {
             collection
                 .search(where('ref', 'level'))
                 .then(search_results => {
@@ -118,7 +118,7 @@ describe('Database object', function () {
                 .catch(done);
         });
 
-        it('#update', function (done) {
+        it('#update', function(done) {
             collection
                 .update("level", { comment: 'hello' })
                 .then(() => db_instance.get_collection('test').get("level"))
@@ -130,7 +130,7 @@ describe('Database object', function () {
                 .catch(done);
         });
 
-        it('#get', function (done) {
+        it('#get', function(done) {
             collection
                 .get("level")
                 .then(document => {
@@ -142,16 +142,16 @@ describe('Database object', function () {
                 .catch(done);
         });
 
-        it('#get', function (done) {
+        it('#get', function(done) {
             collection
                 .get("test")
-                .then(document => {
+                .then(() => {
                     done();
                 })
                 .catch(done);
         });
-        
-        it('#remove', function (done) {
+
+        it('#remove', function(done) {
             collection
                 .remove("level")
                 .then(() => db_instance.get_collection('test').total_docs())
@@ -162,7 +162,7 @@ describe('Database object', function () {
                 .catch(done);
         });
 
-        describe('Search', function () {
+        describe('Search', function() {
 
             before("Add test docs", function(done) {
                 Promise.all([
@@ -171,7 +171,7 @@ describe('Database object', function () {
                 ]).then(() => done(), done);
             });
 
-            it('searches by ref', function (done) {
+            it('searches by ref', function(done) {
                 collection
                     .search(where('ref', 'level'))
                     .then(result => {
@@ -184,7 +184,7 @@ describe('Database object', function () {
                     .catch(done);
             });
 
-            it('Pagination', function (done) {
+            it('Pagination', function(done) {
                 collection
                     .search({}, { maxResults: 1 })
                     .then((search_results) => {
@@ -204,11 +204,11 @@ describe('Database object', function () {
 
         });
 
-        describe('Performance tests', function () {
+        describe('Performance tests', function() {
 
             before("Flush database", () => db_instance.get_collection('test').flush());
 
-            it('test 100 doc addition one by one', function (done) {
+            it('test 100 doc addition one by one', function(done) {
                 let promises = [];
                 const ref_doc = level_1_1_0;
                 for (let i=0; i<100; i++) {
@@ -228,7 +228,7 @@ describe('Database object', function () {
                     .catch(done);
             });
 
-            it('Search the 100 docs added', function (done) {
+            it('Search the 100 docs added', function(done) {
                 collection
                     .search(where('info', '/resources/test'))
                     .then((search_results) => {
@@ -238,7 +238,7 @@ describe('Database object', function () {
                     .catch(done);
             });
 
-            it('test 100 doc addition by batch', function (done) {
+            it('test 100 doc addition by batch', function(done) {
                 let docs = [];
                 const ref_doc = level_1_1_0;
                 for (let i=100; i<200; i++) {
@@ -259,7 +259,7 @@ describe('Database object', function () {
                     .catch(done);
             });
 
-            it('Search the 200 docs added', function (done) {
+            it('Search the 200 docs added', function(done) {
                 collection
                     .search(where('info', '/resources/test'), { maxResults: 100 })
                     .then(search_results => {

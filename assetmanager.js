@@ -12,43 +12,43 @@ const _repo_manager = require('./assetmanager/repo_manager');
 const utilities = require('./assetmanager/utilities');
 const _workspace_metadata_presenter = require('./assetmanager/workspace_presenter').Workspace_metadata_presenter;
 
-const workspaces_regexp = /^\/assetmanager\/workspaces\/([^\/]*)$/;
-const workspace_reset_regexp = /^\/assetmanager\/workspaces\/([^\/]*)\/reset$/;
-const favorites_regexp = /^\/assetmanager\/workspaces\/([^\/]*)\/favorites$/;
-const assets_regexp = /^\/assetmanager\/workspaces\/([^\/]*)(\/assets\/.*)/;
-const assets_rename_regexp = /^\/assetmanager\/workspaces\/([^\/]*)\/rename(\/assets\/.*)/;
+const workspaces_regexp = /^\/assetmanager\/workspaces\/([^/]*)$/;
+const workspace_reset_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/reset$/;
+const favorites_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/favorites$/;
+const assets_regexp = /^\/assetmanager\/workspaces\/([^/]*)(\/assets\/.*)/;
+const assets_rename_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/rename(\/assets\/.*)/;
 
-const status_regexp = /^\/assetmanager\/workspaces\/([^\/]*)\/status$/;
-const statuses_regexp = /^\/assetmanager\/workspaces\/([^\/]*)\/statuses$/;
-const ref_status_regexp = /^\/assetmanager\/workspaces\/([^\/]*)\/status(\/(?:assets|resources)\/.*)/;
+const status_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/status$/;
+const statuses_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/statuses$/;
+const ref_status_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/status(\/(?:assets|resources)\/.*)/;
 
-const create_branch_regexp = /^\/assetmanager\/workspaces\/([^\/]*)\/branch\/(.*)$/;
-const delete_branch_regexp = /^\/assetmanager\/workspaces\/([^\/]*)\/branch\/(.*)$/;
-const change_branch_regexp = /^\/assetmanager\/workspaces\/([^\/]*)\/branch\/(.*)\/change$/;
+const create_branch_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/branch\/(.*)$/;
+const delete_branch_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/branch\/(.*)$/;
+const change_branch_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/branch\/(.*)\/change$/;
 
-const stage_regexp = /^\/assetmanager\/workspaces\/([^\/]*)\/stage$/;
-const ref_stage_regexp = /^\/assetmanager\/workspaces\/([^\/]*)\/stage(\/(?:assets|resources)\/.*)/;
+const stage_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/stage$/;
+const ref_stage_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/stage(\/(?:assets|resources)\/.*)/;
 
-const commits_regexp = /^\/assetmanager\/workspaces\/([^\/]*)\/commits$/;
-const ref_commits_regexp = /^\/assetmanager\/workspaces\/([^\/]*)\/commits(\/(?:assets|resources)\/.*)?$/;
+const commits_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/commits$/;
+const ref_commits_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/commits(\/(?:assets|resources)\/.*)?$/;
 
-const subscriptions_regexp = /^\/assetmanager\/workspaces\/([^\/]*)\/subscriptions$/;
-const id_subscriptions_regexp = /^\/assetmanager\/workspaces\/([^\/]*)\/subscriptions\/([^\/]*)/;
+const subscriptions_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/subscriptions$/;
+const id_subscriptions_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/subscriptions\/([^/]*)/;
 
 const errors = require('./lib/errors')('asset manager');
 
-const sanitize = function (query_argument) {
-    if(query_argument === undefined){
+const sanitize = function(query_argument) {
+    if (query_argument === undefined) {
         query_argument = '';
     }
     return decodeURIComponent(query_argument);
 };
 
-module.exports = function (server, context) {
+module.exports = function(server, context) {
     const _project = require('./assetmanager/project_manager')(context);
     const _workspace = require('./assetmanager/workspace')(context);
 
-    server.get('/assetmanager', function (req, res, next) {
+    server.get('/assetmanager', function(req, res, next) {
         new Handler(req, res, next)
             .sendJSON({
                 name: 'Asset manager',
@@ -58,14 +58,15 @@ module.exports = function (server, context) {
             }, 200);
     });
 
-    server.put(assets_regexp, function (req, res, next) {
+    server.put(assets_regexp, function(req, res, next) {
         const handler = new Handler(req, res, next);
         const workspace_identifier = sanitize(req.params[0]);
         const asset_ref = sanitize(req.params[1]);
         const modified = sanitize(req.headers['last-modified']);
         const is_body_a_json_to_parse = typeof req.body === 'string' || req.body instanceof Buffer;
+        let asset_representation;
         try {
-            var asset_representation = is_body_a_json_to_parse ? JSON.parse(req.body) : req.body;
+            asset_representation = is_body_a_json_to_parse ? JSON.parse(req.body) : req.body;
         } catch (err) {
             return handler.handleError(errors.CORRUPT(err));
         }
@@ -88,13 +89,14 @@ module.exports = function (server, context) {
             });
     });
 
-    server.post(assets_rename_regexp, function (req, res, next) {
+    server.post(assets_rename_regexp, function(req, res, next) {
         const handler = new Handler(req, res, next);
         const workspace_identifier = sanitize(req.params[0]);
         const asset_ref = sanitize(req.params[1]);
         const modified = sanitize(req.headers['last-modified']);
+        var new_asset_ref;
         try {
-            var new_asset_ref = JSON.parse(req.body).new;
+            new_asset_ref = JSON.parse(req.body).new;
         } catch (err) {
             return handler.handleError(errors.CORRUPT(err));
         }
@@ -109,7 +111,7 @@ module.exports = function (server, context) {
             .catch(error => handler.handleError(error));
     });
 
-    server.del(assets_regexp, function (req, res, next) {
+    server.del(assets_regexp, function(req, res, next) {
         const handler = new Handler(req, res, next);
         const workspace_identifier = sanitize(req.params[0]);
         const asset_ref = sanitize(req.params[1]);
@@ -124,7 +126,7 @@ module.exports = function (server, context) {
             .catch(error => handler.handleError(error));
     });
 
-    server.post('/assetmanager/workspaces', function (req, res, next) {
+    server.post('/assetmanager/workspaces', function(req, res, next) {
         const handler = new Handler(req, res, next);
         const workspace_file_uri = req.body.file_uri;
         const name = req.body.name;
@@ -133,7 +135,7 @@ module.exports = function (server, context) {
         const project_name = req.body.project_name;
         const branch = req.body.branch;
         _workspace.find_by_file_uri(workspace_file_uri)
-            .then(workspace => handler.handleError(errors.ALREADYEXIST(workspace_file_uri)))
+            .then(() => handler.handleError(errors.ALREADYEXIST(workspace_file_uri)))
             .catch(workspace => {
                 if (workspace.error && workspace.error.statusCode === 404) {
                     const project_id = `${organization}/${project_name}`;
@@ -160,13 +162,13 @@ module.exports = function (server, context) {
             });
     });
 
-    server.post('/assetmanager/workspaces/populate', function (req, res, next) {
+    server.post('/assetmanager/workspaces/populate', function(req, res, next) {
         const handler = new Handler(req, res, next);
         const workspace_file_uri = req.body.file_uri;
         const name = req.body.name;
         const description = req.body.description;
         _workspace.find_by_file_uri(workspace_file_uri)
-            .then(workspace => handler.handleError(errors.ALREADYEXIST(workspace_file_uri)))
+            .then(() => handler.handleError(errors.ALREADYEXIST(workspace_file_uri)))
             .catch(workspace => {
                 const is_not_valid = workspace.error && workspace.error.statusCode === 500 && workspace.error.message && workspace.error.message.includes('Status manager') && workspace.error.message.includes('schema');
                 const is_project_not_found = workspace.error && workspace.error.statusCode === 500 && workspace.error.message && workspace.error.message.includes('Project factory') && workspace.error.message.includes('ENOENT');
@@ -201,7 +203,7 @@ module.exports = function (server, context) {
             });
     });
 
-    server.post('/assetmanager/workspaces/favorites', function (req, res, next) {
+    server.post('/assetmanager/workspaces/favorites', function(req, res, next) {
         const handler = new Handler(req, res, next);
         const workspace_file_uri = req.body.file_uri;
         _workspace.find_by_file_uri(workspace_file_uri)
@@ -213,14 +215,14 @@ module.exports = function (server, context) {
             });
     });
 
-    server.post('/assetmanager/workspaces/favorites/reset', function (req, res, next) {
+    server.post('/assetmanager/workspaces/favorites/reset', function(req, res, next) {
         const handler = new Handler(req, res, next);
         favorite.flush()
             .then(() => handler.sendJSON('Ok', 200))
             .catch(handler.handleError);
     });
 
-    server.post(workspace_reset_regexp, function (req, res, next) {
+    server.post(workspace_reset_regexp, function(req, res, next) {
         const workspace_identifier = decodeURIComponent(req.params[0]);
         const handler = new Handler(req, res, next);
         _workspace.find(workspace_identifier)
@@ -229,7 +231,7 @@ module.exports = function (server, context) {
             .catch(workspace => handler.handleError(workspace.error || workspace));
     });
 
-    server.del(favorites_regexp, function (req, res, next) {
+    server.del(favorites_regexp, function(req, res, next) {
         const workspace_identifier = decodeURIComponent(req.params[0]);
         const handler = new Handler(req, res, next);
 
@@ -239,7 +241,7 @@ module.exports = function (server, context) {
             .catch(workspace => handler.handleError(workspace.error || workspace));
     });
 
-    server.del(workspaces_regexp, function (req, res, next) {
+    server.del(workspaces_regexp, function(req, res, next) {
         const workspace_identifier = decodeURIComponent(req.params[0]);
         const handler = new Handler(req, res, next);
         let workspace;
@@ -259,19 +261,19 @@ module.exports = function (server, context) {
             .catch(output => handler.handleError(output.error));
     });
 
-    server.put('/assetmanager/workspaces/', function (req, res, next) {
+    server.put('/assetmanager/workspaces/', function(req, res, next) {
         res.status(501);
         res.end();
         next();
     });
 
-    server.patch(workspaces_regexp, function (req, res, next) {
+    server.patch(workspaces_regexp, function(req, res, next) {
         res.status(501);
         res.end();
         next();
     });
 
-    server.put(workspaces_regexp, function (req, res, next) {
+    server.put(workspaces_regexp, function(req, res, next) {
         res.status(501);
         res.end();
         next();
@@ -281,7 +283,7 @@ module.exports = function (server, context) {
 
     // /assetmanager/workspaces/
 
-    server.get(status_regexp, function (req, res, next) {
+    server.get(status_regexp, function(req, res, next) {
         const workspace_identifier = sanitize(req.params[0]);
         const handler = new Handler(req, res, next);
 
@@ -293,17 +295,17 @@ module.exports = function (server, context) {
             .catch(full_status => handler.handleError(full_status));
     });
 
-    server.get(statuses_regexp, function (req, res, next) {
+    server.get(statuses_regexp, function(req, res, next) {
         const workspace_identifier = sanitize(req.params[0]);
         const handler = new Handler(req, res, next);
 
         _workspace.find(workspace_identifier)
-          .then(workspace => workspace.update_and_retrieve_status())
-          .then(statuses => handler.sendJSON(statuses, 200))
-          .catch(statuses => handler.handleError(statuses));
+            .then(workspace => workspace.update_and_retrieve_status())
+            .then(statuses => handler.sendJSON(statuses, 200))
+            .catch(statuses => handler.handleError(statuses));
     });
 
-    server.get(ref_status_regexp, function (req, res, next) {
+    server.get(ref_status_regexp, function(req, res, next) {
         const workspace_identifier = sanitize(req.params[0]);
         const ref = decodeURIComponent(req.params[1]);
         const handler = new Handler(req, res, next);
@@ -314,7 +316,7 @@ module.exports = function (server, context) {
             .catch(ref_status => handler.handleError(ref_status));
     });
 
-    server.get(subscriptions_regexp, function (req, res, next) {
+    server.get(subscriptions_regexp, function(req, res, next) {
         const workspace_identifier = decodeURIComponent(req.params[0]);
 
         const handler = new Handler(req, res, next);
@@ -325,7 +327,7 @@ module.exports = function (server, context) {
             .catch(err => handler.handleError(err));
     });
 
-    server.post(subscriptions_regexp, function (req, res, next) {
+    server.post(subscriptions_regexp, function(req, res, next) {
         const workspace_identifier = decodeURIComponent(req.params[0]);
         const req_type = req.body.type;
         const req_descriptor = req.body.descriptor;
@@ -337,7 +339,7 @@ module.exports = function (server, context) {
             .catch(err => handler.handleError(err));
     });
 
-    server.del(id_subscriptions_regexp, function (req, res, next) {
+    server.del(id_subscriptions_regexp, function(req, res, next) {
         const workspace_identifier = decodeURIComponent(req.params[0]);
         let subscription_identifier = decodeURIComponent(req.params[1]);
 
@@ -349,7 +351,7 @@ module.exports = function (server, context) {
             .catch(err => handler.handleError(err));
     });
 
-    server.get(stage_regexp, function (req, res, next) {
+    server.get(stage_regexp, function(req, res, next) {
         const workspace_identifier = decodeURIComponent(req.params[0]);
 
         const handler = new Handler(req, res, next);
@@ -360,7 +362,7 @@ module.exports = function (server, context) {
             .catch(err => handler.handleError(err));
     });
 
-    server.post(ref_stage_regexp, function (req, res, next) {
+    server.post(ref_stage_regexp, function(req, res, next) {
         const workspace_identifier = decodeURIComponent(req.params[0]);
         const asset_ref = decodeURIComponent(req.params[1]);
 
@@ -372,7 +374,7 @@ module.exports = function (server, context) {
             .catch(err => handler.handleError(err));
     });
 
-    server.del(ref_stage_regexp, function (req, res, next) {
+    server.del(ref_stage_regexp, function(req, res, next) {
         const workspace_identifier = decodeURIComponent(req.params[0]);
         const asset_ref = decodeURIComponent(req.params[1]);
 
@@ -384,7 +386,7 @@ module.exports = function (server, context) {
             .catch(err => handler.handleError(err));
     });
 
-    server.get(ref_commits_regexp, function (req, res, next) {
+    server.get(ref_commits_regexp, function(req, res, next) {
         const workspace_identifier = decodeURIComponent(req.params[0]);
         const ref = req.params[1] ? decodeURIComponent(req.params[1]) : undefined;
         const maxResults = req.query.maxResults ? parseInt(req.query.maxResults, 10) : 10;
@@ -401,7 +403,7 @@ module.exports = function (server, context) {
             .catch(err => handler.handleError(err));
     });
 
-    server.post(commits_regexp, function (req, res, next) {
+    server.post(commits_regexp, function(req, res, next) {
         const workspace_identifier = decodeURIComponent(req.params[0]);
         const message = req.body.message;
 

@@ -11,7 +11,7 @@ module.exports = {
 
     //Filter a name with a list of files using minimatch
     filter_name : function(files, name_filter) {
-        return files.filter(function (el) {return minimatch(el.name || el.uri.replace(/^.*[\\\/]/, ''), name_filter || '*');});
+        return files.filter(function(el) {return minimatch(el.name || el.uri.replace(/^.*[\\/]/, ''), name_filter || '*');});
     },
 
     //Utility for slicing a list of files

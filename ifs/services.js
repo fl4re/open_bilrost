@@ -20,7 +20,7 @@ module.exports = {
         }
 
         return adapter.stat(path)
-            .then(function (file) {
+            .then(function(file) {
                 if (file.error) {
                     throw "Not found";
                 } else if(file.isFile()) {
@@ -31,7 +31,7 @@ module.exports = {
                     // Here we call two times to list directory contents, first call limits the
                     // quantity but stats every file included. There are N+1 call to fs.
                     // Second call doesn't limit but only calls 1 to fs.
-                    return adapter.readdir(path).then(function (files) {
+                    return adapter.readdir(path).then(function(files) {
                         return {
                             kind: 'file-list',
                             items: files
@@ -47,7 +47,7 @@ module.exports = {
     search_query (adapter, path, query) {
         const representation = search_parser(query, macro_regex);
         return adapter.search(path, representation)
-            .then(function (file_stats) {
+            .then(function(file_stats) {
                 return {
                     kind: 'file-list',
                     items: file_stats

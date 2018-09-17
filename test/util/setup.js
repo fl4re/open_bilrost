@@ -11,6 +11,7 @@
 
 const fs = require('fs-extra');
 const Path = require('path').posix;
+// eslint-disable-next-line no-console
 console.log('Mocha setup');
 
 fs.removeSync(Path.join(process.cwd(), 'tmp'));

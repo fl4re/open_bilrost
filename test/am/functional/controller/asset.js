@@ -11,7 +11,7 @@ const Test_util = require('../../../util/test_util');
 
 var test_util = new Test_util("asset", "good_repo");
 
-describe('Run Asset related functional tests for the API', function () {
+describe('Run Asset related functional tests for the API', function() {
 
     before("Starting a Content Browser server", done => test_util.start_server(done, {
         bilrost_client: {}
@@ -30,7 +30,7 @@ describe('Run Asset related functional tests for the API', function () {
         test_util.remove_fixtures(done);
     });
 
-    describe('Creating assets!', function () {
+    describe('Creating assets!', function() {
 
         it('Create an asset', function(done){
             this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
@@ -60,7 +60,7 @@ describe('Run Asset related functional tests for the API', function () {
                     delete output.meta;
                     should.deepEqual(output, asset);
                     test_util.remove_asset_file(asset_ref);
-                    test_util.get_database().remove(asset_ref).then(function () {
+                    test_util.get_database().remove(asset_ref).then(function() {
                         done();
                     }).catch(done);
                 });
@@ -83,7 +83,7 @@ describe('Run Asset related functional tests for the API', function () {
                     let obj = res.body;
                     should.equal(obj.ref, asset_ref);
                     test_util.remove_asset_file(asset_ref);
-                    test_util.get_database().remove(asset_ref).then(function () {
+                    test_util.get_database().remove(asset_ref).then(function() {
                         done();
                     }).catch(done);
                 });
@@ -117,7 +117,7 @@ describe('Run Asset related functional tests for the API', function () {
                     delete output.meta;
                     should.deepEqual(output, asset);
                     test_util.remove_asset_file(asset_ref);
-                    test_util.get_database().remove(asset_ref).then(function () {
+                    test_util.get_database().remove(asset_ref).then(function() {
                         done();
                     }).catch(done);
                 });
@@ -151,7 +151,7 @@ describe('Run Asset related functional tests for the API', function () {
                     delete output.meta;
                     should.deepEqual(output, asset);
                     test_util.remove_asset_file(asset_ref);
-                    test_util.get_database().remove(asset_ref).then(function () {
+                    test_util.get_database().remove(asset_ref).then(function() {
                         done();
                     }).catch(done);
                 });
@@ -185,7 +185,7 @@ describe('Run Asset related functional tests for the API', function () {
                     delete output.meta;
                     should.deepEqual(output, asset);
                     test_util.remove_asset_file(asset_ref);
-                    test_util.get_database().remove(asset_ref).then(function () {
+                    test_util.get_database().remove(asset_ref).then(function() {
                         done();
                     }).catch(done);
                 });
@@ -269,7 +269,7 @@ describe('Run Asset related functional tests for the API', function () {
 
     });
 
-    describe('Renaming assets!', function () {
+    describe('Renaming assets!', function() {
 
         const test_002 = {
             "meta":{
@@ -336,7 +336,7 @@ describe('Run Asset related functional tests for the API', function () {
             }).catch(done);
         });
 
-        it('Rename an asset', function (done) {
+        it('Rename an asset', function(done) {
             let asset = {
                 "comment": "",
                 "tags": [],
@@ -401,7 +401,7 @@ describe('Run Asset related functional tests for the API', function () {
             }).catch(done);
         });
 
-       it('Cannot rename an unexisted asset', function(done){
+        it('Cannot rename an unexisted asset', function(done){
 
             const new_asset_ref = '/assets/levels/test/004/test_004.level';
             test_util.client
@@ -476,7 +476,7 @@ describe('Run Asset related functional tests for the API', function () {
 
     });
 
-    describe('Replacing asset data!', function () {
+    describe('Replacing asset data!', function() {
 
         it('Replace an asset data', function(done){
 
@@ -593,7 +593,7 @@ describe('Run Asset related functional tests for the API', function () {
 
     });
 
-    describe('Deleting assets!', function () {
+    describe('Deleting assets!', function() {
 
         it('Delete an asset', function(done){
 
@@ -609,7 +609,7 @@ describe('Run Asset related functional tests for the API', function () {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    fs.readJson(asset_path, function (json) {
+                    fs.readJson(asset_path, function(json) {
                         should.equal(json.code, 'ENOENT');
                         test_util.write_asset_file('/assets/levels/test_001.level', test_util.get_test_level());
                         test_util.get_database().add(test_util.get_test_level()).then(function() {
@@ -636,7 +636,7 @@ describe('Run Asset related functional tests for the API', function () {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    fs.readJson(asset_path, function (json) {
+                    fs.readJson(asset_path, function(json) {
                         should.equal(json.code, 'ENOENT');
                         done();
                     });

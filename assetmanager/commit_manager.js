@@ -64,10 +64,10 @@ const commit_manager = (workspace, repo_manager, asset_finder, asset_reader) => 
                                     }
                                 });
                             });
-                        } else {
-                            statuses.find(status => status.ref === ref)
-                                .forEach(add_path_to_result);
-                        }
+                    } else {
+                        statuses.find(status => status.ref === ref)
+                            .forEach(add_path_to_result);
+                    }
                 }, Promise.resolve());
             })
             .then(() => ({
@@ -96,7 +96,7 @@ const commit_manager = (workspace, repo_manager, asset_finder, asset_reader) => 
     const get_commit_log = (ref, start_at_revision, maxResults) => {
         var file_path = workspace.utilities.ref_to_relative_path(ref);
         if (ref && !file_path) {
-           throw _error_outputs.INTERNALERROR('Asset/Resource ref is not valid.');
+            throw _error_outputs.INTERNALERROR('Asset/Resource ref is not valid.');
         }
         return repo_manager.get_commit_log(file_path, start_at_revision, maxResults);
     };

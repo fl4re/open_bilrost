@@ -7,10 +7,10 @@
 const should = require('should');
 const exec_by_line = require('../../util/exec_by_line');
 
-describe('Exec by line module', function () {
-    it('Exec git status on local directory', function (done) {
+describe('Exec by line module', function() {
+    it('Exec git status on local directory', function(done) {
         let items = [];
-        
+
         exec_by_line('git status', __dirname, line => {
             let item = line.split(' ');
             items.push(item);
@@ -25,9 +25,9 @@ describe('Exec by line module', function () {
                 done(err);
             });
     });
-    
-    it('Get empty list by returning null on the callback', function (done) {
-        exec_by_line('git status', __dirname, line => null)
+
+    it('Get empty list by returning null on the callback', function(done) {
+        exec_by_line('git status', __dirname, () => null)
             .then(result_list => {
                 result_list.should.be.empty();
                 done();

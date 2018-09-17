@@ -31,8 +31,8 @@ const list = () => {
     return all ? all : [];
 };
 
-const nconf_save = function () {
-    return new Promise(function (resolve, reject) {
+const nconf_save = function() {
+    return new Promise(function(resolve, reject) {
         nconf.save(err => err ? reject(err) : resolve());
     });
 };
@@ -53,7 +53,7 @@ const save = (list) => {
     });
 };
 
-const _workspace_name_regex = /^[[\w\/\.-]{0,100}$/;
+const _workspace_name_regex = /^[[\w/.-]{0,100}$/;
 const _workspace_file_uri_regex = /^file:\/\/\/.*$/;
 
 module.exports = () => {
@@ -93,7 +93,7 @@ module.exports = () => {
         update (identifier, object) {
             const favorite_list = list();
             let index_in_favorite_list;
-            const object_to_update = favorite_list.find(function (element, index) {
+            const object_to_update = favorite_list.find(function(element, index) {
                 for (let z=0, keys=Object.keys(element); z<keys.length; z++){
                     if (element[keys[z]]===identifier){
                         index_in_favorite_list = index;

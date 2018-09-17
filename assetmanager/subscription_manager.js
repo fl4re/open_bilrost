@@ -78,19 +78,16 @@ class Subscription_manager {
                         .catch(err => {
                             throw _error_outputs.INTERNALERROR(err);
                         });
-                    } else {
-                        return this.get_subscriptions()
-                            .find(sub => sub.type === type && sub.descriptor === descriptor);
-                    }
+                } else {
+                    return this.get_subscriptions()
+                        .find(sub => sub.type === type && sub.descriptor === descriptor);
+                }
             });
     }
 
     remove_subscription (subscription_id) {
-        let subscription;
-
         this.subscriptions.forEach((item, index) => {
             if (item.id === subscription_id) {
-                subscription = item;
                 this.subscriptions.splice(index, 1);
             }
         });

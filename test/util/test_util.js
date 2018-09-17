@@ -257,10 +257,9 @@ class Test_util {
 
     git_checkout (url, branch_name) {
         return new Promise((resolve, reject) => {
-            exec('git clone -b '+ branch_name + ' ' + url + ' .', {cwd: this.get_workspace_path()}, (error, stdout, stderr) => {
-                const err = error;
-                if (err) {
-                    reject(err);
+            exec('git clone -b '+ branch_name + ' ' + url + ' .', {cwd: this.get_workspace_path()}, error => {
+                if (error) {
+                    reject(error);
                 } else {
                     resolve();
                 }

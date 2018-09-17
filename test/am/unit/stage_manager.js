@@ -95,15 +95,15 @@ describe('Stage Manager', function() {
                         // TODO: This line is a hack to trigger search_index.
                         // The stage_manager.add_asset(ref) method doesn't work
                         // if this Asset.get() isn't run before it.
-                        .then(() => subscription_manager.subscriptions[0].list_assets())
-                        .then(function () {
-                            done();
-                        }).catch(done);
+                            .then(() => subscription_manager.subscriptions[0].list_assets())
+                            .then(function() {
+                                done();
+                            }).catch(done);
                     });
             });
     });
 
-    after("Flush search index map", function (done) {
+    after("Flush search index map", function(done) {
         workspace_instance.database.close()
             .then(() => favorite.remove(workspace_identifiers.guid))
             .then(done, done);
@@ -159,7 +159,7 @@ describe('Stage Manager', function() {
 
             test_util.eloise.stage = stage_manager.get_stage();
             Workspace_factory.save(test_util.eloise)
-                .then(function () {
+                .then(function() {
                     stage_manager.get_stage().should.be.empty();
                     test_util.eloise.stage.should.be.empty();
 
