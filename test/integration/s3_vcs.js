@@ -7,8 +7,9 @@
 const should = require('should');
 const Test_util = require('../util/test_util');
 const start_bilrost_client = require('../util/local_bilrost_client');
+const bilrost = require('../util/bilrost');
 
-var test_util = new Test_util("vcs", "production_repo");
+let client, test_util, workspace_name;
 
 describe('Run Version Control related functional tests for the API', function() {
     /* faking bilrost-client
@@ -19,17 +20,15 @@ describe('Run Version Control related functional tests for the API', function() 
      */
     let err, req, res, obj;
 
-    before("Starting a Content Browser server", function(done) {
-        this.timeout(20000);
-        start_bilrost_client()
-            .then(bilrost_client => {
-                bilrost_client.set_session_id("1234");
-                bilrost_client.get = (url, callback) => callback(err, req, res, obj);
-                test_util.start_server(done, {
-                    bilrost_client: bilrost_client,
-                    protocol: 'ssh'
-                });
-            });
+    before("Starting a Content Browser server", async () => {
+        const bilrost_client = await start_bilrost_client();
+        bilrost_client.set_session_id("1234");
+        bilrost_client.get = (url, callback) => callback(err, req, res, obj);
+        client = await bilrost.start({
+            bilrost_client,
+            protocol: 'ssh'
+        });
+        test_util = new Test_util("vcs", "production_repo", client);
     });
 
     describe("Test Bilrost Version Control operations", function() {
@@ -38,11 +37,11 @@ describe('Run Version Control related functional tests for the API', function() 
             req = null;
             res = null;
             obj = test_util.get_example_project();
+            workspace_name = test_util.get_example_project().name;
         });
 
         let new_subscription_id;
         let new_subscription_url;
-        const workspace_name = test_util.get_example_project().name;
         it('Create a Workspace by cloning repository', function(done) {
             this.timeout(8*this.timeout());
             test_util.client
@@ -53,7 +52,7 @@ describe('Run Version Control related functional tests for the API', function() 
                     description: test_util.get_example_project().description.comment,
                     organization: test_util.get_example_project().owner.login,
                     project_name: workspace_name,
-                    branch: 'production_repo',
+                    branch: 'production_repo'
                 })
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
@@ -147,7 +146,6 @@ describe('Run Version Control related functional tests for the API', function() 
                 .expect(500)
                 .end((err, res) => {
                     should.exist(res.error);
-
                     done();
                 });
         });
@@ -161,7 +159,6 @@ describe('Run Version Control related functional tests for the API', function() 
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-
                     res.body.should.be.an.Object;
                     should.exist(res.body.subscriptions);
                     should.exist(res.body.subscriptions[0]);
@@ -198,7 +195,6 @@ describe('Run Version Control related functional tests for the API', function() 
                 .expect(200)
                 .end((err, res) => {
                     should.exist(err);
-
                     res.body.should.equal('"Stage manager" encoutered an unexpected failure: Asset ref is not under any Subscription.');
                     done();
                 });
@@ -213,7 +209,6 @@ describe('Run Version Control related functional tests for the API', function() 
                 .expect(200)
                 .end((err, res) => {
                     should.exist(err);
-
                     res.body.code.should.equal('ResourceNotFound');
                     done();
                 });
@@ -244,7 +239,6 @@ describe('Run Version Control related functional tests for the API', function() 
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-
                     res.body.should.be.a.String;
                     res.body.should.equal('Ok');
                     done();
@@ -260,7 +254,6 @@ describe('Run Version Control related functional tests for the API', function() 
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-
                     res.body.should.be.a.String;
                     res.body.should.equal('Ok');
                     done();
@@ -278,7 +271,6 @@ describe('Run Version Control related functional tests for the API', function() 
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-
                     res.body.items.should.be.an.Array;
                     res.body.items.length.should.be.above(0);
                     res.body.items[0].id.should.be.a.String;
@@ -299,7 +291,6 @@ describe('Run Version Control related functional tests for the API', function() 
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-
                     res.body.items.should.be.an.Array;
                     res.body.items[0].id.should.be.a.String;
                     res.body.items[0].message.should.be.a.String;
@@ -319,7 +310,6 @@ describe('Run Version Control related functional tests for the API', function() 
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-
                     res.body.items.should.be.an.Array;
                     res.body.items.length.should.be.above(0);
                     res.body.items[0].id.should.be.a.String;
