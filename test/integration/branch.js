@@ -10,7 +10,7 @@ global.debug = true;
 const path = require('path');
 const should = require('should');
 const Test_util = require('../util/test_util');
-const bilrost = require('../util/bilrost');
+const bilrost = require('../util/server');
 
 let client, test_util;
 

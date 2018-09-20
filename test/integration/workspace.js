@@ -11,7 +11,7 @@ const should = require('should');
 const path = require('path').posix;
 const fs = require('fs-extra');
 const Test_util = require('../util/test_util');
-const bilrost = require('../util/bilrost');
+const bilrost = require('../util/server');
 
 let client, test_util;
 

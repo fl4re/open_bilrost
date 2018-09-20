@@ -10,7 +10,7 @@ const path = require('path').posix;
 const Test_util = require('../util/test_util');
 const favorite = require('../../assetmanager/favorite')();
 
-const bilrost = require('../util/bilrost');
+const bilrost = require('../util/server');
 
 let client, test_util;
 

@@ -12,7 +12,7 @@ const promisify = require('../../util/promisify');
 const v8 = require('v8');
 
 const Test_util = require('../util/test_util');
-const bilrost = require('../util/bilrost');
+const bilrost = require('../util/server');
 
 const MB = 1024 * 1024;
 let random_names = [];
