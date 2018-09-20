@@ -4,6 +4,7 @@
 
 'use strict';
 
+const path = require('path').posix;
 const restify = require('restify');
 const bunyan = require('bunyan');
 const supertest = require('supertest');
@@ -15,19 +16,31 @@ const content_browser = require('../../contentbrowser');
 const amazon_client = require('../../lib/amazon-client');
 const cache = require('../../lib/cache');
 
+const default_cache_path = path.join(__dirname.replace(/\\/g, '/'), '..', '..', 'tmp', 'Cache');
+const default_parameters = {
+    bilrost_client: {},
+    protocol: 'https',
+    cache_path: default_cache_path
+};
+
 module.exports = {
-    start: (parameters = { bilrost_client: {}, protocol: 'https', cache_path: '' }) => {
+    start: (parameters = {}) => {
+        const defaults = Object.create(default_parameters);
+        parameters = Object.assign(defaults, parameters);
 
         // Bilrost server
         const port = port_factory();
-        const logger = bunyan.createLogger({
+        const log = bunyan.createLogger({
             name: 'controller_test',
             stream: process.stdout,
             level: 'info'
         });
         const server = restify.createServer({
-            log: logger
+            log
         });
+        server.use(restify.queryParser());
+        server.use(restify.bodyParser());
+        const client = supertest(server);
 
         // Context
         const context = {
@@ -37,12 +50,8 @@ module.exports = {
             protocol: parameters.protocol
         };
 
-        server.use(restify.queryParser());
-        server.use(restify.bodyParser());
-
         return new Promise(resolve => {
             server.listen(port, () => {
-                const client = supertest(server);
                 asset_manager(server, context);
                 content_browser(server, context);
                 resolve(client);

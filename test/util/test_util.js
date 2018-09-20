@@ -11,15 +11,9 @@ const fs = require('fs-extra');
 const should = require('should');
 
 const path = require('path').posix;
-const restify = require('restify');
-const bunyan = require('bunyan');
 const exec = require('child_process').exec;
-const supertest = require('supertest');
 const favorite = require('../../assetmanager/favorite')();
-const port_factory = require('./port_factory');
 const promisify = require('../../util/promisify');
-const amazon_client = require('../../lib/amazon-client');
-const cache = require('../../lib/cache');
 const utilities = require('../../assetmanager/workspace_utilities');
 
 const fixtures_path = path.join(__dirname.replace(/\\/g, '/'), '../fixtures');
@@ -188,53 +182,6 @@ class Test_util {
             'semantics': []
         };
 
-    }
-
-    start_server (done, parameters) {
-
-        if (!parameters) {
-            parameters = {};
-        }
-
-        this.port = port_factory();
-
-        let logger = bunyan.createLogger({
-            name: 'controller_test',
-            stream: process.stdout,
-            level: 'info'
-        });
-
-        this.server = restify.createServer({
-            log: logger
-        });
-
-        let server = this.server;
-
-        server.use(restify.queryParser());
-        server.use(restify.bodyParser());
-        this.client = supertest(server);
-
-        var promises = [];
-
-        promises.push(new Promise(resolve => {
-            server.listen(this.port, () => {
-                resolve();
-            });
-        }));
-
-        Promise.all(promises)
-            .then(() => {
-                const context = {
-                    bilrost_client: parameters.bilrost_client,
-                    amazon_client: amazon_client(parameters.bilrost_client),
-                    cache: cache(this.get_cache()),
-                    protocol: parameters.protocol
-                };
-                this.content_browser(server, context);
-                this.asset_manager(server, context);
-            })
-            .then(done)
-            .catch(done);
     }
 
     svn_checkout (url) {
