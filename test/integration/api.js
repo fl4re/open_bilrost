@@ -4,7 +4,7 @@
 
 'use strict';
 
-const bilrost = require('../util/bilrost');
+const bilrost = require('../util/server');
 
 let client;
 

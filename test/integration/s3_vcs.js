@@ -7,7 +7,7 @@
 const should = require('should');
 const Test_util = require('../util/test_util');
 const start_bilrost_client = require('../util/local_bilrost_client');
-const bilrost = require('../util/bilrost');
+const bilrost = require('../util/server');
 
 let client, test_util, workspace_name;
 

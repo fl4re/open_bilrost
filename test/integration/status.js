@@ -7,7 +7,7 @@
 const path = require('path').posix;
 const Test_util = require('../util/test_util');
 const status_config = require('../../assetmanager/status.config.json');
-const bilrost = require('../util/bilrost');
+const bilrost = require('../util/server');
 
 let client, test_util;
 

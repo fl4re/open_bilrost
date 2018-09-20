@@ -76,7 +76,6 @@ const get_utilities = get_internal_file_path => {
             } else if (ref.startsWith('/resources/')) {
                 return ref.slice(11);
             }
-
             return null;
         },
 
@@ -112,8 +111,14 @@ const get_utilities = get_internal_file_path => {
         },
 
         ref_to_absolute_path (ref, workspace_path) {
-            let path = ref.match(resource_ref_regexp)[1];
-            return Path.join(workspace_path, path);
+            if (ref.startsWith('/assets/')) {
+                let path = ref.match(asset_ref_regexp)[1];
+                return Path.join(workspace_path, path);
+            } else if (ref.startsWith('/resources/')) {
+                let path = ref.match(resource_ref_regexp)[1];
+                return Path.join(workspace_path, path);
+            }
+            return null;
         },
 
         resource_url_to_ref (url, workspace_path) {
