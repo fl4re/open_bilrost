@@ -19,5 +19,8 @@ module.exports = () => ({
     pushed_at: '2016-06-28T16:19:51Z',
     created_at: '2016-06-27T18:31:40Z',
     updated_at: '2016-11-17T20:15:11Z',
-    type: 'application/vnd.bilrost.project+json'
+    type: 'application/vnd.bilrost.project+json',
+    description: {
+        host_vcs: 's3'
+    }
 });

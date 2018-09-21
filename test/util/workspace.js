@@ -37,6 +37,7 @@ module.exports = (name, fixture) => {
     const get_path = () => _path.join(fixture.get_path(), get_name());
     const get_internal_path = relative => _path.join(get_path(), get_internal_file(relative));
     const get_file_uri = () => path_to_file_uri(get_path());
+    const get_encoded_file_uri = () => encodeURIComponent(get_file_uri());
     const add_to_favorite_list = () => favorite.add({
         name: get_name(),
         file_uri: get_file_uri()
@@ -56,6 +57,7 @@ module.exports = (name, fixture) => {
     const create_asset = asset => fs.outputJson(utilities.ref_to_absolute_path(asset.meta.ref, get_path()), asset_presenter(asset));
     return {
         get_name,
+        get_encoded_file_uri,
         create,
         remove,
         create_workspace_resource,

@@ -12,7 +12,7 @@ const workspace = require('../util/workspace')('alice', fixture);
 
 //const test_util = new Test_util("integration__db_sync", "good_repo");
 
-describe('Check database behaviors DO_NOT_RUN', function() {
+describe('Check database behaviors', function() {
 
     describe('Verify synchronisation', function() {
         let client, stop;
@@ -21,7 +21,7 @@ describe('Check database behaviors DO_NOT_RUN', function() {
             ({ client, stop } = await bilrost.start());
         });
 
-        it('Add an asset to fs and retrieve it from the database by searching', async (done) => {
+        it('Add an asset to fs and retrieve it from the database by searching', () => new Promise(async (resolve, reject) => {
             this.timeout(5*this.timeout());
             try {
                 await workspace.create('good_repo');
@@ -33,9 +33,8 @@ describe('Check database behaviors DO_NOT_RUN', function() {
                     },
                     main: "/resources/test/test"
                 });
-                await workspace.add_to_favorite_list();
                 client
-                    .get(`/contentbrowser/workspaces/${workspace.get_name()}/assets/`)
+                    .get(`/contentbrowser/workspaces/${workspace.get_encoded_file_uri()}/assets/`)
                     .set("Content-Type", "application/json")
                     .set("Accept", 'application/json')
                     .expect("Content-Type", "application/json")
@@ -43,16 +42,16 @@ describe('Check database behaviors DO_NOT_RUN', function() {
                     .end((err, res) => {
                         let obj = res.body;
                         if (err) {
-                            return done({ error: err.toString(), status: res.status, body: obj });
+                            return reject({ error: err.toString(), status: res.status, body: obj });
                         }
                         should.equal(obj.totalItems, 2);
                         should.equal(obj.totalNamespaces, 2);
-                        done();
+                        resolve();
                     });
             } catch (err) {
-                done(err);
+                reject(err);
             }
-        });
+        }));
         after('Stop node server', () => stop());
 
     });
@@ -64,9 +63,9 @@ describe('Check database behaviors DO_NOT_RUN', function() {
             ({ client, stop } = await bilrost.start());
         });
 
-        it('List persisted asset', function(done){
+        it('List persisted asset', function (done) {
             client
-                .get(`/contentbrowser/workspaces/${workspace.get_name()}/assets/`)
+                .get(`/contentbrowser/workspaces/${workspace.get_encoded_file_uri()}/assets/`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")

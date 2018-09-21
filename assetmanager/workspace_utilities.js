@@ -112,8 +112,7 @@ const get_utilities = get_internal_file_path => {
 
         ref_to_absolute_path (ref, workspace_path) {
             if (ref.startsWith('/assets/')) {
-                let path = ref.match(asset_ref_regexp)[1];
-                return Path.join(workspace_path, path);
+                return Path.join(workspace_path, get_internal_file_path(ref));
             } else if (ref.startsWith('/resources/')) {
                 let path = ref.match(resource_ref_regexp)[1];
                 return Path.join(workspace_path, path);

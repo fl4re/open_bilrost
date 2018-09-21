@@ -12,10 +12,9 @@ module.exports = {
     start: () => new Promise(resolve => {
         const server = spawn('node', ['index']);
         const stop = () => new Promise(resolve => {
-            server.kill('SIGINT');
             server.on('close', () => resolve());
+            server.kill('SIGINT');
         });
-        const client = supertest('http://localhost:9224');
         readline.createInterface({ input: server.stdout })
             .on('line', line => {
                 let msg;
@@ -26,10 +25,13 @@ module.exports = {
                     console.log(line.toString());
                 }
                 if (msg === 'Listening at port: 9224') {
-                    resolve({
-                        client,
-                        stop
-                    });
+                    setTimeout(() => {
+                        const client = supertest('http://localhost:9224');
+                        resolve({
+                            client,
+                            stop
+                        });
+                    }, 500);
                 }
             });
     })
