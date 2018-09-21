@@ -19,6 +19,7 @@ module.exports = () => ({
         type: 'application/vnd.bilrost.project+json',
         tags: ['Hello', 'World'],
         comment: 'this is my first repo!',
+        host_vcs: 's3',
         settings: {}
     },
     created_at: '2016-06-27T18:31:40Z',
