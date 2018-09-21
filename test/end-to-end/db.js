@@ -10,8 +10,6 @@ const bilrost = require('../util/bilrost');
 const fixture = require('../util/fixture')('db_sync');
 const workspace = require('../util/workspace')('alice', fixture);
 
-//const test_util = new Test_util("integration__db_sync", "good_repo");
-
 describe('Check database behaviors', function() {
 
     describe('Verify synchronisation', function() {

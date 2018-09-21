@@ -4,10 +4,8 @@
 
 'use strict';
 
-const crypto = require('crypto');
-
-module.exports = (name, file_uri) => ({
-    guid: crypto.randomBytes(20).toString('hex'),
+module.exports = (name, file_uri, guid) => ({
+    guid,
     name: name,
     description: 'This is your first workspace cloned from DLC_1 branch !',
     version: '2.0.0',
