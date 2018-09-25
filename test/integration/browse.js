@@ -439,7 +439,7 @@ describe('Run Content Browser related test for content browser api', function ()
     describe('-- [GET] /contentbrowser/workspaces/{id}', function() {
 
         it('retrieves example2 by name', (done) => {
-            const example2 = test_util.get_bob_workspace();
+            const example2 = JSON.parse(JSON.stringify(test_util.get_bob_workspace()));
             client
                 .get(`/contentbrowser/workspaces/${example2.name}`)
                 .set("Content-Type", "application/json")
@@ -452,13 +452,14 @@ describe('Run Content Browser related test for content browser api', function ()
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
                     obj.items.should.have.lengthOf(1);
+                    delete example2.file_uri;
                     obj.items.should.containDeep([example2]);
                     done();
                 });
         });
 
         it('retrieves example2 by file uri', (done) => {
-            const example2 = test_util.get_bob_workspace();
+            const example2 = JSON.parse(JSON.stringify(test_util.get_bob_workspace()));
             client
                 .get(`/contentbrowser/workspaces/${encodeURIComponent(example2.file_uri)}`)
                 .set("Content-Type", "application/json")
@@ -471,6 +472,7 @@ describe('Run Content Browser related test for content browser api', function ()
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
                     obj.items.should.have.lengthOf(1);
+                    delete example2.file_uri;
                     obj.items.should.containDeep([example2]);
                     done();
                 });
