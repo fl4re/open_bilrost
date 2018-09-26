@@ -4,35 +4,49 @@
 
 'use strict';
 
-const fs = require('fs-extra');
 const should = require('should');
 const path = require('path').posix;
-const Test_util = require('../util/test_util');
+const fixture = require('../util/fixture')('integration_browse');
+const workspace_factory = require('../util/workspace');
 const favorite = require('../../assetmanager/favorite')();
 
 const bilrost = require('../util/server');
 
-let client, test_util;
+let client, workspaces, bob_test_asset;
 
 describe('Run Content Browser related test for content browser api', function () {
 
     before("Starting a Content Browser server", async () => {
         client = await bilrost.start();
-        test_util = new Test_util("browse", "good_repo", client);
     });
-    before("Creating fixtures", function(done) {
-        this.timeout(10*this.timeout()); // = 5 * default = 5 * 2000 = 10000
-        test_util.create_eloise_fixtures()
-            .then(() => test_util.create_eloise_workspace_project_file())
-            .then(() => test_util.create_eloise_workspace_properties_file())
-            .then(() => test_util.copy_eloise_to_alice_bob_and_philippe())
-            .then(() => test_util.create_workspace3())
-            .then(() => test_util.add_eloise_to_favorite())
-            .then(() => done())
-            .catch(done);
+    before("Creating fixtures", async function () {
+        this.timeout(5000);
+        workspaces = {
+            eloise: workspace_factory('eloise', fixture),
+            alice: workspace_factory('alice', fixture),
+            bob: workspace_factory('bob', fixture),
+            luke: workspace_factory('luke', fixture)
+        };
+        const workspace_creation_sequence = Object.keys(workspaces)
+            .map(async workspace_name => {
+                const workspace = workspaces[workspace_name];
+                await workspace.create('good_repo');
+                await workspace.create_workspace_resource();
+                await workspace.create_project_resource();
+            });
+        await Promise.all(workspace_creation_sequence);
+        await favorite.add({
+            name: workspaces.alice.get_name(),
+            file_uri: workspaces.alice.get_file_uri()
+        });
+        bob_test_asset = workspaces.bob.create_asset({
+            meta: {
+                ref: '/assets/test.level'
+            }
+        });
     });
 
-    after("Removing fixtures", done => test_util.remove_fixtures(done));
+    after("Removing fixtures", () => Promise.all(Object.keys(workspaces).map(workspace_name => workspaces[workspace_name].remove())));
 
     describe('-- [GET] /contentbrowser', function(){
         it("", function(done) {
@@ -162,10 +176,10 @@ describe('Run Content Browser related test for content browser api', function ()
 
     describe('-- [GET] /contentbrowser/workspaces/', function() {
 
-        before("Add example2 workspace", function(done) {
+        before("Add bob workspace", function(done) {
 
             client.post('/assetmanager/workspaces/favorites')
-                .send({ "file_uri": test_util.get_bob_file_uri() })
+                .send({ "file_uri": workspaces.bob.get_file_uri() })
                 .set("Content-Type", 'application/json')
                 .set("Accept", 'application/json')
                 .expect('Content-Type', 'application/vnd.bilrost.workspace+json')
@@ -174,22 +188,19 @@ describe('Run Content Browser related test for content browser api', function ()
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    test_util.get_favorite().search(test_util.get_bob_file_uri()).should.be.an.instanceOf(Object);
+                    favorite.find(workspaces.bob.get_file_uri()).should.be.an.instanceOf(Object);
                     done();
                 });
 
         });
 
 
-        after("Remove example3 workspace settings", function(done) {
-
-            favorite.remove(test_util.get_example3_workspace().name)
-                .then(() => done())
-                .catch(done);
-
+        after("Remove luke workspace settings", async () => {
+            await favorite.remove(workspaces.luke.get_name())
+            await favorite.remove(workspaces.alice.get_name())
         });
 
-        it("Retrieve example1 and example2 workspaces only", function(done){
+        it("Retrieve bob and eloise workspaces only", function(done){
 
             client
                 .get('/contentbrowser/workspaces/')
@@ -209,10 +220,10 @@ describe('Run Content Browser related test for content browser api', function ()
 
         });
 
-        it("Can't retrieve example3 workspace by name since not referenced in favorite list", function(done){
+        it("Can't retrieve luke workspace by name since not referenced in favorite list", function(done){
 
             client
-                .get(`/contentbrowser/workspaces/${test_util.get_example3_workspace().name}`)
+                .get(`/contentbrowser/workspaces/${workspaces.luke.get_name()}`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -227,10 +238,10 @@ describe('Run Content Browser related test for content browser api', function ()
 
         });
 
-        it("Retrieve example3 workspace without being referenced in favorite list using file uri identifier", function(done){
+        it("Retrieve luke workspace without being referenced in favorite list using file uri identifier", function(done){
 
             client
-                .get(`/contentbrowser/workspaces/${encodeURIComponent(test_util.get_example3_file_uri())}`)
+                .get(`/contentbrowser/workspaces/${workspaces.luke.get_encoded_file_uri()}`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -242,20 +253,18 @@ describe('Run Content Browser related test for content browser api', function ()
                     }
                     obj.items.length.should.be.equal(1);
                     obj.totalItems.should.be.equal(1);
-                    obj.items[0].name.should.be.equal(test_util.get_example3_workspace().name);
+                    obj.items[0].name.should.be.equal(workspaces.luke.get_name());
                     done();
                 });
 
         });
 
-        it("Can't retrieve example3 workspace with its associated invalid statuses", function(done){
+        it("Can't retrieve luke workspace with its associated invalid statuses", function(done){
             favorite.add({
-                name: test_util.get_example3_workspace().name,
-                file_uri: test_util.get_example3_file_uri()
-            }).then(function() {
-                const workspace_example_3_path = path.join(test_util.get_example3_path(), '.bilrost', 'workspace');
-                const workspace = fs.readJsonSync(workspace_example_3_path);
-                workspace.statuses = [
+                name: workspaces.luke.get_name(),
+                file_uri: workspaces.luke.get_file_uri()
+            })
+                .then(() => workspaces.luke.create_workspace_resource([
                     {
                         context: "asset_validator",
                         state: "INVALID",
@@ -268,10 +277,10 @@ describe('Run Content Browser related test for content browser api', function ()
                         description: "The validation is missing!",
                         info: {}
                     }
-                ];
-                fs.writeJsonSync(workspace_example_3_path, workspace);
+                ]))
+            .then(() => {
                 client
-                    .get(`/contentbrowser/workspaces/${test_util.get_example3_workspace().name}`)
+                    .get(`/contentbrowser/workspaces/${workspaces.luke.get_name()}`)
                     .set("Content-Type", "application/json")
                     .set("Accept", 'application/json')
                     .expect(403)
@@ -284,7 +293,7 @@ describe('Run Content Browser related test for content browser api', function ()
             });
         });
 
-        it("Retrieve example1 and example2 workspaces only without example3", function(done){
+        it("Retrieve alice and eloise workspaces only without luke", function(done){
 
             client
                 .get('/contentbrowser/workspaces/')
@@ -303,15 +312,13 @@ describe('Run Content Browser related test for content browser api', function ()
 
         });
 
-        it("Retrieve example3 workspace after changing its associated statuses to valid", function(done){
+        it("Retrieve luke workspace after changing its associated statuses to valid", function(done){
 
-            favorite.update(test_util.get_example3_workspace().name, {
-                name: test_util.get_example3_workspace().name,
-                url: test_util.get_example3_file_uri()
-            }).then(function() {
-                const workspace_example_3_path = path.join(test_util.get_example3_path(), '.bilrost', 'workspace');
-                const workspace = fs.readJsonSync(workspace_example_3_path);
-                workspace.statuses = [
+            favorite.update(workspaces.luke.get_name(), {
+                name: workspaces.luke.get_name(),
+                url: workspaces.luke.get_file_uri()
+            })
+                .then(() => workspaces.luke.create_workspace_resource([
                     {
                         context: "asset_validator",
                         state: "VALID",
@@ -324,26 +331,26 @@ describe('Run Content Browser related test for content browser api', function ()
                         description: "The validation succeeded!",
                         info: {}
                     }
-                ];
-                fs.writeJsonSync(workspace_example_3_path, workspace);
-                client
-                    .get(`/contentbrowser/workspaces/${test_util.get_example3_workspace().name}`)
-                    .set("Content-Type", "application/json")
-                    .set("Accept", 'application/json')
-                    .expect("Content-Type", "application/json")
-                    .expect(200)
-                    .end((err, res) => {
-                        if (err) {
-                            return done({ error: err.toString(), status: res.status, body: res.body });
-                        }
-                        done();
-                    });
+                ]))
+                .then(() => {
+                    client
+                        .get(`/contentbrowser/workspaces/${workspaces.luke.get_name()}`)
+                        .set("Content-Type", "application/json")
+                        .set("Accept", 'application/json')
+                        .expect("Content-Type", "application/json")
+                        .expect(200)
+                        .end((err, res) => {
+                            if (err) {
+                                return done({ error: err.toString(), status: res.status, body: res.body });
+                            }
+                            done();
+                        });
 
-            }).catch(done);
+                });
 
         });
 
-        it("Retrieve example1, example2 and example3", function(done){
+        it("Retrieve alice, eloise and luke", function(done){
 
             client
                 .get('/contentbrowser/workspaces/')
@@ -400,7 +407,7 @@ describe('Run Content Browser related test for content browser api', function ()
         it('Check "filter" query paramaters for retrieving workspaces', function(done){
 
             client
-                .get(`/contentbrowser/workspaces/?name=${test_util.get_bob_workspace().name}`)
+                .get(`/contentbrowser/workspaces/?name=${workspaces.bob.get_name()}`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -416,12 +423,12 @@ describe('Run Content Browser related test for content browser api', function ()
                 });
         });
 
-        it("Can't retrieve example3 workspace since it has been removed from favorite list", function(done){
+        it("Can't retrieve luke workspace since it has been removed from favorite list", function(done){
 
-            favorite.remove(test_util.get_example3_workspace().name)
+            favorite.remove(workspaces.luke.get_name())
                 .then(function() {
                     client
-                        .get(`/contentbrowser/workspaces/${test_util.get_example3_workspace().name}`)
+                        .get(`/contentbrowser/workspaces/${workspaces.luke.get_name()}`)
                         .set("Content-Type", "application/json")
                         .set("Accept", 'application/json')
                         .expect(404)
@@ -438,10 +445,9 @@ describe('Run Content Browser related test for content browser api', function ()
 
     describe('-- [GET] /contentbrowser/workspaces/{id}', function() {
 
-        it('retrieves example2 by name', (done) => {
-            const example2 = test_util.get_bob_workspace();
+        it('retrieves eloise by name', (done) => {
             client
-                .get(`/contentbrowser/workspaces/${example2.name}`)
+                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -452,15 +458,14 @@ describe('Run Content Browser related test for content browser api', function ()
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
                     obj.items.should.have.lengthOf(1);
-                    obj.items.should.containDeep([example2]);
+                    obj.items.should.containDeep([workspaces.bob.get_workspace_resource()]);
                     done();
                 });
         });
 
-        it('retrieves example2 by file uri', (done) => {
-            const example2 = test_util.get_bob_workspace();
+        it('retrieves eloise by file uri', (done) => {
             client
-                .get(`/contentbrowser/workspaces/${encodeURIComponent(example2.file_uri)}`)
+                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -471,7 +476,7 @@ describe('Run Content Browser related test for content browser api', function ()
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
                     obj.items.should.have.lengthOf(1);
-                    obj.items.should.containDeep([example2]);
+                    obj.items.should.containDeep([workspaces.bob.get_workspace_resource()]);
                     done();
                 });
         });
@@ -481,7 +486,7 @@ describe('Run Content Browser related test for content browser api', function ()
 
         it('Retrieve test asset', function(done){
             client
-                .get(`/contentbrowser/workspaces/${test_util.get_bob_workspace().name}${test_util.get_test_level().meta.ref}`)
+                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}${bob_test_asset.meta.ref}`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/vnd.bilrost.level+json")
@@ -491,7 +496,7 @@ describe('Run Content Browser related test for content browser api', function ()
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
-                    obj.should.containDeep(test_util.get_test_level());
+                    obj.should.containDeep(bob_test_asset);
                     done();
                 });
 
@@ -500,7 +505,7 @@ describe('Run Content Browser related test for content browser api', function ()
         it("Don't retrieve unknown asset", function(done) {
 
             client
-                .get(`/contentbrowser/workspaces/${test_util.get_bob_workspace().name}/assets/unknown`)
+                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/unknown`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -517,7 +522,7 @@ describe('Run Content Browser related test for content browser api', function ()
         it("Retrieve assets in prefab namespace", function(done){
 
             client
-                .get(path.join('/contentbrowser/workspaces/', test_util.get_bob_workspace().name, '/assets/prefab/'))
+                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/prefab/`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -537,7 +542,7 @@ describe('Run Content Browser related test for content browser api', function ()
         it('Check "paging" query paramaters for retrieving assets in prefab namespace', function(done){
 
             client
-                .get(`/contentbrowser/workspaces/${test_util.get_bob_workspace().name}/assets/prefab/?maxResults=1`)
+                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/prefab/?maxResults=1`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -571,7 +576,7 @@ describe('Run Content Browser related test for content browser api', function ()
         it('Check "filter" query paramaters for retrieving assets in prefab namespace', function(done){
 
             client
-                .get(`/contentbrowser/workspaces/${test_util.get_bob_workspace().name}/assets/prefab/?ref=*`)
+                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/prefab/?ref=*`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -591,7 +596,7 @@ describe('Run Content Browser related test for content browser api', function ()
         it('Search one asset', function(done){
 
             client
-                .get(`/contentbrowser/workspaces/${test_util.get_bob_workspace().name}/assets/?q=mall`)
+                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/?q=mall`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -611,7 +616,7 @@ describe('Run Content Browser related test for content browser api', function ()
         it('Search all levels', function(done){
 
             client
-                .get(`/contentbrowser/workspaces/${test_util.get_bob_workspace().name}/assets/?q=${encodeURIComponent(".level")}`)
+                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/?q=${encodeURIComponent(".level")}`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -631,7 +636,7 @@ describe('Run Content Browser related test for content browser api', function ()
         it('Search all levels OR test prefab', function(done){
 
             client
-                .get(`/contentbrowser/workspaces/${test_util.get_bob_workspace().name}/assets/?q=${encodeURIComponent(".level OR test tag: TEST")}`)
+                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/?q=${encodeURIComponent(".level OR test tag: TEST")}`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -651,7 +656,7 @@ describe('Run Content Browser related test for content browser api', function ()
         it('Search all levels OR test prefab', function(done){
 
             client
-                .get(`/contentbrowser/workspaces/${test_util.get_bob_workspace().name}/assets/?q=${encodeURIComponent("type: level AND NOT (1_1_0 OR tag: TEST)")}`)
+                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/?q=${encodeURIComponent("type: level AND NOT (1_1_0 OR tag: TEST)")}`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -670,7 +675,7 @@ describe('Run Content Browser related test for content browser api', function ()
         it('Search all assets created between 2000 and 2020', function(done){
 
             client
-                .get(`/contentbrowser/workspaces/${test_util.get_bob_workspace().name}/assets/?q=${encodeURIComponent('created:.. 2000 2040 AND comment: "test asset!"')}`)
+                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/?q=${encodeURIComponent('created:.. 2000 2040 AND comment: "test asset!"')}`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -690,7 +695,7 @@ describe('Run Content Browser related test for content browser api', function ()
         it('Search for asset with specific dependency', function(done){
 
             client
-                .get(`/contentbrowser/workspaces/${test_util.get_bob_workspace().name}/assets/?q=${encodeURIComponent('dependency: /resources/test/test')}`)
+                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/?q=${encodeURIComponent('dependency: /resources/test/test')}`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -710,7 +715,7 @@ describe('Run Content Browser related test for content browser api', function ()
         it('Find 0 results searching for asset with invalid dependency', function(done){
 
             client
-                .get(`/contentbrowser/workspaces/${test_util.get_bob_workspace().name}/assets/?q=${encodeURIComponent('dependency: /resources/test/test.invalid')}`)
+                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/?q=${encodeURIComponent('dependency: /resources/test/test.invalid')}`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -730,7 +735,7 @@ describe('Run Content Browser related test for content browser api', function ()
         it('Search for asset with specific tag', function(done){
 
             client
-                .get(`/contentbrowser/workspaces/${test_util.get_bob_workspace().name}/assets/?q=${encodeURIComponent('tag: TEST')}`)
+                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/?q=${encodeURIComponent('tag: TEST')}`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -750,7 +755,7 @@ describe('Run Content Browser related test for content browser api', function ()
         it('Find 0 results searching for asset with invalid tag', function(done){
 
             client
-                .get(`/contentbrowser/workspaces/${test_util.get_bob_workspace().name}/assets/?q=${encodeURIComponent('tag: TESTWRONG')}`)
+                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/?q=${encodeURIComponent('tag: TESTWRONG')}`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -771,27 +776,27 @@ describe('Run Content Browser related test for content browser api', function ()
 
     describe('-- [GET] /contentbrowser/workspaces/{workspace_name}/resources/', function(){
 
-        after("Remove example2 workspace", function(done) {
+        after("Remove eloise workspace", function(done) {
 
             client
-                .delete(`/assetmanager/workspaces/${test_util.get_bob_workspace().name}`)
+                .delete(`/assetmanager/workspaces/${workspaces.bob.get_encoded_file_uri()}`)
                 .set("accept", "application/json")
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    test_util.get_favorite().search(test_util.get_bob_file_uri()).should.equal(false);
+                    should.equal(favorite.find(workspaces.bob.get_file_uri()), undefined);
                     done();
                 });
 
         });
 
 
-        it('Retrieve mall resource from example2 workspace using name identifier', function(done){
+        it('Retrieve mall resource from eloise workspace using name identifier', function(done){
 
             client
-                .get(`/contentbrowser/workspaces/${test_util.get_bob_workspace().name}/resources/mall/mall_demo`)
+                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/resources/mall/mall_demo`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -801,8 +806,9 @@ describe('Run Content Browser related test for content browser api', function ()
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
-                    obj.path.toUpperCase().should.equal(path.join(test_util.get_bob_path(), '/mall/mall_demo').toUpperCase());
-                    obj.ref.should.equal('/resources/mall/mall_demo');
+                    const mall_ref = '/resources/mall/mall_demo';
+                    obj.path.toUpperCase().should.equal(workspaces.bob.get_resource_path(mall_ref).toUpperCase());
+                    obj.ref.should.equal(mall_ref);
                     done();
                 });
 
@@ -811,7 +817,7 @@ describe('Run Content Browser related test for content browser api', function ()
         it("Don't retrieve unknown resource", function(done) {
 
             client
-                .get(`/contentbrowser/workspaces/${test_util.get_bob_workspace().name}/resources/unknown`)
+                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/resources/unknown`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -829,7 +835,7 @@ describe('Run Content Browser related test for content browser api', function ()
         it("Don't retrieve unknown resource", function(done) {
 
             client
-                .get(`/contentbrowser/workspaces/${test_util.get_bob_workspace().name}/resources/assets`)
+                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/resources/assets`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -847,7 +853,7 @@ describe('Run Content Browser related test for content browser api', function ()
 
 
             client
-                .get(`/contentbrowser/workspaces/${test_util.get_bob_workspace().name}/resources/`)
+                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/resources/`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -868,7 +874,7 @@ describe('Run Content Browser related test for content browser api', function ()
         it('Check "paging" query paramaters for retrieving resources in root folder', function(done) {
 
             client
-                .get(`/contentbrowser/workspaces/${test_util.get_bob_workspace().name}/resources/?maxResults=1`)
+                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/resources/?maxResults=1`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -903,7 +909,7 @@ describe('Run Content Browser related test for content browser api', function ()
         it("Retrieve resources in root folder with search query", function(done){
 
             client
-                .get(`/contentbrowser/workspaces/${test_util.get_bob_workspace().name}/resources/?q=${encodeURIComponent("test OR mall")}`)
+                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/resources/?q=${encodeURIComponent("test OR mall")}`)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
@@ -913,9 +919,9 @@ describe('Run Content Browser related test for content browser api', function ()
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
-                    obj.items.should.have.lengthOf(16);
+                    obj.items.length.should.be.above(16);
                     obj.items.map(item => item.should.have.properties("ref", "path"));
-                    obj.totalItems.should.equal(16);
+                    obj.totalItems.should.be.above(16);
                     done();
                 });
 

@@ -48,6 +48,7 @@ module.exports = (name, fixture) => {
     const get_internal_path = relative => _path.join(get_path(), get_internal_file(relative));
     const get_file_uri = () => path_to_file_uri(get_path());
     const get_encoded_file_uri = () => encodeURIComponent(get_file_uri());
+    const get_resource_path = ref => _path.join(get_path(), ref.replace(/\/resources\//, ''));
     const create = async branch => {
         await fixture.create();
         await git_checkout(get_name(), get_github_project().ssh_url, fixture.get_path(), branch);
@@ -56,9 +57,9 @@ module.exports = (name, fixture) => {
     const remove = async () => {
         await fixture.remove();
     };
-    const get_worskpace_resource = () => workspace_resource_presenter(get_name(), get_file_uri(), get_guid());
-    const create_workspace_resource = () => fs.outputJson(get_internal_path('workspace'), get_worskpace_resource());
-    const create_project_resource = () => fs.outputJson(get_internal_path('project'), get_project_resource());
+    const get_workspace_resource = (statuses = []) => workspace_resource_presenter(get_name(), get_file_uri(), get_guid(), statuses);
+    const create_project_resource = () => fs.outputJson(get_internal_path('project'), get_project_resource())
+    const create_workspace_resource = (statuses = []) => fs.outputJson(get_internal_path('workspace'), get_workspace_resource(statuses));
     const format_asset = (subset = {}) => asset_presenter(subset);
     const create_asset = asset => {
         const absolute_path = utilities.ref_to_absolute_path(asset.meta.ref, get_path());
@@ -75,14 +76,38 @@ module.exports = (name, fixture) => {
         const asset_db = await asset_collection(get_guid());
         return asset_db;
     };
+    const validate_workspace_root_directories = () => {
+        try {
+            fs.accessSync(get_path());
+            fs.accessSync(get_internal_path());
+            return true;
+        } catch (err) {
+            return false;
+        }
+    };
+     const validate_workspace_internal_directories = () => {
+        try {
+            fs.accessSync(get_internal_path('workspace'));
+            fs.accessSync(get_internal_path('project'));
+            return true;
+        } catch (err) {
+            return false;
+        }
+    };
     return {
         get_name,
+        get_file_uri,
         get_encoded_file_uri,
         get_internal_path,
+        get_resource_path,
         create,
         remove,
         create_workspace_resource,
         create_project_resource,
+        validate_workspace_root_directories,
+        validate_workspace_internal_directories,
+        get_workspace_resource,
+        get_project_resource,
         format_asset,
         create_asset,
         read_asset,

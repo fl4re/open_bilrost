@@ -8,7 +8,7 @@
 global.debug = true;
 
 const should = require('should');
-const fixture = require('../util/fixture')('integration_asset');
+const fixture = require('../util/fixture')('integration_branch');
 const workspace = require('../util/workspace')('carol', fixture);
 const bilrost = require('../util/server');
 
@@ -29,7 +29,7 @@ describe('Run Workspace related functional tests for the API', function() {
     });
 
     before("Creating fixtures", async function () {
-        this.timeout(4000)
+        this.timeout(4000);
         await workspace.create('good_repo');
         await workspace.create_workspace_resource();
         await workspace.create_project_resource();
@@ -51,6 +51,7 @@ describe('Run Workspace related functional tests for the API', function() {
     });
 
     it('Get branch names', function(done) {
+        this.timeout(4000);
         client
             .get(`/contentbrowser/workspaces/${encoded_file_uri}/branches`)
             .expect(200)
@@ -65,6 +66,7 @@ describe('Run Workspace related functional tests for the API', function() {
     });
 
     it('Create a branch', function(done) {
+        this.timeout(4000);
         client
             .put(`/assetmanager/workspaces/${encoded_file_uri}/branch/test`)
             .send()

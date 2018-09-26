@@ -4,7 +4,7 @@
 
 'use strict';
 
-module.exports = (name, file_uri, guid) => ({
+module.exports = (name, file_uri, guid, statuses) => ({
     guid,
     name: name,
     description: 'This is your first workspace cloned from DLC_1 branch !',
@@ -17,7 +17,7 @@ module.exports = (name, file_uri, guid) => ({
     tags: ['Hello', 'World'],
     subscriptions: [],
     stage: [],
-    statuses: [],
+    statuses,
     project: {
         full_name: 'fl4re/open_bilrost_test_project',
         host: 's3'

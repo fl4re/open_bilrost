@@ -49,7 +49,7 @@ const workspace_factory = {
                 throw error.statusCode === 403 ? error : _error_outputs.INTERNALERROR(error);
             });
     },
-    populate_workspace (project, branch, file_uri, name, description) {
+    populate_workspace (project, branch, file_uri, name, description = '') {
         const path = utilities.convert_file_uri_to_path(file_uri);
         const get_internal_file_full_path = name => Path.join(path, '.bilrost', name ? name : '/');
         const create_internal_file = (name, content) => promisify(fs.outputFile)(get_internal_file_full_path(name), stringify(content));

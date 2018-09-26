@@ -9,7 +9,7 @@ const Test_util = require('../util/test_util');
 const start_bilrost_client = require('../util/local_bilrost_client');
 const bilrost = require('../util/server');
 
-let client, test_util, workspace_name;
+let client, workspace, workspace_name;
 
 describe('Run Version Control related functional tests for the API', function() {
     /* faking bilrost-client
