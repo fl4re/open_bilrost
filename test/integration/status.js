@@ -4,7 +4,6 @@
 
 'use strict';
 
-const should = require('should');
 const status_config = require('../../assetmanager/status.config.json');
 const fixture = require('../util/fixture')('integration_status');
 const workspace = require('../util/workspace')('eloise', fixture);

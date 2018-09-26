@@ -51,7 +51,7 @@ describe('Run Workspace related functional tests for the API', function() {
     });
 
     it('Get branch names', function(done) {
-        this.timeout(4000);
+        this.timeout(5000);
         client
             .get(`/contentbrowser/workspaces/${encoded_file_uri}/branches`)
             .expect(200)

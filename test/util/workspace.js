@@ -58,7 +58,7 @@ module.exports = (name, fixture) => {
         await fixture.remove();
     };
     const get_workspace_resource = (statuses = []) => workspace_resource_presenter(get_name(), get_file_uri(), get_guid(), statuses);
-    const create_project_resource = () => fs.outputJson(get_internal_path('project'), get_project_resource())
+    const create_project_resource = () => fs.outputJson(get_internal_path('project'), get_project_resource());
     const create_workspace_resource = (statuses = []) => fs.outputJson(get_internal_path('workspace'), get_workspace_resource(statuses));
     const format_asset = (subset = {}) => asset_presenter(subset);
     const create_asset = asset => {
@@ -69,7 +69,7 @@ module.exports = (name, fixture) => {
     };
     const read_asset = ref => fs.readJsonSync(utilities.ref_to_absolute_path(ref, get_path()));
     const remove_asset = ref => fs.removeSync(utilities.ref_to_absolute_path(ref, get_path()));
-    const create_resource = relative => fs.outputFile(_path.join(get_path(), relative));
+    const create_resource = relative => fs.outputFileSync(_path.join(get_path(), relative));
     const remove_resource = relative => fs.removeSync(_path.join(get_path(), relative));
     // const instance_adapter = () => ifs.set(get_guid(), { path: get_path(), type: 'local' });
     const instance_database = async () => {
@@ -85,7 +85,7 @@ module.exports = (name, fixture) => {
             return false;
         }
     };
-     const validate_workspace_internal_directories = () => {
+    const validate_workspace_internal_directories = () => {
         try {
             fs.accessSync(get_internal_path('workspace'));
             fs.accessSync(get_internal_path('project'));
@@ -96,6 +96,7 @@ module.exports = (name, fixture) => {
     };
     return {
         get_name,
+        get_path,
         get_file_uri,
         get_encoded_file_uri,
         get_internal_path,
@@ -108,6 +109,7 @@ module.exports = (name, fixture) => {
         validate_workspace_internal_directories,
         get_workspace_resource,
         get_project_resource,
+        get_github_project,
         format_asset,
         create_asset,
         read_asset,

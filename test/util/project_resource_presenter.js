@@ -4,7 +4,7 @@
 
 'use strict';
 
-module.exports = statuses => ({
+module.exports = () => ({
     name: 'open_bilrost_test_project',
     organization: 'fl4re',
     version: '2.0.0',

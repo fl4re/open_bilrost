@@ -5,7 +5,6 @@
 'use strict';
 
 const should = require('should');
-const path = require('path').posix;
 const fixture = require('../util/fixture')('integration_browse');
 const workspace_factory = require('../util/workspace');
 const favorite = require('../../assetmanager/favorite')();
@@ -196,8 +195,8 @@ describe('Run Content Browser related test for content browser api', function ()
 
 
         after("Remove luke workspace settings", async () => {
-            await favorite.remove(workspaces.luke.get_name())
-            await favorite.remove(workspaces.alice.get_name())
+            await favorite.remove(workspaces.luke.get_name());
+            await favorite.remove(workspaces.alice.get_name());
         });
 
         it("Retrieve bob and eloise workspaces only", function(done){
@@ -278,19 +277,19 @@ describe('Run Content Browser related test for content browser api', function ()
                         info: {}
                     }
                 ]))
-            .then(() => {
-                client
-                    .get(`/contentbrowser/workspaces/${workspaces.luke.get_name()}`)
-                    .set("Content-Type", "application/json")
-                    .set("Accept", 'application/json')
-                    .expect(403)
-                    .end((err, res) => {
-                        if (err) {
-                            return done({ error: err.toString(), status: res.status, body: res.body });
-                        }
-                        done();
-                    });
-            });
+                .then(() => {
+                    client
+                        .get(`/contentbrowser/workspaces/${workspaces.luke.get_name()}`)
+                        .set("Content-Type", "application/json")
+                        .set("Accept", 'application/json')
+                        .expect(403)
+                        .end((err, res) => {
+                            if (err) {
+                                return done({ error: err.toString(), status: res.status, body: res.body });
+                            }
+                            done();
+                        });
+                });
         });
 
         it("Retrieve alice and eloise workspaces only without luke", function(done){

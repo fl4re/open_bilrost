@@ -36,7 +36,8 @@ describe('Run Asset related functional tests for the API', function() {
 
     describe('Creating assets!', function() {
 
-        it('Create an asset', done => {
+        it('Create an asset', function (done) {
+            this.timeout(4000);
             const asset = {
                 main: "/resources/test/a/test_005",
                 comment: "This a test asset",
