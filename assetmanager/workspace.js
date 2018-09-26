@@ -182,9 +182,7 @@ const Workspace = function(file_uri, context) {
         if (!this.database) {
             throw new Error('Workspace not initialized. Missing database');
         }
-        return this.adapter.getFilesRecursively(this.get_internal_file_path('assets'))
-            .then(assets_path => Promise.all(assets_path.map(asset_path => this.adapter.readJson(asset_path))))
-            .then(assets => this.database.add_batch(assets));
+        return this.database.populate(this.get_adapter(), this.get_internal_file_path);
     };
     this.remove_database_semaphore = () => {
         delete database_semaphores[file_uri];

@@ -64,7 +64,6 @@ const assets_collection = guid => {
 
     const database = loki(guid);
     const collection = database.get_collection('assets');
-
     const output = {
         total_docs: collection.total_docs,
         flush: collection.flush,
@@ -80,6 +79,9 @@ const assets_collection = guid => {
                     .map(doc => format_document_to_asset(doc));
                 return res;
             }),
+        populate: (adapter, get_internal_file_path) => adapter.getFilesRecursively(get_internal_file_path('assets'))
+            .then(assets_path => Promise.all(assets_path.map(asset_path => adapter.readJson(asset_path))))
+            .then(assets => output.add_batch(assets)),
         update: (ref, asset) => collection.update(ref, format_asset_subset(deep_clone(asset))),
         get_adapter: database.get_adapter,
         get_collection: database.get_collection,

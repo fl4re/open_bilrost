@@ -7,18 +7,18 @@
 // Print stack trace for debugging
 global.debug = true;
 
-const path = require('path');
 const should = require('should');
-const Test_util = require('../util/test_util');
+const fixture = require('../util/fixture')('integration_branch');
+const workspace = require('../util/workspace')('carol', fixture);
 const bilrost = require('../util/server');
 
-let client, test_util;
+let client, encoded_file_uri = workspace.get_encoded_file_uri();
 
 describe('Run Workspace related functional tests for the API', function() {
 
-    let name, err, req, res;
+    let err, req, res;
     const bilrost_client = {
-        get: (url, callback) => callback(err, req, res, test_util.get_example_project())
+        get: (url, callback) => callback(err, req, res, workspace.get_project_resource())
     };
 
     before("Starting a Content Browser server", async () => {
@@ -26,59 +26,19 @@ describe('Run Workspace related functional tests for the API', function() {
             bilrost_client,
             protocol: 'ssh'
         });
-        test_util = new Test_util("branch", "good_repo", client);
-        name = test_util.get_example_project().name;
     });
 
-    before("Creating fixtures", function(done) {
-        this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
-        client
-            .post('/assetmanager/workspaces')
-            .send({
-                file_uri: test_util.get_carol_file_uri(),
-                from_repo: true,
-                name: name,
-                description: test_util.get_example_project().description.comment,
-                organization: test_util.get_example_project().owner.login,
-                project_name: test_util.get_example_project().name,
-                branch: 'good_repo'
-            })
-            .set("Content-Type", "application/json")
-            .set("Accept", 'application/json')
-            .expect(200)
-            .end((err, res) => {
-                if (err) {
-                    return done({ error: err.toString(), status: res.status, body: res.body });
-                }
-                let obj = test_util.get_favorite().search(test_util.get_carol_file_uri());
-
-                obj.should.be.an.Object;
-                should.equal(test_util.does_workspace_exist('new_workspace_v2'), true);
-                done();
-            });
+    before("Creating fixtures", async function () {
+        this.timeout(4000);
+        await workspace.create('good_repo');
+        await workspace.create_workspace_resource();
+        await workspace.create_project_resource();
     });
-
-    after('Delete a workspace', function(done) {
-        this.timeout(this.timeout * 3);
-        client
-            .delete(path.join('/assetmanager/workspaces/', name))
-            .send()
-            .set("Accept", 'application/json')
-            .set("Content-Type", "application/json")
-            .expect(200)
-            .end((err, res) => {
-                if (err) {
-                    return done({ error: err.toString(), status: res.status, body: res.body });
-                }
-                test_util.get_favorite().search(test_util.get_carol_file_uri()).should.equal(false);
-                should.equal(test_util.does_workspace_exist('new_workspace_v2'), false);
-                done();
-            });
-    });
+    after("Removing fixtures", () => workspace.remove());
 
     it('Get branch name', function(done) {
         client
-            .get('/contentbrowser/workspaces/' + name + '/branch')
+            .get(`/contentbrowser/workspaces/${encoded_file_uri}/branch`)
             .expect(200)
             .set('Accept', 'application/json')
             .end((err, res) => {
@@ -91,8 +51,9 @@ describe('Run Workspace related functional tests for the API', function() {
     });
 
     it('Get branch names', function(done) {
+        this.timeout(5000);
         client
-            .get('/contentbrowser/workspaces/' + name + '/branches')
+            .get(`/contentbrowser/workspaces/${encoded_file_uri}/branches`)
             .expect(200)
             .set('Accept', 'application/json')
             .end((err, res) => {
@@ -105,8 +66,9 @@ describe('Run Workspace related functional tests for the API', function() {
     });
 
     it('Create a branch', function(done) {
+        this.timeout(4000);
         client
-            .put('/assetmanager/workspaces/' + name + '/branch/test')
+            .put(`/assetmanager/workspaces/${encoded_file_uri}/branch/test`)
             .send()
             .set('Accept', 'application/json')
             .expect(201)
@@ -122,7 +84,7 @@ describe('Run Workspace related functional tests for the API', function() {
     it('Change to existing branch', function(done) {
         this.timeout(4000);
         client
-            .post('/assetmanager/workspaces/' + name + '/branch/good_repo/change')
+            .post(`/assetmanager/workspaces/${encoded_file_uri}/branch/good_repo/change`)
             .send()
             .set('Accept', 'application/json')
             .expect(200)
@@ -137,7 +99,7 @@ describe('Run Workspace related functional tests for the API', function() {
 
     it('Delete a branch', function(done) {
         client
-            .del('/assetmanager/workspaces/' + name + '/branch/test')
+            .del(`/assetmanager/workspaces/${encoded_file_uri}/branch/test`)
             .send()
             .expect(200)
             .set('Accept', 'application/json')
@@ -152,7 +114,7 @@ describe('Run Workspace related functional tests for the API', function() {
 
     it('Fail to create already existing branch', function(done) {
         client
-            .put('/assetmanager/workspaces/' + name + '/branch/good_repo')
+            .put(`/assetmanager/workspaces/${encoded_file_uri}/branch/good_repo`)
             .send()
             .set('Accept', 'application/json')
             .expect(500)
@@ -165,7 +127,7 @@ describe('Run Workspace related functional tests for the API', function() {
     it('Fail to change to an unknown branch', function(done) {
         this.timeout(10000);
         client
-            .post('/assetmanager/workspaces/' + name + '/branch/uknown/change')
+            .post(`/assetmanager/workspaces/${encoded_file_uri}/branch/unknown/change`)
             .send()
             .set('Accept', 'application/json')
             .expect(500)

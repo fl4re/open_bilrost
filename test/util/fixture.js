@@ -11,7 +11,7 @@ module.exports = name => {
     const path = _path.join(process.cwd().replace(/\\/g, '/'), 'tmp', 'fixtures', name);
     return {
         get_path: () => path,
-        create: () => fs.mkdirp(path),
+        create: (relative = './') => fs.mkdirp(_path.join(path, relative)),
         remove: () => fs.remove(path)
     };
 };

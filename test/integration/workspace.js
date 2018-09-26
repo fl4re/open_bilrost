@@ -8,12 +8,13 @@
 global.debug = true;
 
 const should = require('should');
-const path = require('path').posix;
 const fs = require('fs-extra');
-const Test_util = require('../util/test_util');
 const bilrost = require('../util/server');
+const fixture = require('../util/fixture')('integration_workspace');
+const workspace_factory = require('../util/workspace');
+const favorite = require('../../assetmanager/favorite')();
 
-let client, test_util;
+let client, workspaces;
 
 describe('Run Workspace related functional tests for the API', function() {
     /* faking bilrost-client
@@ -22,9 +23,8 @@ describe('Run Workspace related functional tests for the API', function() {
        These parameters are only declared here, and they are set in
        a before clause according to what we want to test.
      */
-    let err, req, res, obj;
     const bilrost_client = {
-        get: (url, callback) => callback(err, req, res, obj)
+        get: (url, callback) => callback(undefined, null, null, workspaces.carol.get_github_project())
     };
 
     before("Starting a Content Browser server", async () => {
@@ -32,42 +32,42 @@ describe('Run Workspace related functional tests for the API', function() {
             bilrost_client,
             protocol: 'ssh'
         });
-        test_util = new Test_util("workspace", "good_repo", client);
     });
 
-    before("Creating fixtures", function(done) {
-        this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
-        test_util.create_eloise_fixtures()
-            .then(() => test_util.create_eloise_workspace_project_file())
-            .then(() => test_util.create_eloise_workspace_properties_file())
-            .then(() => test_util.copy_eloise_to_alice_bob_and_philippe())
-            .then(() => test_util.add_eloise_to_favorite())
-            .then(() => done())
-            .catch(err => {
-                done(err);
+    before("Creating fixtures", async function () {
+        this.timeout(5000);
+        workspaces = {
+            carol: workspace_factory('carol', fixture),
+            alice: workspace_factory('alice', fixture),
+            bob: workspace_factory('bob', fixture),
+            luke: workspace_factory('luke', fixture)
+        };
+        const workspace_creation_sequence = Object.keys(workspaces)
+            .map(async workspace_name => {
+                const workspace = workspaces[workspace_name];
+                await workspace.create(workspace_name === 'luke' ? 'bad_repo' : 'good_repo');
+                await workspace.create_workspace_resource();
+                await workspace.create_project_resource();
             });
+        await Promise.all(workspace_creation_sequence);
     });
-    after("Removing fixtures", done => {
-        this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
-        test_util.remove_fixtures(done);
-    });
+    after("Removing fixtures", () => Promise.all(Object.keys(workspaces).map(workspace_name => workspaces[workspace_name].remove())));
 
-    describe('Add Workspaces to favorites', function(){
-        it('Add "example1" Workspace to favorites', function(done) {
+    describe('Add Workspaces to favorites', function () {
+        it('Add "example1" Workspace to favorites', function (done) {
 
             client
                 .post('/assetmanager/workspaces/favorites')
-                .send({ file_uri: test_util.get_alice_file_uri() })
+                .send({ file_uri: workspaces.alice.get_file_uri() })
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
-                .set("Last-Modified", test_util.get_test_level().meta.modified)
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
 
-                    test_util.get_favorite().search(test_util.get_alice_file_uri()).should.be.an.Object;
+                    favorite.find(workspaces.alice.get_file_uri()).should.be.an.Object;
                     done();
                 });
 
@@ -77,17 +77,16 @@ describe('Run Workspace related functional tests for the API', function() {
 
             client
                 .post('/assetmanager/workspaces/favorites')
-                .send({file_uri: test_util.get_bob_file_uri()})
+                .send({file_uri: workspaces.bob.get_file_uri()})
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
-                .set("Last-Modified", test_util.get_test_level().meta.modified)
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
 
-                    test_util.get_favorite().search(test_util.get_bob_file_uri()).should.be.an.Object;
+                    favorite.find(workspaces.bob.get_file_uri()).should.be.an.Object;
                     done();
                 });
 
@@ -96,17 +95,16 @@ describe('Run Workspace related functional tests for the API', function() {
         it("Fail to add an already existing Workspace to favorites", function(done){
             client
                 .post('/assetmanager/workspaces/favorites')
-                .send({file_uri: test_util.get_alice_file_uri()})
+                .send({ file_uri: workspaces.alice.get_file_uri() })
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
-                .set("Last-Modified", test_util.get_test_level().meta.modified)
                 .expect(403)
                 .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
 
-                    test_util.get_favorite().search(test_util.get_alice_file_uri()).should.be.an.Object;
+                    favorite.find(workspaces.alice.get_file_uri()).should.be.an.Object;
                     done();
                 });
 
@@ -116,10 +114,9 @@ describe('Run Workspace related functional tests for the API', function() {
 
             client
                 .post('/assetmanager/workspaces/favorites')
-                .send({file_uri: test_util.get_philippe_file_uri()})
+                .send({ file_uri: workspaces.luke.get_file_uri() })
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
-                .set("Last-Modified", test_util.get_test_level().meta.modified)
                 .expect(500)
                 .end((err, res) => {
                     if (err) {
@@ -136,46 +133,43 @@ describe('Run Workspace related functional tests for the API', function() {
         it('Remove "example1" Workspace from favorites', function(done){
 
             client
-                .delete(`/assetmanager/workspaces/${test_util.get_alice_workspace().name}/favorites`)
+                .delete(`/assetmanager/workspaces/${workspaces.alice.get_name()}/favorites`)
                 .set("Accept", 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    test_util.get_favorite().search(test_util.get_alice_file_uri()).should.equal(false);
+                    should.equal(favorite.find(workspaces.alice.get_file_uri()), undefined);
                     done();
                 });
 
         });
 
         it('Remove "example2" Workspace from favorites', function(done){
-
             client
-                .delete(`/assetmanager/workspaces/${test_util.get_bob_workspace().name}/favorites`)
+                .delete(`/assetmanager/workspaces/${workspaces.bob.get_name()}/favorites`)
                 .set("Accept", 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    test_util.get_favorite().search(test_util.get_bob_file_uri()).should.equal(false);
+                    should.equal(favorite.find(workspaces.bob.get_file_uri()), undefined);
                     done();
                 });
 
         });
 
         it('Check workspace removal is idempotent', function(done){
-            test_util.get_favorite().search(test_util.get_bob_file_uri()).should.equal(false);
             client
-                .delete(`/assetmanager/workspaces/${test_util.get_bob_workspace().name}/favorites`)
+                .delete(`/assetmanager/workspaces/${workspaces.bob.get_name()}/favorites`)
                 .set("Accept", 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    test_util.get_favorite().search(test_util.get_bob_file_uri()).should.equal(false);
                     done();
                 });
         });
@@ -184,24 +178,35 @@ describe('Run Workspace related functional tests for the API', function() {
 
     describe("Create workspaces", function() {
 
-        before('Set bilrost_client answer', function() {
-            err = false;
-            req = null;
-            res = null;
-            obj = test_util.get_example_project();
+        it('Delete a workspace', function(done){
+            client
+                .delete(`/assetmanager/workspaces/${encodeURIComponent(workspaces.carol.get_file_uri())}`)
+                .send()
+                .set("Accept", 'application/json')
+                .set("Content-Type", "application/json")
+                .expect(200)
+                .end((err, res) => {
+                    if (err) {
+                        return done({ error: err.toString(), status: res.status, body: res.body });
+                    }
+                    should.equal(favorite.find(workspaces.carol.get_file_uri()), undefined);
+                    should.equal(workspaces.carol.validate_workspace_root_directories(), false);
+                    done();
+                });
+
         });
 
-        it('Create a workspace', function(done) {
+        it('Create a workspace', function (done) {
             this.timeout(8*this.timeout());
             client
                 .post('/assetmanager/workspaces')
                 .send({
-                    file_uri: test_util.get_carol_file_uri(),
+                    file_uri: workspaces.carol.get_file_uri(),
                     from_repo: true,
-                    name: test_util.get_example_project().name,
-                    description: test_util.get_example_project().description.comment,
-                    organization: test_util.get_example_project().owner.login,
-                    project_name: test_util.get_example_project().name,
+                    name: workspaces.carol.get_github_project().name,
+                    description: workspaces.carol.get_github_project().description.comment,
+                    organization: workspaces.carol.get_github_project().owner.login,
+                    project_name: workspaces.carol.get_github_project().name,
                     branch: 'good_repo',
                 })
                 .set("Content-Type", "application/json")
@@ -211,20 +216,20 @@ describe('Run Workspace related functional tests for the API', function() {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    let obj = test_util.get_favorite().search(test_util.get_carol_file_uri());
+                    let obj = favorite.find(workspaces.carol.get_file_uri());
 
                     obj.should.be.an.Object;
-                    should.equal(test_util.does_workspace_exist('new_workspace_v2'), true);
+                    should.equal(workspaces.carol.validate_workspace_root_directories(), true);
                     done();
                 });
         });
 
-        it('Reset a workspace', function(done) {
+        it('Reset a workspace', function (done) {
             this.timeout(8*this.timeout());
-            fs.writeFileSync(path.join(test_util.get_carol_path(), 'test'), 'Hello world!');
-            fs.outputFileSync(path.join(test_util.get_carol_path(), 'foo', 'bar'), 'Hello world!');
+            workspaces.carol.create_resource('test', 'Hello world!');
+            workspaces.carol.create_resource('foo/bar', 'Hello world!');
             client
-                .post(`/assetmanager/workspaces/${encodeURIComponent(test_util.get_carol_file_uri())}/reset`)
+                .post(`/assetmanager/workspaces/${encodeURIComponent(workspaces.carol.get_file_uri())}/reset`)
                 .send()
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
@@ -233,7 +238,7 @@ describe('Run Workspace related functional tests for the API', function() {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    should.equal(fs.readdirSync(test_util.get_carol_path()).length, 3);
+                    should.equal(fs.readdirSync(workspaces.carol.get_path()).length, 3);
                     done();
                 });
         });
@@ -241,7 +246,7 @@ describe('Run Workspace related functional tests for the API', function() {
 
         it('Forget the copied Workspace from favorite list', function(done){
             client
-                .delete(`/assetmanager/workspaces/${encodeURIComponent(test_util.get_carol_file_uri())}/favorites`)
+                .delete(`/assetmanager/workspaces/${workspaces.carol.get_encoded_file_uri()}/favorites`)
                 .send()
                 .set("Accept", 'application/json')
                 .set("Content-Type", "application/json")
@@ -250,16 +255,16 @@ describe('Run Workspace related functional tests for the API', function() {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    test_util.get_favorite().search(test_util.get_carol_file_uri()).should.equal(false);
+                    should.equal(favorite.find(workspaces.carol.get_encoded_file_uri()), undefined);
                     done();
                 });
 
         });
 
-        it('Add to favorite list', function(done) {
+        it('Add to favorite list', function (done) {
             client
                 .post('/assetmanager/workspaces/favorites')
-                .send({file_uri: test_util.get_carol_file_uri()})
+                .send({file_uri: workspaces.carol.get_file_uri()})
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect(200)
@@ -267,16 +272,43 @@ describe('Run Workspace related functional tests for the API', function() {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    let obj = test_util.get_favorite().search(test_util.get_carol_file_uri());
-
+                    let obj = favorite.find(workspaces.carol.get_file_uri());
                     obj.should.be.an.Object;
                     done();
                 });
         });
 
-        it('Delete the created Workspace', function(done){
+        it('Dont create a workspace when the target location already exists', function (done) {
+            this.timeout(8*this.timeout());
             client
-                .delete(`/assetmanager/workspaces/${encodeURIComponent(test_util.get_carol_file_uri())}`)
+                .post('/assetmanager/workspaces')
+                .send({
+                    file_uri: workspaces.carol.get_file_uri(),
+                    from_repo: true,
+                    name: workspaces.carol.get_github_project().name,
+                    description: workspaces.carol.get_github_project().description.comment,
+                    organization: workspaces.carol.get_github_project().owner.login,
+                    project_name: workspaces.carol.get_github_project().name,
+                    branch: 'good_repo',
+                })
+                .set("Content-Type", "application/json")
+                .set("Accept", 'application/json')
+                .expect(403)
+                .end((err, res) => {
+                    if (err) {
+                        return done({ error: err.toString(), status: res.status, body: res.body });
+                    }
+                    if (~res.body.indexOf('already exist')) {
+                        done();
+                    } else {
+                        done('This error is not the one expected!');
+                    }
+                });
+        });
+
+        it('Forget the copied Workspace from favorite list', function(done){
+            client
+                .delete(`/assetmanager/workspaces/${workspaces.carol.get_encoded_file_uri()}/favorites`)
                 .send()
                 .set("Accept", 'application/json')
                 .set("Content-Type", "application/json")
@@ -285,85 +317,7 @@ describe('Run Workspace related functional tests for the API', function() {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    test_util.get_favorite().search(test_util.get_carol_file_uri()).should.equal(false);
-                    should.equal(test_util.does_workspace_exist('new_workspace_v2'), false);
-                    done();
-                });
-
-        });
-
-        it('Dont create a workspace when the target location already exists', function(done) {
-            this.timeout(8*this.timeout());
-            test_util.ensure_carol_dir()
-                .then(() => {
-                    client
-                        .post('/assetmanager/workspaces')
-                        .send({
-                            file_uri: test_util.get_carol_file_uri(),
-                            from_repo: true,
-                            name: test_util.get_example_project().name,
-                            description: test_util.get_example_project().description.comment,
-                            organization: test_util.get_example_project().owner.login,
-                            project_name: test_util.get_example_project().name,
-                            branch: 'good_repo',
-                        })
-                        .set("Content-Type", "application/json")
-                        .set("Accept", 'application/json')
-                        .expect(403)
-                        .end((err, res) => {
-                            if (err) {
-                                return done({ error: err.toString(), status: res.status, body: res.body });
-                            }
-                            if (~res.body.indexOf('already exist')) {
-                                done();
-                            } else {
-                                done('This error is not the one expected!');
-                            }
-                        });
-                });
-        });
-
-    });
-
-    describe('Not implemented Workspace routes', function() {
-
-        it('Fail to create Workspace', function(done) {
-
-            client
-                .put('/assetmanager/workspaces')
-                .expect(501)
-                .end((err, res) => {
-                    if (err) {
-                        return done({ error: err.toString(), status: res.status, body: res.body });
-                    }
-                    done();
-                });
-
-        });
-
-        it('Fail to update Workspace', function(done) {
-
-            client
-                .patch('/assetmanager/workspaces/')
-                .expect(501)
-                .end((err, res) => {
-                    if (err) {
-                        return done({ error: err.toString(), status: res.status, body: res.body });
-                    }
-                    done();
-                });
-
-        });
-
-        it('Fail to replace Workspace', function(done) {
-
-            client
-                .put('/assetmanager/workspaces/')
-                .expect(501)
-                .end((err, res) => {
-                    if (err) {
-                        return done({ error: err.toString(), status: res.status, body: res.body });
-                    }
+                    should.equal(favorite.find(workspaces.carol.get_encoded_file_uri()), undefined);
                     done();
                 });
 

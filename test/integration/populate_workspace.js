@@ -4,15 +4,15 @@
 
 'use strict';
 
-// Print stack trace for debugging
-global.debug = true;
-
 const should = require('should');
-const Test_util = require('../util/test_util');
 
+const favorite = require('../../assetmanager/favorite')();
+
+const fixture = require('../util/fixture')('integration_populate_workspace');
+const workspace = require('../util/workspace')('carol', fixture);
 const bilrost = require('../util/server');
 
-let client, test_util;
+let client;
 
 describe('Run Workspace related functional tests for the API', function() {
     /* faking bilrost-client
@@ -31,16 +31,11 @@ describe('Run Workspace related functional tests for the API', function() {
             bilrost_client,
             protocol: 'ssh'
         });
-        test_util = new Test_util('populate_workspace', 'good_repo', client);
     });
 
-    before('Creating fixtures', function(done) {
+    before('Creating fixtures', async () => {
         this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
-        test_util.create_eloise_fixtures()
-            .then(() => done())
-            .catch(err => {
-                done(err);
-            });
+        await workspace.create('good_repo');
     });
 
     describe('Populate eloise workspaces', function() {
@@ -49,17 +44,17 @@ describe('Run Workspace related functional tests for the API', function() {
             err = false;
             req = null;
             res = null;
-            obj = test_util.get_example_project();
+            obj = workspace.get_project_resource();
         });
 
         it('Populate a workspace', function(done) {
             this.timeout(8*this.timeout());
-            test_util.client
+            client
                 .post('/assetmanager/workspaces/populate')
                 .send({
-                    file_uri: test_util.get_eloise_file_uri(),
-                    name: test_util.get_example_project().name,
-                    description: test_util.get_example_project().description.comment
+                    file_uri: workspace.get_file_uri(),
+                    name: workspace.get_name(),
+                    description: workspace.get_project_resource().description.comment
                 })
                 .set('Content-Type', 'application/json')
                 .set('Accept', 'application/json')
@@ -68,17 +63,17 @@ describe('Run Workspace related functional tests for the API', function() {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    let obj = test_util.get_favorite().search(test_util.get_carol_file_uri());
+                    let obj = favorite.find(workspace.get_file_uri());
 
                     obj.should.be.an.Object;
-                    should.equal(test_util.does_workspace_exist('good_repo'), true);
-                    should.equal(test_util.does_workspace_internals_valid('good_repo'), true);
+                    should.equal(workspace.validate_workspace_root_directories(), true);
+                    should.equal(workspace.validate_workspace_internal_directories(), true);
                     done();
                 });
         });
         it('Delete well the populated workspace', function(done){
-            test_util.client
-                .delete(`/assetmanager/workspaces/${test_util.get_example_project().name}`)
+            client
+                .delete(`/assetmanager/workspaces/${workspace.get_name()}`)
                 .send()
                 .set("Accept", 'application/json')
                 .set("Content-Type", "application/json")
@@ -87,8 +82,8 @@ describe('Run Workspace related functional tests for the API', function() {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    test_util.get_favorite().search(test_util.get_eloise_file_uri()).should.equal(false);
-                    should.equal(test_util.does_workspace_exist('good_repo'), false);
+                    should.equal(favorite.find(workspace.get_file_uri()), undefined);
+                    should.equal(workspace.validate_workspace_root_directories(), false);
                     done();
                 });
         });

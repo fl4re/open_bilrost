@@ -4,10 +4,8 @@
 
 'use strict';
 
-const crypto = require('crypto');
-
-module.exports = (name, file_uri) => ({
-    guid: crypto.randomBytes(20).toString('hex'),
+module.exports = (name, file_uri, guid, statuses) => ({
+    guid,
     name: name,
     description: 'This is your first workspace cloned from DLC_1 branch !',
     version: '2.0.0',
@@ -19,7 +17,7 @@ module.exports = (name, file_uri) => ({
     tags: ['Hello', 'World'],
     subscriptions: [],
     stage: [],
-    statuses: [],
+    statuses,
     project: {
         full_name: 'fl4re/open_bilrost_test_project',
         host: 's3'

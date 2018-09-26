@@ -75,7 +75,7 @@ class Repo_manager_git extends Repo_manager {
         this.stage_files_command = (operation, files_paths) => "git " + operation + " " + files_paths;
         this.commit_files_command = message => "git commit -m \"" + message + "\"";
         this.push_files_command = branch => "git push origin " + branch;
-        this.commit_log_command = (file_path, start_at_commit_id, limit) => "git log -p --name-status --max-count " + (limit ? limit : 10) + start_at_commit_id + ".. " + file_path;
+        this.commit_log_command = (file_path, limit, start_at_commit_id = 'HEAD') => `git log -p --name-status --max-count ${limit ? limit : 10} ${start_at_commit_id} -- ${file_path}`;
         this.read_command = (branch, path) => "git show " + branch + ":" + path;
         this.config_command = key => "git config --get bilrost." + key;
         this.remote_url_command = () => "git remote get-url origin";
@@ -209,7 +209,7 @@ class Repo_manager_git extends Repo_manager {
             file_path = file_path.slice(1);
         }
         return new Promise((resolve, reject) => {
-            this.exec(this.commit_log_command(file_path, start_at_revision, limit), { cwd: this.cwd, maxBuffer: max_buffer }, (error, stdout, stderr) => {
+            this.exec(this.commit_log_command(file_path, limit, start_at_revision), { cwd: this.cwd, maxBuffer: max_buffer }, (error, stdout, stderr) => {
                 if (error || stderr) {
                     reject(errors.INTERNALERROR(error || stderr));
                 } else {
