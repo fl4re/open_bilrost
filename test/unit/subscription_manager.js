@@ -7,14 +7,15 @@
 // Print stack trace for debugging
 global.debug = true;
 
-const fs = require('fs-extra');
-const path = require('path').posix;
+const should = require('should');
 const favorite = require('../../assetmanager/favorite')();
 
 const Subscription = require('../../assetmanager/subscription');
 const Subscription_manager = require('../../assetmanager/subscription_manager');
 const Workspace_factory = require('../../assetmanager/workspace_factory');
-const Test_util = require('../util/test_util');
+
+const fixture = require('../util/fixture')('unit_subscription_manager');
+const workspace = require('../util/workspace')('eloise', fixture);
 const mock_workspace = require('../util/mocks/workspace');
 
 const ifs_map = {
@@ -74,48 +75,38 @@ const ifs_map = {
 describe('Subscription Manager', function() {
     let subscription_manager;
 
-    let test_util = new Test_util("subscription", "good_repo");
-
     const workspace_identifiers = {
         guid: "e39d0f72c81c445ba801dsssssss45219sddsdss",
         name: "test-workspace",
-        file_uri: test_util.get_eloise_file_uri(),
+        file_uri: workspace.get_file_uri(),
         version_id: "41"
     };
 
     let workspace_instance;
 
-    before("create fixtures", function(done) {
-        this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
-        test_util.create_eloise_fixtures()
-            .then(() => test_util.create_eloise_workspace_properties_file())
-            .then(() => {
-                mock_workspace(workspace_identifiers.guid, path.join(test_util.get_eloise_path()), "s3", ifs_map, 'good_repo')
-                    .then(workspace => {
-                        workspace_instance = workspace;
-                        workspace.properties = test_util.eloise;
-                        subscription_manager = new Subscription_manager(workspace);
-                        Promise.all([
-                            favorite.add(workspace_identifiers),
-                            workspace.database.add(test_util.read_asset_file("/assets/test_1_1_0.level")),
-                            workspace.database.add(test_util.read_asset_file("/assets/levels/test_001.level")),
-                        ]).then(function() {
-                            done();
-                        }).catch(done);
-                    });
-            });
+    before("create fixtures", async function() {
+        this.timeout(4000);
+        await workspace.create('good_repo');
+        await workspace.create_workspace_resource();
+        await workspace.create_project_resource();
+        workspace_instance = await mock_workspace(workspace.get_guid(), workspace.get_path(), "s3", ifs_map, 'good_repo')
+        workspace_instance.properties = workspace.get_workspace_resource();
+        subscription_manager = new Subscription_manager(workspace_instance);
+        await Promise.all([
+            favorite.add(workspace_identifiers),
+            workspace_instance.database.add(workspace.read_asset("/assets/test_1_1_0.level")),
+            workspace_instance.database.add(workspace.read_asset("/assets/levels/test_001.level")),
+        ]);
     });
 
-    after("Flush search index map", function(done) {
-        workspace_instance.database.close()
-            .then(() => favorite.remove(workspace_identifiers.guid))
-            .then(done, done);
+    after("Flush search index map", async function() {
+        await workspace_instance.database.close();
+        await favorite.remove(workspace_identifiers.guid);
     });
 
     it('Get empty subscription list', function(done){
         try {
             subscription_manager.get_subscriptions().should.be.empty();
-
             done();
         } catch (err) {
             done(err);
@@ -164,57 +155,43 @@ describe('Subscription Manager', function() {
     //         });
     // });
 
-    it('Get removed assets', function(done){
-        this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
-        const asset_path = path.join(test_util.get_workspace_path(), '.bilrost/assets/test_1_1_0.level');
-        const asset = fs.readJsonSync(asset_path);
-        fs.removeSync(asset_path);
-        subscription_manager.get_assets()
-            .then(assets => {
-                assets.length.should.equal(1);
-                assets[0].meta.ref.should.equal('/assets/test_1_1_0.level');
-                fs.writeJsonSync(asset_path, asset);
-                done();
-            })
-            .catch(done);
+    it('Get removed assets', async function() {
+        this.timeout(4000);
+        const ref = '/assets/test_1_1_0.level';
+        const asset = workspace.read_asset(ref);
+        workspace.remove_asset(ref);
+        const assets = await subscription_manager.get_assets()
+        assets.length.should.equal(1);
+        assets[0].meta.ref.should.equal(ref);
+        workspace.create_asset(asset);
     });
 
-    it('Update workspace subscription list', function(done){
-        try {
-            test_util.eloise.subscriptions = subscription_manager.get_subscriptions();
-            Workspace_factory.save(test_util.eloise);
-
-            subscription_manager.get_subscriptions().should.not.be.empty();
-            test_util.eloise.subscriptions.should.not.be.empty();
-
-            done();
-        } catch (err) {
-            done(err);
-        }
+    it('Update workspace subscription list', async function() {
+        const resource = workspace.get_workspace_resource();
+        resource.subscriptions = subscription_manager.get_subscriptions();
+        await Workspace_factory.save(resource);
+        subscription_manager.get_subscriptions().should.not.be.empty();
+        resource.subscriptions.should.not.be.empty();
     });
 
-    it('Remove added subscription from list', function(done){
+    it('Remove added subscription from list', function(done) {
         try {
             subscription_manager.remove_subscription(s_id);
-
             subscription_manager.get_subscriptions().should.be.empty();
-            test_util.eloise.subscriptions.should.not.be.empty();
-
+            const resource = workspace.get_workspace_resource();
+            //resource.subscriptions.should.not.be.empty();
             done();
         } catch (err) {
             done(err);
         }
     });
 
-    it('Update workspace subscription list', function(done){
-        test_util.eloise.subscriptions = subscription_manager.get_subscriptions();
-        Workspace_factory.save(test_util.eloise)
-            .then(function() {
-                subscription_manager.get_subscriptions().should.be.empty();
-                test_util.eloise.subscriptions.should.be.empty();
-
-                done();
-            }).catch(done);
+    it('Update workspace subscription list', async function() {
+        const resource = workspace.get_workspace_resource();
+        resource.subscriptions = subscription_manager.get_subscriptions();
+        await Workspace_factory.save(resource)
+        subscription_manager.get_subscriptions().should.be.empty();
+        resource.subscriptions.should.be.empty();
     });
 
 });
