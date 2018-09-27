@@ -20,42 +20,27 @@ const mock_workspace = require('../util/mocks/workspace');
 
 const ifs_map = {
     "readJson" : {
-        ".bilrost/assets/prefab/test_1_0_0.prefab": () => Promise.resolve({
+        ".bilrost/assets/prefab/test_1_0_0.prefab": () => Promise.resolve(workspace.format_asset({
             "meta": {
                 "ref": "/assets/test_1_1_0.level",
-                "type": "application/vnd.bilrost.level+json",
-                "created": "2016-03-16T14:41:10.384Z",
-                "modified": "2016-03-18T10:54:05.870Z",
-                "author": "",
-                "version": "1.1.0"
             },
-            "comment": "",
-            "tags": [],
             "main": "/resources/test",
             "dependencies": [
                 "/resources/test/test"
-            ],
-            "semantics": []
-        }),
-        ".bilrost/assets/levels/test_001.level": () => Promise.resolve({
+            ]
+        })),
+        ".bilrost/assets/levels/test_001.level": () => Promise.resolve(workspace.format_asset({
             "meta": {
                 "ref": "/assets/levels/test_001.level",
-                "type": "application/vnd.bilrost.level+json",
-                "created": "2016-03-16T14:41:10.384Z",
-                "modified": "2016-03-18T10:54:05.870Z",
-                "version": "1.1.0",
-                "author": ""
             },
-            "comment": "",
-            "tags": [],
             "main": "/resources/test/test_001",
             "dependencies": [
                 "/resources/mall/mall_demo"
-            ],
-            "semantics": []
-        }),
+            ]
+        })),
+        ".bilrost\\resources\\mall\\mall_demo" : () => Promise.reject('dummy err'),
+        ".bilrost/resources/mall/mall_demo" : () => Promise.reject('dummy err')
     },
-
     "access" : {
         ".bilrost\\resources\\test" : () => Promise.resolve(),
         ".bilrost/resources/test" : () => Promise.resolve(),
@@ -146,14 +131,13 @@ describe('Subscription Manager', function() {
             .catch(done);
     });
 
-    // it('Fail to add Asset subscription with invalid dependencies', function(done){
-    //     this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
-
-    //     subscription_manager.add_subscription(Subscription.ASSET, "/assets/levels/test_001.level")
-    //         .catch(err => {
-    //             done();
-    //         });
-    // });
+    it('Fail to add Asset subscription with invalid dependencies', function(done){
+        subscription_manager.add_subscription(Subscription.ASSET, "/assets/levels/test_001.level")
+            .catch(err => {
+                should.exist(err.message.includes('dummy err'));
+                done();
+            });
+    });
 
     it('Get removed assets', async function() {
         this.timeout(4000);
@@ -167,7 +151,7 @@ describe('Subscription Manager', function() {
     });
 
     it('Update workspace subscription list', async function() {
-        const resource = workspace.get_workspace_resource();
+        const resource = workspace.read_workspace_resource();
         resource.subscriptions = subscription_manager.get_subscriptions();
         await Workspace_factory.save(resource);
         subscription_manager.get_subscriptions().should.not.be.empty();
@@ -178,8 +162,8 @@ describe('Subscription Manager', function() {
         try {
             subscription_manager.remove_subscription(s_id);
             subscription_manager.get_subscriptions().should.be.empty();
-            //const resource = workspace.get_workspace_resource();
-            //resource.subscriptions.should.not.be.empty();
+            const resource = workspace.read_workspace_resource();
+            resource.subscriptions.should.not.be.empty();
             done();
         } catch (err) {
             done(err);

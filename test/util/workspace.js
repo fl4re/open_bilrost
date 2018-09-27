@@ -58,6 +58,7 @@ module.exports = (name, fixture) => {
         await fixture.remove();
     };
     const get_workspace_resource = (statuses = []) => workspace_resource_presenter(get_name(), get_file_uri(), get_guid(), statuses);
+    const read_workspace_resource = () => fs.readJsonSync(get_internal_path('workspace'));
     const create_project_resource = () => fs.outputJson(get_internal_path('project'), get_project_resource());
     const create_workspace_resource = (statuses = []) => fs.outputJson(get_internal_path('workspace'), get_workspace_resource(statuses));
     const format_asset = (subset = {}) => asset_presenter(subset);
@@ -109,6 +110,7 @@ module.exports = (name, fixture) => {
         validate_workspace_root_directories,
         validate_workspace_internal_directories,
         get_workspace_resource,
+        read_workspace_resource,
         get_project_resource,
         get_github_project,
         format_asset,

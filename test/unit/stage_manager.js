@@ -90,10 +90,6 @@ describe('Stage Manager', function() {
             workspace_instance.database.add(workspace.read_asset("/assets/test_1_1_0.level")),
             workspace_instance.database.add(workspace.read_asset("/assets/levels/test_001.level")),
         ]);
-        // TODO: This line is a hack to trigger search_index.
-        // The stage_manager.add_asset(ref) method doesn't work
-        // if this Asset.get() isn't run before it.
-        await subscription_manager.subscriptions[0].list_assets();
     });
 
     after("Flush search index map", async function() {
@@ -115,18 +111,18 @@ describe('Stage Manager', function() {
         await stage_manager.add_asset("/assets/test_1_1_0.level");
         const resource = workspace.get_workspace_resource();
         resource.stage = stage_manager.get_stage();
-        Workspace_factory.save(resource);
+        await Workspace_factory.save(resource);
         stage_manager.get_stage().should.not.be.empty();
-        resource.stage.should.not.be.empty();
+        workspace.read_workspace_resource().stage.should.not.be.empty();
     });
 
     it('Dont fail to stage same asset twice because of idempotency', async function() {
         await stage_manager.add_asset("/assets/test_1_1_0.level");
         const resource = workspace.get_workspace_resource();
         resource.stage = stage_manager.get_stage();
-        Workspace_factory.save(resource);
+        await Workspace_factory.save(resource);
         stage_manager.get_stage().should.not.be.empty();
-        resource.stage.should.not.be.empty();
+        workspace.read_workspace_resource().stage.should.not.be.empty();
     });
 
     it('Fail to add not subscribed Asset to Workspace Stage', function(done) {
@@ -140,6 +136,6 @@ describe('Stage Manager', function() {
         resource.stage = stage_manager.get_stage();
         await Workspace_factory.save(resource);
         stage_manager.get_stage().should.be.empty();
-        resource.stage.should.be.empty();
+        workspace.read_workspace_resource().stage.should.be.empty();
     });
 });
