@@ -66,7 +66,7 @@ describe('Workspace factory model functional checks', () => {
             hello: 'world',
             file_uri: uri.replace(/\\/g, '/')
         };
-        workspace_factory.save(worskpace)
+        workspace_factory.save(fixtures_path, worskpace)
             .then(() => {
                 fs.readJson(path.join(fixtures_path, '/.bilrost/workspace'), (err, file) => {
                     should.not.exist(err);

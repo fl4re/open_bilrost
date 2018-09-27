@@ -16,9 +16,8 @@ const repo_manager = require('./repo_manager');
 // We don't save until previous save operation succeeded,
 // to prevent race conditions between very close saves
 let previous_save = Promise.resolve();
-const save = function save(workspace_resource) {
-    const path_to_workspace = utilities.convert_file_uri_to_path(workspace_resource.file_uri);
-    const workspace_properties_file = Path.join(path_to_workspace, '.bilrost', 'workspace');
+const save = function save(workspace_path, workspace_resource) {
+    const workspace_properties_file = Path.join(workspace_path, '.bilrost', 'workspace');
     return previous_save.then(() => {
         const this_save = promisify(fs.outputFile)(workspace_properties_file, stringify(workspace_resource));
         previous_save = this_save;

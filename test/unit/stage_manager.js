@@ -111,7 +111,7 @@ describe('Stage Manager', function() {
         await stage_manager.add_asset("/assets/test_1_1_0.level");
         const resource = workspace.get_workspace_resource();
         resource.stage = stage_manager.get_stage();
-        await Workspace_factory.save(resource);
+        await Workspace_factory.save(workspace.get_path(), resource);
         stage_manager.get_stage().should.not.be.empty();
         workspace.read_workspace_resource().stage.should.not.be.empty();
     });
@@ -120,7 +120,7 @@ describe('Stage Manager', function() {
         await stage_manager.add_asset("/assets/test_1_1_0.level");
         const resource = workspace.get_workspace_resource();
         resource.stage = stage_manager.get_stage();
-        await Workspace_factory.save(resource);
+        await Workspace_factory.save(workspace.get_path(), resource);
         stage_manager.get_stage().should.not.be.empty();
         workspace.read_workspace_resource().stage.should.not.be.empty();
     });
@@ -134,7 +134,7 @@ describe('Stage Manager', function() {
         stage_manager.remove_asset('/assets/test_1_1_0.level');
         const resource = workspace.get_workspace_resource();
         resource.stage = stage_manager.get_stage();
-        await Workspace_factory.save(resource);
+        await Workspace_factory.save(workspace.get_path(), resource);
         stage_manager.get_stage().should.be.empty();
         workspace.read_workspace_resource().stage.should.be.empty();
     });
