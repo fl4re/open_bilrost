@@ -4,7 +4,7 @@
 
 'use strict';
 
-module.exports = (name, file_uri, guid, statuses) => ({
+module.exports = (name, guid, statuses) => ({
     guid,
     name: name,
     description: 'This is your first workspace cloned from DLC_1 branch !',
@@ -13,7 +13,6 @@ module.exports = (name, file_uri, guid, statuses) => ({
     created_at: '2011-01-26T19:01:12Z',
     updated_at: '2011-01-26T19:14:43Z',
     type: 'application/vnd.bilrost.workspace+json',
-    file_uri: file_uri,
     tags: ['Hello', 'World'],
     subscriptions: [],
     stage: [],
