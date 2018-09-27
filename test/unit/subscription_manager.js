@@ -89,7 +89,7 @@ describe('Subscription Manager', function() {
         await workspace.create('good_repo');
         await workspace.create_workspace_resource();
         await workspace.create_project_resource();
-        workspace_instance = await mock_workspace(workspace.get_guid(), workspace.get_path(), "s3", ifs_map, 'good_repo')
+        workspace_instance = await mock_workspace(workspace.get_guid(), workspace.get_path(), "s3", ifs_map, 'good_repo');
         workspace_instance.properties = workspace.get_workspace_resource();
         subscription_manager = new Subscription_manager(workspace_instance);
         await Promise.all([
@@ -106,7 +106,7 @@ describe('Subscription Manager', function() {
 
     it('Get empty subscription list', function(done){
         try {
-            subscription_manager.get_subscriptions().should.be.empty();
+            should.deepEqual(subscription_manager.get_subscriptions(), []);
             done();
         } catch (err) {
             done(err);
@@ -160,7 +160,7 @@ describe('Subscription Manager', function() {
         const ref = '/assets/test_1_1_0.level';
         const asset = workspace.read_asset(ref);
         workspace.remove_asset(ref);
-        const assets = await subscription_manager.get_assets()
+        const assets = await subscription_manager.get_assets();
         assets.length.should.equal(1);
         assets[0].meta.ref.should.equal(ref);
         workspace.create_asset(asset);
@@ -178,7 +178,7 @@ describe('Subscription Manager', function() {
         try {
             subscription_manager.remove_subscription(s_id);
             subscription_manager.get_subscriptions().should.be.empty();
-            const resource = workspace.get_workspace_resource();
+            //const resource = workspace.get_workspace_resource();
             //resource.subscriptions.should.not.be.empty();
             done();
         } catch (err) {
@@ -189,7 +189,7 @@ describe('Subscription Manager', function() {
     it('Update workspace subscription list', async function() {
         const resource = workspace.get_workspace_resource();
         resource.subscriptions = subscription_manager.get_subscriptions();
-        await Workspace_factory.save(resource)
+        await Workspace_factory.save(resource);
         subscription_manager.get_subscriptions().should.be.empty();
         resource.subscriptions.should.be.empty();
     });

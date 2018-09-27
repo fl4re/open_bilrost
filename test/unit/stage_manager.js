@@ -79,7 +79,7 @@ describe('Stage Manager', function() {
         await workspace.create('good_repo');
         await workspace.create_workspace_resource();
         await workspace.create_project_resource();
-        workspace_instance =  await mock_workspace(workspace.get_guid(), workspace.get_path(), "s3", ifs_map, 'good_repo')
+        workspace_instance =  await mock_workspace(workspace.get_guid(), workspace.get_path(), "s3", ifs_map, 'good_repo');
         workspace_instance.properties = workspace.get_workspace_resource();
         subscription_manager = new Subscription_manager(workspace_instance);
         workspace_instance.subscription_manager = subscription_manager;
@@ -89,7 +89,7 @@ describe('Stage Manager', function() {
             favorite.add(workspace_identifiers),
             workspace_instance.database.add(workspace.read_asset("/assets/test_1_1_0.level")),
             workspace_instance.database.add(workspace.read_asset("/assets/levels/test_001.level")),
-        ])
+        ]);
         // TODO: This line is a hack to trigger search_index.
         // The stage_manager.add_asset(ref) method doesn't work
         // if this Asset.get() isn't run before it.
@@ -103,7 +103,7 @@ describe('Stage Manager', function() {
 
     it('Get empty stage list', function(done) {
         try {
-            stage_manager.get_stage().should.be.empty();
+            should.deepEqual(stage_manager.get_stage(), []);
             done();
         } catch (err) {
             done(err);
@@ -112,7 +112,7 @@ describe('Stage Manager', function() {
 
     it('Add Asset to Workspace Stage', async function() {
         workspace.remove_asset("/assets/test_1_1_0.level");
-        await stage_manager.add_asset("/assets/test_1_1_0.level")
+        await stage_manager.add_asset("/assets/test_1_1_0.level");
         const resource = workspace.get_workspace_resource();
         resource.stage = stage_manager.get_stage();
         Workspace_factory.save(resource);
@@ -121,7 +121,7 @@ describe('Stage Manager', function() {
     });
 
     it('Dont fail to stage same asset twice because of idempotency', async function() {
-        await stage_manager.add_asset("/assets/test_1_1_0.level")
+        await stage_manager.add_asset("/assets/test_1_1_0.level");
         const resource = workspace.get_workspace_resource();
         resource.stage = stage_manager.get_stage();
         Workspace_factory.save(resource);

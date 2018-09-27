@@ -5,8 +5,6 @@
 'use strict';
 
 const should = require('should');
-const Path = require('path').posix;
-
 const fixture = require('../util/fixture')('uni_test_integrity_status');
 const workspace = require('../util/workspace')('eloise', fixture);
 
@@ -296,12 +294,12 @@ describe('Integrity status', function() {
                         ref: "assets_validator",
                         state: "VALID",
                         description: "The validation succeeded!"
-                    },
+                    }/*,
                     {
                         ref: "workspace_validator",
                         state: "VALID",
                         description: "The validation succeeded!"
-                    }]);
+                    }*/]);
                     done();
                 })
                 .catch(done);
