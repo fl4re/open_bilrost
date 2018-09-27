@@ -96,6 +96,7 @@ module.exports = (name, fixture) => {
     };
     return {
         get_name,
+        get_guid,
         get_path,
         get_file_uri,
         get_encoded_file_uri,

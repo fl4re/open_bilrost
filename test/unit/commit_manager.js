@@ -5,14 +5,15 @@
 'use strict';
 
 const should = require('should');
-const path = require('path').posix;
 const favorite = require('../../assetmanager/favorite')();
+
+const fixture = require('../util/fixture')('unit_commit_manager');
+const workspace = require('../util/workspace')('eloise', fixture);
 
 const Subscription_manager = require('../../assetmanager/subscription_manager');
 const project = require('../../assetmanager/project');
 const Stage_manager = require('../../assetmanager/stage_manager');
 const commitmanager = require('../../assetmanager/commit_manager');
-const Test_util = require('../util/test_util');
 const mock_workspace = require('../util/mocks/workspace');
 const Mock_repo_manager = require('../util/mocks/repo_manager');
 
@@ -65,53 +66,45 @@ const ifs_map = {
 describe('Commit Manager', function() {
     let subscription_manager, stage_manager, commit_manager, repo_manager, mock_repo_manager_instance;
 
-    let test_util = new Test_util("commit_manager", "good_repo");
-
     const workspace_identifiers = {
         guid: "e39d0f72c81c445ba801dsssssss45219sddsdss",
         name: "test-workspace",
-        file_uri: test_util.get_eloise_file_uri(),
+        file_uri: workspace.get_file_uri(),
         version_id: "41"
     };
 
-    let workspace_instance;
+    let mock_workpsace;
 
-    before("create fixtures", function(done) {
-        this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
-        test_util.create_eloise_fixtures()
-            .then(() => {
-                mock_workspace(workspace_identifiers.guid, path.join(test_util.get_eloise_path()), "s3", ifs_map, "good_repo")
-                    .then(workspace => {
-                        workspace_instance = workspace;
+    before("create fixtures", async function () {
+        this.timeout(4000);
+        await workspace.create('good_repo');
+        await workspace.create_workspace_resource();
+        await workspace.create_project_resource();
+        mock_workpsace = await mock_workspace(workspace.get_guid(), workspace.get_path(), "s3", ifs_map, "good_repo");
+        mock_workpsace.properties = workspace.get_workspace_resource();
+        mock_workpsace.project = project(workspace.get_project_resource());
+        subscription_manager = new Subscription_manager(mock_workpsace);
+        stage_manager = new Stage_manager(mock_workpsace);
+        repo_manager = mock_workpsace.resource.repo_manager;
+        mock_repo_manager_instance = new Mock_repo_manager(repo_manager.cwd);
+        mock_repo_manager_instance.type = 'git';
+        commit_manager = commitmanager(mock_workpsace, mock_repo_manager_instance, mock_workpsace.asset.find_asset_by_ref, mock_workpsace.asset.repo_manager.read);
 
-                        workspace_instance.properties = test_util.eloise;
-                        workspace_instance.project = project(test_util.project1_file);
-                        subscription_manager = new Subscription_manager(workspace);
-                        stage_manager = new Stage_manager(workspace);
-                        repo_manager = workspace.resource.repo_manager;
-                        mock_repo_manager_instance = new Mock_repo_manager(repo_manager.cwd);
-                        mock_repo_manager_instance.type = 'git';
-                        commit_manager = commitmanager(workspace, mock_repo_manager_instance, workspace.asset.find_asset_by_ref, workspace.asset.repo_manager.read);
+        mock_workpsace.subscription_manager = subscription_manager;
+        mock_workpsace.stage_manager = stage_manager;
+        mock_workpsace.commit_manager = commit_manager;
 
-                        workspace.subscription_manager = subscription_manager;
-                        workspace.stage_manager = stage_manager;
-                        workspace.commit_manager = commit_manager;
+        stage_manager.stage = ['/assets/test_1_1_0.level'];
 
-                        stage_manager.stage = ['/assets/test_1_1_0.level'];
-
-                        return Promise.all([
-                            favorite.add(workspace_identifiers),
-                            workspace.database.add(test_util.read_asset_file( "/assets/test_1_1_0.level")),
-                            workspace.database.add(test_util.read_asset_file( "/assets/levels/test_001.level")),
-                        ]).then(function() {
-                            done();
-                        });
-                    }).catch(done);
-            });
+        await Promise.all([
+            favorite.add(workspace_identifiers),
+            mock_workpsace.database.add(workspace.read_asset("/assets/test_1_1_0.level")),
+            mock_workpsace.database.add(workspace.read_asset("/assets/levels/test_001.level")),
+        ]);
     });
 
     after("Flush search index map", function(done) {
-        workspace_instance.database.close()
+        mock_workpsace.database.close()
             .then(() => favorite.remove(workspace_identifiers.guid))
             .then(done, done);
     });
@@ -119,7 +112,7 @@ describe('Commit Manager', function() {
     it('Get empty list of commitable files', function(done){
         this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
 
-        workspace_instance.resource.repo_manager = mock_repo_manager_instance;
+        mock_workpsace.resource.repo_manager = mock_repo_manager_instance;
 
         commit_manager.get_commitable_files()
             .then(commitable_files => {
@@ -134,7 +127,7 @@ describe('Commit Manager', function() {
     it('Get commitable files with deleted asset', function(done){
         this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
 
-        test_util.remove_asset_file("/assets/test_1_1_0.level");
+        workspace.remove_asset("/assets/test_1_1_0.level");
 
         commit_manager.get_commitable_files()
             .then(commitable_files => {
@@ -160,7 +153,7 @@ describe('Commit Manager', function() {
     it('Get empty list of commitable files after commit', function(done){
         this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
 
-        workspace_instance.resource.repo_manager = mock_repo_manager_instance;
+        mock_workpsace.resource.repo_manager = mock_repo_manager_instance;
 
         commit_manager.get_commitable_files()
             .then(commitable_files => {

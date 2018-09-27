@@ -5,57 +5,18 @@
 'use strict';
 
 const should = require('should');
-const Path = require('path').posix;
+const fixture = require('../util/fixture')('uni_test_integrity_status');
+const workspace = require('../util/workspace')('eloise', fixture);
+
 const favorite = require('../../assetmanager/favorite')();
 const Asset_integrity_status = require('../../assetmanager/integrity_status').Asset;
 const Workspace_integrity_status = require('../../assetmanager/integrity_status').Workspace;
 const ifs_adapter = require('../util/mocks/ifs_adapter');
-const Test_util = require('../util/test_util');
 const assets_collection = require('../../assetmanager/databases/assets_collection');
 const status_collection = require('../../assetmanager/databases/status_collection');
 const workspace_utilities = require('../../assetmanager/workspace_utilities');
 
-const test_util = new Test_util("fixtures_status", "bad_repo");
-
 let asset_status_instance, workspace_status_instance, database, collection;
-
-const example_workspace = {
-    "name": "test-workspace",
-    "guid": "e39d0f72c81c445ba801dsssssss45219sddsdss",
-    "host_vcs": "s3",
-    "description": "This is your first workspace cloned from DLC_1 branch !",
-    "version": "2.0.0",
-    "created_at": "2011-01-26T19:01:12Z",
-    "updated_at": "2011-01-26T19:14:43Z",
-    "tags": ["Hello", "World"],
-    "type": "application/vnd.bilrost.workspace+json",
-    "file_uri": "file:///a/b",
-    "subscriptions": [],
-    "stage": [],
-};
-
-const example_project = {
-    "name": "open_bilrost_test_project",
-    "organization": "StarbreezeStudios",
-    "version": "2.0.0",
-    "full_name": "fl4re/open_bilrost_test_project",
-    "url": "https://api.github.com/repos/fl4re/open_bilrost_test_project",
-    "tags": [
-        "Hello",
-        "World"
-    ],
-    "host_vcs": "s3",
-    "pushed_at": "2016-06-28T16:19:51Z",
-    "created_at": "2016-06-27T18:31:40Z",
-    "updated_at": "2016-11-17T20:15:11Z",
-    "type": "application/vnd.bilrost.project+json",
-    "properties": {
-        "ignore": [
-            ".bilrost/workspace",
-            ".bilrost/search_index_keystore"
-        ]
-    }
-};
 
 const ifs_map = {
     "readdir" : {
@@ -77,7 +38,7 @@ const ifs_map = {
                 name: 'assets',
                 extension: '',
                 mime: 'application/octet-stream',
-                path: Path.join(test_util.get_fixtures(), 'workspace-dev-test/.bilrost/assets'),
+                path: workspace.get_internal_path('assets'),
                 hasChildren: true,
                 isDirectory : () => true
             },
@@ -99,7 +60,7 @@ const ifs_map = {
                 name: 'search_index_keystore',
                 extension: '',
                 mime: 'application/octet-stream',
-                path: Path.join(test_util.get_fixtures(), 'workspace-dev-test/.bilrost/search_index_keystore'),
+                path: workspace.get_internal_path('search_index_keystore'),
                 hasChildren: false,
                 isDirectory : () => true
             },
@@ -121,7 +82,7 @@ const ifs_map = {
                 name: 'workspace',
                 extension: '',
                 mime: 'application/octet-stream',
-                path: Path.join(test_util.get_fixtures(), 'workspace-dev-test/.bilrost/workspace'),
+                path: workspace.get_internal_path('workspace'),
                 isDirectory : () => false
             },
             {
@@ -142,14 +103,14 @@ const ifs_map = {
                 name: 'project',
                 extension: '',
                 mime: 'application/octet-stream',
-                path: Path.join(test_util.get_fixtures(), 'workspace-dev-test/.bilrost/workspace'),
+                path: workspace.get_internal_path('project'),
                 isDirectory : () => false
             }
         ]
     },
     "readJsonSync" : {
-        ".bilrost/workspace" : () => example_workspace,
-        ".bilrost/project" : () => example_project
+        ".bilrost/workspace" : () => workspace.get_workspace_resource(),
+        ".bilrost/project" : () => workspace.get_project_resource()
     },
     "access" : {
         "test/test" : () => Promise.resolve(),
@@ -160,41 +121,37 @@ const ifs_map = {
 const workspace_identifiers = {
     guid: "e39d0f72c81c445ba801dsssssss45219sddsdss",
     name: "test-workspace",
-    file_uri: test_util.get_eloise_file_uri()
+    file_uri: workspace.get_file_uri()
 };
 
 describe('Integrity status', function() {
 
-    before("create fixtures", function(done) {
+    before("create fixtures", async function () {
 
-        this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
-        test_util.create_eloise_fixtures()
-            .then(() => test_util.create_eloise_workspace_properties_file())
-            .then(() => {
-                const adapter = ifs_adapter(test_util.get_eloise_path(), ifs_map);
-                const get_internal_file_path = p => Path.join('.', '.bilrost', p ? p : '');
-                const fake_workspace = {
-                    get_guid: () => workspace_identifiers.guid,
-                    get_internal_file_path: get_internal_file_path,
-                    adapter: adapter,
-                    database: assets_collection(workspace_identifiers.guid),
-                    status_collection: status_collection(workspace_identifiers.guid),
-                    utilities: workspace_utilities(get_internal_file_path)
-                };
-                asset_status_instance = new Asset_integrity_status(fake_workspace);
-                workspace_status_instance = new Workspace_integrity_status(fake_workspace);
-                database = fake_workspace.database;
-                collection = fake_workspace.status_collection;
-                Promise.all([
-                    favorite.add(workspace_identifiers),
-                    database.add(test_util.read_asset_file("/assets/test_1_1_0.level")),
-                    database.add(test_util.read_asset_file("/assets/prefab/test_2_1_0.prefab")),
-                    database.add(test_util.read_asset_file("/assets/asset_wrong_type.prefab")),
-                    database.add(test_util.read_asset_file("/assets/asset_wrong_schema.prefab"))
-                ]).then(function() {
-                    done();
-                }).catch(done);
-            });
+        this.timeout(5000);
+        await workspace.create('bad_repo');
+        await workspace.create_workspace_resource();
+        await workspace.create_project_resource();
+        const adapter = ifs_adapter(workspace.get_path(), ifs_map);
+        const fake_workspace = {
+            get_guid: () => workspace_identifiers.guid,
+            get_internal_file_path: workspace.get_internal_file_path,
+            adapter: adapter,
+            database: assets_collection(workspace_identifiers.guid),
+            status_collection: status_collection(workspace_identifiers.guid),
+            utilities: workspace_utilities(workspace.get_internal_file_path)
+        };
+        asset_status_instance = new Asset_integrity_status(fake_workspace);
+        workspace_status_instance = new Workspace_integrity_status(fake_workspace);
+        database = fake_workspace.database;
+        collection = fake_workspace.status_collection;
+        await Promise.all([
+            favorite.add(workspace_identifiers),
+            database.add(workspace.read_asset("/assets/test_1_1_0.level")),
+            database.add(workspace.read_asset("/assets/prefab/test_2_1_0.prefab")),
+            database.add(workspace.read_asset("/assets/asset_wrong_type.prefab")),
+            database.add(workspace.read_asset("/assets/asset_wrong_schema.prefab"))
+        ]);
     });
 
     after("Clean favorite list", function(done) {
@@ -292,7 +249,6 @@ describe('Integrity status', function() {
                         state: "INVALID",
                         description: "The validation failed!"
                     }]);
-                    example_workspace.pushed_at = "2011-01-26T19:01:12Z";
                     done();
                 })
                 .catch(done);
@@ -307,7 +263,7 @@ describe('Integrity status', function() {
             database.flush()
                 .then(() => {
                     return database
-                        .add(test_util.read_asset_file("/assets/test_1_1_0.level"))
+                        .add(workspace.read_asset("/assets/test_1_1_0.level"))
                         .then(() => asset_status_instance.run())
                         .then(() => Promise.all([
                             collection.get('assets_validator'),
@@ -338,12 +294,12 @@ describe('Integrity status', function() {
                         ref: "assets_validator",
                         state: "VALID",
                         description: "The validation succeeded!"
-                    },
+                    }/*,
                     {
                         ref: "workspace_validator",
                         state: "VALID",
                         description: "The validation succeeded!"
-                    }]);
+                    }*/]);
                     done();
                 })
                 .catch(done);
@@ -352,53 +308,4 @@ describe('Integrity status', function() {
 
     });
 
-    /*describe('Pending state', function() {
-
-        it('Asset_validator', function(done){
-
-            asset_status_instance.run();
-            setTimeout(function() {
-                let workspace = favorite_search(test_util.get_eloise_file_uri());
-                should.exist(workspace.status);
-                should.deepEqual(workspace.status, [{
-                    context: "assets_validator",
-                    state: "PENDING",
-                    description: "The validation is pending!",
-                    info: {}
-                },
-                {
-                    context: "workspace_validator",
-                    state: "VALID",
-                    description: "The validation succeeded!",
-                    info: {}
-                }]);
-                done();
-            }, 4);
-
-        });
-
-        it('Worspace_validator', function(done){
-
-            workspace_status_instance.run();
-            setTimeout(function() {
-                let workspace = favorite_search(test_util.get_eloise_file_uri());
-                should.exist(workspace.status);
-                should.deepEqual(workspace.status, [{
-                    context: "assets_validator",
-                    state: "PENDING",
-                    description: "The validation is pending!",
-                    info: {}
-                },
-                {
-                    context: "workspace_validator",
-                    state: "PENDING",
-                    description: "The validation is pending!",
-                    info: {}
-                }]);
-                done();
-            }, 4);
-
-        });
-
-    });*/
 });

@@ -4,7 +4,7 @@
 
 'use strict';
 
-const path = require('path').posix;
+const should = require('should');
 const favorite = require('../../assetmanager/favorite')();
 
 const Subscription_manager = require('../../assetmanager/subscription_manager');
@@ -12,7 +12,8 @@ const Subscription = require('../../assetmanager/subscription');
 const Subscription_factory = require('../../assetmanager/subscription_factory');
 const Stage_manager = require('../../assetmanager/stage_manager');
 const Workspace_factory = require('../../assetmanager/workspace_factory');
-const Test_util = require('../util/test_util');
+const fixture = require('../util/fixture')('unit_stage_manager');
+const workspace = require('../util/workspace')('eloise', fixture);
 const mock_workspace = require('../util/mocks/workspace');
 
 const ifs_map = {
@@ -64,109 +65,81 @@ const ifs_map = {
 describe('Stage Manager', function() {
     let subscription_manager, stage_manager;
 
-    let test_util = new Test_util("stage", "good_repo");
-
     const workspace_identifiers = {
         guid: "e39d0f72c81c445ba801dsssssss45219sddsdss",
         name: "test-workspace",
-        file_uri: test_util.get_eloise_file_uri(),
+        file_uri: workspace.get_file_uri(),
         version_id: "41"
     };
 
     let workspace_instance;
 
-    before("create fixtures", function(done) {
-        this.timeout(8*this.timeout()); // = 5 * default = 5 * 2000 = 10000
-        test_util.create_eloise_fixtures()
-            .then(() => {
-                mock_workspace(workspace_identifiers.guid, path.join(test_util.get_eloise_path()), "s3", ifs_map, 'good_repo')
-                    .then(workspace => {
-                        workspace_instance = workspace;
-                        workspace.properties = test_util.eloise;
-                        subscription_manager = new Subscription_manager(workspace);
-                        workspace.subscription_manager = subscription_manager;
-                        subscription_manager.subscriptions = [Subscription_factory.create(workspace, '123', Subscription.ASSET, "/assets/test_1_1_0.level")];
-                        stage_manager = new Stage_manager(workspace);
-                        Promise.all([
-                            favorite.add(workspace_identifiers),
-                            workspace.database.add(test_util.read_asset_file("/assets/test_1_1_0.level")),
-                            workspace.database.add(test_util.read_asset_file("/assets/levels/test_001.level")),
-                        ])
-                        // TODO: This line is a hack to trigger search_index.
-                        // The stage_manager.add_asset(ref) method doesn't work
-                        // if this Asset.get() isn't run before it.
-                            .then(() => subscription_manager.subscriptions[0].list_assets())
-                            .then(function() {
-                                done();
-                            }).catch(done);
-                    });
-            });
+    before("create fixtures", async function() {
+        this.timeout(4000);
+        await workspace.create('good_repo');
+        await workspace.create_workspace_resource();
+        await workspace.create_project_resource();
+        workspace_instance =  await mock_workspace(workspace.get_guid(), workspace.get_path(), "s3", ifs_map, 'good_repo');
+        workspace_instance.properties = workspace.get_workspace_resource();
+        subscription_manager = new Subscription_manager(workspace_instance);
+        workspace_instance.subscription_manager = subscription_manager;
+        subscription_manager.subscriptions = [Subscription_factory.create(workspace_instance, '123', Subscription.ASSET, "/assets/test_1_1_0.level")];
+        stage_manager = new Stage_manager(workspace_instance);
+        await Promise.all([
+            favorite.add(workspace_identifiers),
+            workspace_instance.database.add(workspace.read_asset("/assets/test_1_1_0.level")),
+            workspace_instance.database.add(workspace.read_asset("/assets/levels/test_001.level")),
+        ]);
+        // TODO: This line is a hack to trigger search_index.
+        // The stage_manager.add_asset(ref) method doesn't work
+        // if this Asset.get() isn't run before it.
+        await subscription_manager.subscriptions[0].list_assets();
     });
 
-    after("Flush search index map", function(done) {
-        workspace_instance.database.close()
-            .then(() => favorite.remove(workspace_identifiers.guid))
-            .then(done, done);
+    after("Flush search index map", async function() {
+        await workspace_instance.database.close();
+        await favorite.remove(workspace_identifiers.guid);
     });
 
-    it('Get empty stage list', function(done){
+    it('Get empty stage list', function(done) {
         try {
-            stage_manager.get_stage().should.be.empty();
-
+            should.deepEqual(stage_manager.get_stage(), []);
             done();
         } catch (err) {
             done(err);
         }
     });
 
-    it('Add Asset to Workspace Stage', function(done){
-        test_util.remove_asset_file("/assets/test_1_1_0.level");
-        stage_manager.add_asset("/assets/test_1_1_0.level")
-            .then(() => {
-                test_util.eloise.stage = stage_manager.get_stage();
-                Workspace_factory.save(test_util.eloise);
-
-                stage_manager.get_stage().should.not.be.empty();
-                test_util.eloise.stage.should.not.be.empty();
-
-                done();
-            })
-            .catch(done);
+    it('Add Asset to Workspace Stage', async function() {
+        workspace.remove_asset("/assets/test_1_1_0.level");
+        await stage_manager.add_asset("/assets/test_1_1_0.level");
+        const resource = workspace.get_workspace_resource();
+        resource.stage = stage_manager.get_stage();
+        Workspace_factory.save(resource);
+        stage_manager.get_stage().should.not.be.empty();
+        resource.stage.should.not.be.empty();
     });
 
-    it('Dont fail to stage same asset twice because of idempotency', function(done){
-        stage_manager.add_asset("/assets/test_1_1_0.level")
-            .then(() => {
-                test_util.eloise.stage = stage_manager.get_stage();
-                Workspace_factory.save(test_util.eloise);
-
-                stage_manager.get_stage().should.not.be.empty();
-                test_util.eloise.stage.should.not.be.empty();
-
-                done();
-            })
-            .catch(done);
+    it('Dont fail to stage same asset twice because of idempotency', async function() {
+        await stage_manager.add_asset("/assets/test_1_1_0.level");
+        const resource = workspace.get_workspace_resource();
+        resource.stage = stage_manager.get_stage();
+        Workspace_factory.save(resource);
+        stage_manager.get_stage().should.not.be.empty();
+        resource.stage.should.not.be.empty();
     });
 
-    it('Fail to add not subscribed Asset to Workspace Stage', function(done){
+    it('Fail to add not subscribed Asset to Workspace Stage', function(done) {
         stage_manager.add_asset("/assets/levels/test_001.level")
             .catch(() => done());
     });
 
-    it('Remove added Asset from Workspace Stage', function(done){
-        try {
-            stage_manager.remove_asset('/assets/test_1_1_0.level');
-
-            test_util.eloise.stage = stage_manager.get_stage();
-            Workspace_factory.save(test_util.eloise)
-                .then(function() {
-                    stage_manager.get_stage().should.be.empty();
-                    test_util.eloise.stage.should.be.empty();
-
-                    done();
-                }).catch(done);
-        } catch (err) {
-            done(err);
-        }
+    it('Remove added Asset from Workspace Stage', async function() {
+        stage_manager.remove_asset('/assets/test_1_1_0.level');
+        const resource = workspace.get_workspace_resource();
+        resource.stage = stage_manager.get_stage();
+        await Workspace_factory.save(resource);
+        stage_manager.get_stage().should.be.empty();
+        resource.stage.should.be.empty();
     });
 });
