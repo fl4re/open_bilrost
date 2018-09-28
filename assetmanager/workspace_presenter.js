@@ -30,7 +30,6 @@ module.exports = {
                 created_at: properties.created_at,
                 updated_at: properties.updated_at,
                 type: properties.type,
-                file_uri: properties.file_uri,
                 subscriptions: properties.subscriptions,
                 stage: properties.stage,
                 statuses: properties.statuses,

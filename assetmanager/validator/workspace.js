@@ -78,9 +78,6 @@ const workspace_schema = {
         "description": {
             "type": "string"
         },
-        "file_uri": {
-            "type": "string",
-        },
         "tags": {
             "type": "array",
             "uniqueItems": true
@@ -94,8 +91,7 @@ const workspace_schema = {
             "uniqueItems": true
         }
     },
-    required: ["name", "guid", "created_at", "pushed_at", "updated_at",
-        "file_uri", "version", "tags", "subscriptions", "stage"]
+    required: ["name", "guid", "created_at", "pushed_at", "updated_at", "version", "tags", "subscriptions", "stage"]
 };
 
 const project_schema = {

@@ -153,7 +153,7 @@ describe('Subscription Manager', function() {
     it('Update workspace subscription list', async function() {
         const resource = workspace.read_workspace_resource();
         resource.subscriptions = subscription_manager.get_subscriptions();
-        await Workspace_factory.save(resource);
+        await Workspace_factory.save(workspace.get_path(), resource);
         subscription_manager.get_subscriptions().should.not.be.empty();
         resource.subscriptions.should.not.be.empty();
     });
@@ -173,7 +173,7 @@ describe('Subscription Manager', function() {
     it('Update workspace subscription list', async function() {
         const resource = workspace.get_workspace_resource();
         resource.subscriptions = subscription_manager.get_subscriptions();
-        await Workspace_factory.save(resource);
+        await Workspace_factory.save(workspace.get_path(), resource);
         subscription_manager.get_subscriptions().should.be.empty();
         resource.subscriptions.should.be.empty();
     });

@@ -296,7 +296,7 @@ const Workspace = function(file_uri, context) {
                 }
             });
     };
-    this.save = () => Workspace_factory.save(this.properties);
+    this.save = () => Workspace_factory.save(this.get_base_absolute_path(), this.properties);
     this.get_subscriptions = () => this.subscription_manager.get_subscriptions();
     this.add_subscription = (type, descriptor) => this.with_lock(() => this.subscription_manager.add_subscription(type, descriptor)
         .then(subscription => {
