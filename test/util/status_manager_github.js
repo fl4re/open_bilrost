@@ -3,7 +3,6 @@
 */
 
 'use strict';
-//ToDo: status_manager_github is not using test_util
 
 const should = require('should');
 const fs = require('fs-extra');
