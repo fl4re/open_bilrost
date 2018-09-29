@@ -8,7 +8,6 @@ const should = require('should');
 const fixture = require('../util/fixture')('uni_test_integrity_status');
 const workspace = require('../util/workspace')('eloise', fixture);
 
-const favorite = require('../../assetmanager/favorite')();
 const Asset_integrity_status = require('../../assetmanager/integrity_status').Asset;
 const Workspace_integrity_status = require('../../assetmanager/integrity_status').Workspace;
 const ifs_adapter = require('../util/mocks/ifs_adapter');
@@ -146,16 +145,11 @@ describe('Integrity status', function() {
         database = fake_workspace.database;
         collection = fake_workspace.status_collection;
         await Promise.all([
-            favorite.add(workspace_identifiers),
             database.add(workspace.read_asset("/assets/test_1_1_0.level")),
             database.add(workspace.read_asset("/assets/prefab/test_2_1_0.prefab")),
             database.add(workspace.read_asset("/assets/asset_wrong_type.prefab")),
             database.add(workspace.read_asset("/assets/asset_wrong_schema.prefab"))
         ]);
-    });
-
-    after("Clean favorite list", function(done) {
-        favorite.remove(workspace_identifiers.guid).then(done);
     });
 
     after("Reset database", function(done) {

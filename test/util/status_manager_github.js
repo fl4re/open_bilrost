@@ -8,7 +8,6 @@ const should = require('should');
 const fs = require('fs-extra');
 const Path = require('path').posix;
 const exec = require('child_process').exec;
-const favorite = require('../../assetmanager/favorite')();
 
 const asset = require('../../assetmanager/asset');
 
@@ -204,6 +203,7 @@ const workspace_identifiers = {
 describe("Run set of test for github status manager", function() {
 
     before("create fixtures", function(done) {
+        this.timeout(4000);
         //cleanup fixtures
         fs.removeSync(fixtures);
         fs.mkdirpSync(fixtures);
@@ -251,7 +251,6 @@ describe("Run set of test for github status manager", function() {
                                                 database = fake_workspace.database;
                                                 collection = fake_workspace.status_collection;
                                                 return Promise.all([
-                                                    favorite.add(workspace_identifiers),
                                                     database.add(level_1_1_0),
                                                     database.add(prefab_1_1_0),
                                                     database.add(prefab_2_1_0),
@@ -271,10 +270,9 @@ describe("Run set of test for github status manager", function() {
         });
     });
 
-    after("Clean favorite list", function(done) {
+    after("Flush adatabase", function(done) {
         database.flush()
             .then(() => database.close())
-            .then(() => favorite.remove(workspace_identifiers.guid))
             .then(done);
     });
 

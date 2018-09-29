@@ -413,11 +413,10 @@ module.exports = context => {
 
     const list = options => {
         const name_filter = options && options.filterName;
-        const favorite_list = favorite.list();
-        const list_promise = favorite_list.map(workspace => new Workspace(workspace.file_uri, context).then(obj => obj, () => {}));
         const filter_undefined_workspaces = workspaces => workspaces.filter(workspace => workspace !== undefined);
         const filter_by_name = workspaces => name_filter ? workspaces.filter(workspace => minimatch(workspace.properties.name || '', name_filter || '*')) : workspaces;
-        return Promise.all(list_promise)
+        return favorite.list()
+            .then(list => Promise.all(list.map(({ file_uri }) => new Workspace(file_uri, context).then(obj => obj, () => {}))))
             .then(filter_undefined_workspaces)
             .then(filter_by_name)
             .catch(transform_error);
@@ -436,8 +435,8 @@ module.exports = context => {
         if (is_file_uri) {
             return find_by_file_uri(identifier);
         } else if (typeof identifier === 'string') {
-            const identifiers = favorite.find(identifier);
-            return find_by_identifiers(identifiers);
+            return favorite.find(identifier)
+                .then(identifiers => find_by_identifiers(identifiers));
         } else {
             throw _error_outputs.INTERNALERROR('Identifier is not under string format.');
         }

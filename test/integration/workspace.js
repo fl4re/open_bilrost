@@ -62,12 +62,11 @@ describe('Run Workspace related functional tests for the API', function() {
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect(200)
-                .end((err, res) => {
+                .end(async (err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-
-                    favorite.find(workspaces.alice.get_file_uri()).should.be.an.Object;
+                    (await favorite.find(workspaces.alice.get_file_uri())).should.be.an.Object;
                     done();
                 });
 
@@ -81,12 +80,12 @@ describe('Run Workspace related functional tests for the API', function() {
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect(200)
-                .end((err, res) => {
+                .end(async (err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
 
-                    favorite.find(workspaces.bob.get_file_uri()).should.be.an.Object;
+                    (await favorite.find(workspaces.bob.get_file_uri())).should.be.an.Object;
                     done();
                 });
 
@@ -99,12 +98,12 @@ describe('Run Workspace related functional tests for the API', function() {
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect(403)
-                .end((err, res) => {
+                .end(async (err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
 
-                    favorite.find(workspaces.alice.get_file_uri()).should.be.an.Object;
+                    (await favorite.find(workspaces.alice.get_file_uri())).should.be.an.Object;
                     done();
                 });
 
@@ -136,11 +135,11 @@ describe('Run Workspace related functional tests for the API', function() {
                 .delete(`/assetmanager/workspaces/${workspaces.alice.get_name()}/favorites`)
                 .set("Accept", 'application/json')
                 .expect(200)
-                .end((err, res) => {
+                .end(async (err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    should.equal(favorite.find(workspaces.alice.get_file_uri()), undefined);
+                    should.equal(await favorite.find(workspaces.alice.get_file_uri()), undefined);
                     done();
                 });
 
@@ -151,11 +150,11 @@ describe('Run Workspace related functional tests for the API', function() {
                 .delete(`/assetmanager/workspaces/${workspaces.bob.get_name()}/favorites`)
                 .set("Accept", 'application/json')
                 .expect(200)
-                .end((err, res) => {
+                .end(async (err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    should.equal(favorite.find(workspaces.bob.get_file_uri()), undefined);
+                    should.equal(await favorite.find(workspaces.bob.get_file_uri()), undefined);
                     done();
                 });
 
@@ -185,11 +184,11 @@ describe('Run Workspace related functional tests for the API', function() {
                 .set("Accept", 'application/json')
                 .set("Content-Type", "application/json")
                 .expect(200)
-                .end((err, res) => {
+                .end(async (err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    should.equal(favorite.find(workspaces.carol.get_file_uri()), undefined);
+                    should.equal(await favorite.find(workspaces.carol.get_file_uri()), undefined);
                     should.equal(workspaces.carol.validate_workspace_root_directories(), false);
                     done();
                 });
@@ -212,11 +211,11 @@ describe('Run Workspace related functional tests for the API', function() {
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect(200)
-                .end((err, res) => {
+                .end(async (err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    let obj = favorite.find(workspaces.carol.get_file_uri());
+                    let obj = await favorite.find(workspaces.carol.get_file_uri());
 
                     obj.should.be.an.Object;
                     should.equal(workspaces.carol.validate_workspace_root_directories(), true);
@@ -251,11 +250,11 @@ describe('Run Workspace related functional tests for the API', function() {
                 .set("Accept", 'application/json')
                 .set("Content-Type", "application/json")
                 .expect(200)
-                .end((err, res) => {
+                .end(async (err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    should.equal(favorite.find(workspaces.carol.get_encoded_file_uri()), undefined);
+                    should.equal(await favorite.find(workspaces.carol.get_encoded_file_uri()), undefined);
                     done();
                 });
 
@@ -268,11 +267,11 @@ describe('Run Workspace related functional tests for the API', function() {
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect(200)
-                .end((err, res) => {
+                .end(async (err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    let obj = favorite.find(workspaces.carol.get_file_uri());
+                    let obj = await favorite.find(workspaces.carol.get_file_uri());
                     obj.should.be.an.Object;
                     done();
                 });
@@ -313,11 +312,11 @@ describe('Run Workspace related functional tests for the API', function() {
                 .set("Accept", 'application/json')
                 .set("Content-Type", "application/json")
                 .expect(200)
-                .end((err, res) => {
+                .end(async (err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    should.equal(favorite.find(workspaces.carol.get_encoded_file_uri()), undefined);
+                    should.equal(await favorite.find(workspaces.carol.get_encoded_file_uri()), undefined);
                     done();
                 });
 

@@ -300,12 +300,12 @@ describe('Run Version Control related functional tests for the API', function() 
                 .send({ hard_delete: true })
                 .set('Accept', 'application/json')
                 .set("Content-Type", "application/json")
-                .end((err, res) => {
+                .end(async (err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
                     should.not.exist(err);
-                    should.equal(favorite.find(workspace.get_name()), undefined);
+                    should.equal(await favorite.find(workspace.get_name()), undefined);
                     done();
                 });
 
