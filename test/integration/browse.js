@@ -5,9 +5,9 @@
 'use strict';
 
 const should = require('should');
-const fixture = require('../util/fixture')('integration_browse');
 const workspace_factory = require('../util/workspace');
-const favorite = require('../../assetmanager/favorite')();
+const fixture = require('../util/fixture')('integration_browse');
+const favorite = require('../../lib/favorite')(fixture.get_config_path());
 
 const bilrost = require('../util/server');
 
@@ -16,7 +16,7 @@ let client, workspaces, bob_test_asset;
 describe('Run Content Browser related test for content browser api', function () {
 
     before("Starting a Content Browser server", async () => {
-        client = await bilrost.start();
+        client = await bilrost.start({ config_path: fixture.get_config_path() });
     });
     before("Creating fixtures", async function () {
         this.timeout(5000);

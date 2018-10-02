@@ -6,11 +6,11 @@
 
 const fs = require('fs-extra');
 const should = require('should');
-const favorite_path = require('path').posix.join(__dirname.replace(/\\/g, '/'), '..', '..', 'tmp', 'workspaces.json');
+const fixture = require('../util/fixture')('unit_favorite');
+const favorite = require('../../lib/favorite')(fixture.get_config_path());
 
 describe('Favorite object', function() {
-    const favorite = require('../../assetmanager/favorite')(favorite_path);
-
+    const favorite_path = favorite.get_path();
     const example_1 = {
         name: 'example_1',
         file_uri: 'file:///a/b/example_1'

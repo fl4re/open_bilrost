@@ -4,7 +4,6 @@
 
 'use strict';
 
-const favorite = require('./assetmanager/favorite')();
 const Handler = require('./lib/handler');
 
 const workspace_factory = require('./assetmanager/workspace_factory');
@@ -45,6 +44,7 @@ const sanitize = function(query_argument) {
 };
 
 module.exports = function(server, context) {
+    const favorite = context.favorite;
     const _project = require('./assetmanager/project_manager')(context);
     const _workspace = require('./assetmanager/workspace')(context);
 

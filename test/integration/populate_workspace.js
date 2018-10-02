@@ -6,10 +6,9 @@
 
 const should = require('should');
 
-const favorite = require('../../assetmanager/favorite')();
-
 const fixture = require('../util/fixture')('integration_populate_workspace');
 const workspace = require('../util/workspace')('carol', fixture);
+const favorite = require('../../lib/favorite')(fixture.get_config_path());
 const bilrost = require('../util/server');
 
 let client;
@@ -29,7 +28,8 @@ describe('Run Workspace related functional tests for the API', function() {
     before("Starting a Content Browser server", async () => {
         client = await bilrost.start({
             bilrost_client,
-            protocol: 'ssh'
+            protocol: 'ssh',
+            config_path: fixture.get_config_path()
         });
     });
 

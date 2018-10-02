@@ -29,7 +29,6 @@ const repo_manager = require('./repo_manager');
 const _error_outputs = require('../lib/errors')("Workspace");
 const status_config = require('./status.config.json');
 const workspace_utilities = require('./workspace_utilities');
-const favorite = require('./favorite')();
 
 const WORKSPACE_INTERNAL_FOLDER_PATH = '.bilrost';
 
@@ -408,6 +407,8 @@ const Workspace = function(file_uri, context) {
 };
 
 module.exports = context => {
+
+    const favorite = context.favorite;
 
     const find_by_file_uri = file_uri => new Workspace(file_uri, context);
 

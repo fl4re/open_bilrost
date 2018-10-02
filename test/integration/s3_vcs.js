@@ -6,10 +6,10 @@
 
 const should = require('should');
 const start_bilrost_client = require('../util/local_bilrost_client');
+const bilrost = require('../util/server');
 const fixture = require('../util/fixture')('integration_s3_vcs');
 const workspace = require('../util/workspace')('ken', fixture);
-const bilrost = require('../util/server');
-const favorite = require('../../assetmanager/favorite')();
+const favorite = require('../../lib/favorite')(fixture.get_config_path());
 
 let client;
 
@@ -27,7 +27,8 @@ describe('Run Version Control related functional tests for the API', function() 
         bilrost_client.get = (url, callback) => callback(false, null, null, workspace.get_name());
         client = await bilrost.start({
             bilrost_client,
-            protocol: 'ssh'
+            protocol: 'ssh',
+            config_path: fixture.get_config_path()
         });
     });
 

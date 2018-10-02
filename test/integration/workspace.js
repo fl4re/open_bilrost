@@ -12,7 +12,7 @@ const fs = require('fs-extra');
 const bilrost = require('../util/server');
 const fixture = require('../util/fixture')('integration_workspace');
 const workspace_factory = require('../util/workspace');
-const favorite = require('../../assetmanager/favorite')();
+const favorite = require('../../lib/favorite')(fixture.get_config_path());
 
 let client, workspaces;
 
@@ -30,7 +30,8 @@ describe('Run Workspace related functional tests for the API', function() {
     before("Starting a Content Browser server", async () => {
         client = await bilrost.start({
             bilrost_client,
-            protocol: 'ssh'
+            protocol: 'ssh',
+            config_path: fixture.get_config_path()
         });
     });
 
