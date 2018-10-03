@@ -5,7 +5,6 @@
 'use strict';
 
 const should = require('should');
-const favorite = require('../../assetmanager/favorite')();
 
 const Subscription_manager = require('../../assetmanager/subscription_manager');
 const Subscription = require('../../assetmanager/subscription');
@@ -63,16 +62,7 @@ const ifs_map = {
 };
 
 describe('Stage Manager', function() {
-    let subscription_manager, stage_manager;
-
-    const workspace_identifiers = {
-        guid: "e39d0f72c81c445ba801dsssssss45219sddsdss",
-        name: "test-workspace",
-        file_uri: workspace.get_file_uri(),
-        version_id: "41"
-    };
-
-    let workspace_instance;
+    let subscription_manager, stage_manager, workspace_instance;
 
     before("create fixtures", async function() {
         this.timeout(4000);
@@ -86,7 +76,6 @@ describe('Stage Manager', function() {
         subscription_manager.subscriptions = [Subscription_factory.create(workspace_instance, '123', Subscription.ASSET, "/assets/test_1_1_0.level")];
         stage_manager = new Stage_manager(workspace_instance);
         await Promise.all([
-            favorite.add(workspace_identifiers),
             workspace_instance.database.add(workspace.read_asset("/assets/test_1_1_0.level")),
             workspace_instance.database.add(workspace.read_asset("/assets/levels/test_001.level")),
         ]);
@@ -94,7 +83,6 @@ describe('Stage Manager', function() {
 
     after("Flush search index map", async function() {
         await workspace_instance.database.close();
-        await favorite.remove(workspace_identifiers.guid);
     });
 
     it('Get empty stage list', function(done) {

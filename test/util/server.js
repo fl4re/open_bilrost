@@ -15,12 +15,15 @@ const asset_manager = require('../../assetmanager');
 const content_browser = require('../../contentbrowser');
 const amazon_client = require('../../lib/amazon-client');
 const cache = require('../../lib/cache');
+const favorite = require('../../lib/favorite');
 
 const default_cache_path = path.join(__dirname.replace(/\\/g, '/'), '..', '..', 'tmp', 'Cache');
+const default_config_path = path.join(__dirname.replace(/\\/g, '/'), '..', '..', 'tmp', 'Config');
 const default_parameters = {
     bilrost_client: {},
     protocol: 'https',
-    cache_path: default_cache_path
+    cache_path: default_cache_path,
+    config_path: default_config_path
 };
 
 module.exports = {
@@ -47,6 +50,7 @@ module.exports = {
             bilrost_client: parameters.bilrost_client,
             amazon_client: amazon_client(parameters.bilrost_client),
             cache: cache(parameters.cache_path),
+            favorite: favorite(parameters.config_path),
             protocol: parameters.protocol
         };
 

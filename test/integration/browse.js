@@ -5,9 +5,9 @@
 'use strict';
 
 const should = require('should');
-const fixture = require('../util/fixture')('integration_browse');
 const workspace_factory = require('../util/workspace');
-const favorite = require('../../assetmanager/favorite')();
+const fixture = require('../util/fixture')('integration_browse');
+const favorite = require('../../lib/favorite')(fixture.get_config_path());
 
 const bilrost = require('../util/server');
 
@@ -16,7 +16,7 @@ let client, workspaces, bob_test_asset;
 describe('Run Content Browser related test for content browser api', function () {
 
     before("Starting a Content Browser server", async () => {
-        client = await bilrost.start();
+        client = await bilrost.start({ config_path: fixture.get_config_path() });
     });
     before("Creating fixtures", async function () {
         this.timeout(5000);
@@ -178,7 +178,7 @@ describe('Run Content Browser related test for content browser api', function ()
         before("Add bob workspace", function(done) {
 
             client.post('/assetmanager/workspaces/favorites')
-                .send({ "file_uri": workspaces.bob.get_file_uri() })
+                .send({ file_uri: workspaces.bob.get_file_uri() })
                 .set("Content-Type", 'application/json')
                 .set("Accept", 'application/json')
                 .expect('Content-Type', 'application/vnd.bilrost.workspace+json')
@@ -187,8 +187,12 @@ describe('Run Content Browser related test for content browser api', function ()
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    favorite.find(workspaces.bob.get_file_uri()).should.be.an.instanceOf(Object);
-                    done();
+                    favorite.find(workspaces.bob.get_name())
+                        .then(obj => {
+                            obj.should.be.an.instanceOf(Object);
+                            done();
+                        })
+                        .catch(done);
                 });
 
         });
@@ -781,11 +785,12 @@ describe('Run Content Browser related test for content browser api', function ()
                 .delete(`/assetmanager/workspaces/${workspaces.bob.get_encoded_file_uri()}`)
                 .set("accept", "application/json")
                 .expect(200)
-                .end((err, res) => {
+                .end(async (err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    should.equal(favorite.find(workspaces.bob.get_file_uri()), undefined);
+                    const obj = await favorite.find(workspaces.bob.get_file_uri());
+                    should.equal(obj, undefined);
                     done();
                 });
 

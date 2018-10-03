@@ -6,10 +6,9 @@
 
 const should = require('should');
 
-const favorite = require('../../assetmanager/favorite')();
-
 const fixture = require('../util/fixture')('integration_populate_workspace');
 const workspace = require('../util/workspace')('carol', fixture);
+const favorite = require('../../lib/favorite')(fixture.get_config_path());
 const bilrost = require('../util/server');
 
 let client;
@@ -29,7 +28,8 @@ describe('Run Workspace related functional tests for the API', function() {
     before("Starting a Content Browser server", async () => {
         client = await bilrost.start({
             bilrost_client,
-            protocol: 'ssh'
+            protocol: 'ssh',
+            config_path: fixture.get_config_path()
         });
     });
 
@@ -59,11 +59,11 @@ describe('Run Workspace related functional tests for the API', function() {
                 .set('Content-Type', 'application/json')
                 .set('Accept', 'application/json')
                 .expect(200)
-                .end((err, res) => {
+                .end(async (err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    let obj = favorite.find(workspace.get_file_uri());
+                    let obj = await favorite.find(workspace.get_file_uri());
 
                     obj.should.be.an.Object;
                     should.equal(workspace.validate_workspace_root_directories(), true);
@@ -78,11 +78,13 @@ describe('Run Workspace related functional tests for the API', function() {
                 .set("Accept", 'application/json')
                 .set("Content-Type", "application/json")
                 .expect(200)
-                .end((err, res) => {
+                .end(async (err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    should.equal(favorite.find(workspace.get_file_uri()), undefined);
+                    let obj = await favorite.find(workspace.get_file_uri());
+
+                    should.equal(obj, undefined);
                     should.equal(workspace.validate_workspace_root_directories(), false);
                     done();
                 });

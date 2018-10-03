@@ -5,7 +5,6 @@
 'use strict';
 
 const should = require('should');
-const favorite = require('../../assetmanager/favorite')();
 
 const fixture = require('../util/fixture')('unit_commit_manager');
 const workspace = require('../util/workspace')('eloise', fixture);
@@ -64,16 +63,7 @@ const ifs_map = {
 };
 
 describe('Commit Manager', function() {
-    let subscription_manager, stage_manager, commit_manager, repo_manager, mock_repo_manager_instance;
-
-    const workspace_identifiers = {
-        guid: "e39d0f72c81c445ba801dsssssss45219sddsdss",
-        name: "test-workspace",
-        file_uri: workspace.get_file_uri(),
-        version_id: "41"
-    };
-
-    let mock_workpsace;
+    let subscription_manager, stage_manager, commit_manager, repo_manager, mock_repo_manager_instance, mock_workpsace;
 
     before("create fixtures", async function () {
         this.timeout(4000);
@@ -97,7 +87,6 @@ describe('Commit Manager', function() {
         stage_manager.stage = ['/assets/test_1_1_0.level'];
 
         await Promise.all([
-            favorite.add(workspace_identifiers),
             mock_workpsace.database.add(workspace.read_asset("/assets/test_1_1_0.level")),
             mock_workpsace.database.add(workspace.read_asset("/assets/levels/test_001.level")),
         ]);
@@ -105,7 +94,6 @@ describe('Commit Manager', function() {
 
     after("Flush search index map", function(done) {
         mock_workpsace.database.close()
-            .then(() => favorite.remove(workspace_identifiers.guid))
             .then(done, done);
     });
 

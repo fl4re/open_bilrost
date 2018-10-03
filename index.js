@@ -24,8 +24,6 @@ const INTERNAL_FOLDER_PATH = is_win ?
 const CACHE_PATH = path.join(INTERNAL_FOLDER_PATH, 'Cache');
 const CONFIG_PATH = path.join(INTERNAL_FOLDER_PATH, 'Config');
 
-// TODO deprecate folder creations
-
 try {
     fs.statSync(CONFIG_PATH);
 } catch (err){
@@ -38,6 +36,7 @@ const default_config = {
     BILROST_SERVER: "http://localhost:3000",
     PORT: 9224,
     CACHE_PATH,
+    CONFIG_PATH,
     PROTOCOL: 'https',
     GIT_USERNAME: undefined,
     GIT_PASSWORD: undefined
@@ -73,12 +72,14 @@ server.use((req, res, next) => {
 
 const bilrost_client = require('./lib/bilrost-client')(config.BILROST_SERVER, CONFIG_PATH);
 const cache = require('./lib/cache')(config.CACHE_PATH);
+const favorite = require('./lib/favorite')(config.CONFIG_PATH);
 const amazon_client = require('./lib/amazon-client')(bilrost_client);
 
 const version_control_system_context = {
     bilrost_client,
     amazon_client,
     cache,
+    favorite,
     get protocol () {
         return config.PROTOCOL;
     },

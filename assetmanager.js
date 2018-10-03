@@ -4,7 +4,6 @@
 
 'use strict';
 
-const favorite = require('./assetmanager/favorite')();
 const Handler = require('./lib/handler');
 
 const workspace_factory = require('./assetmanager/workspace_factory');
@@ -45,6 +44,7 @@ const sanitize = function(query_argument) {
 };
 
 module.exports = function(server, context) {
+    const favorite = context.favorite;
     const _project = require('./assetmanager/project_manager')(context);
     const _workspace = require('./assetmanager/workspace')(context);
 
@@ -142,11 +142,12 @@ module.exports = function(server, context) {
                     _project.get(project_id)
                         .then(project => workspace_factory.create_and_populate_workspace(project, branch, context.protocol, workspace_file_uri, name, description, context.credentials))
                         .then(workspace => {
-                            favorite.add({ guid: workspace.guid, name: workspace.name, file_uri: workspace.file_uri})
+                            favorite.add({ name: workspace.name, file_uri: workspace.file_uri })
                                 .then(() => _workspace.find_by_file_uri(workspace_file_uri))
                                 .then(workspace => workspace.check_overall_validation()
                                     .then(() => handler.sendJSON(_workspace_metadata_presenter.present(workspace), 200, 'workspace')))
                                 .catch(output => {
+
                                     favorite
                                         .remove(workspace.guid)
                                         .then(() => workspace_factory.delete_workspace(workspace_file_uri))
@@ -184,7 +185,7 @@ module.exports = function(server, context) {
                         .then(project => repo_manager.get_current_branch()
                             .then(branch => workspace_factory.populate_workspace(project, branch, workspace_file_uri, name, description)))
                         .then(workspace => {
-                            favorite.add({ guid: workspace.guid, name: workspace.name, file_uri: workspace.file_uri})
+                            favorite.add({ name: workspace.name, file_uri: workspace.file_uri })
                                 .then(() => _workspace.find_by_file_uri(workspace_file_uri))
                                 .then(workspace => workspace.check_overall_validation()
                                     .then(() => handler.sendJSON(_workspace_metadata_presenter.present(workspace), 200, 'workspace')))
@@ -208,7 +209,7 @@ module.exports = function(server, context) {
         const workspace_file_uri = req.body.file_uri;
         _workspace.find_by_file_uri(workspace_file_uri)
             .then(workspace => workspace.check_overall_validation()
-                .then(() => favorite.add({ guid: workspace.get_guid(), name: workspace.get_name(), file_uri: workspace.get_file_uri()}))
+                .then(() => favorite.add({ name: workspace.get_name(), file_uri: workspace.get_file_uri()}))
                 .then(() => handler.sendJSON(_workspace_metadata_presenter.present(workspace), 200, 'workspace')))
             .catch(workspace => {
                 handler.handleError(workspace);
@@ -234,9 +235,8 @@ module.exports = function(server, context) {
     server.del(favorites_regexp, function(req, res, next) {
         const workspace_identifier = decodeURIComponent(req.params[0]);
         const handler = new Handler(req, res, next);
-
         _workspace.find(workspace_identifier)
-            .then(workspace => favorite.remove(workspace.get_guid()).then(() => workspace.database.close()), () => favorite.remove(req.params[0]))
+            .then(workspace => favorite.remove(workspace.get_name()).then(() => workspace.database.close()), () => favorite.remove(req.params[0]))
             .then(() => handler.sendJSON('Ok', 200))
             .catch(workspace => handler.handleError(workspace.error || workspace));
     });
@@ -252,7 +252,7 @@ module.exports = function(server, context) {
             })
             .then(() => workspace_factory
                 .delete_workspace(workspace.get_file_uri())
-                .then(() => favorite.remove(workspace.get_guid()))
+                .then(() => favorite.remove(workspace.get_name()))
             )
             .then(() => {
                 workspace.remove_database_semaphore();
