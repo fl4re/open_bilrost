@@ -30,8 +30,8 @@ describe('Run Content Browser related test for content browser api', function ()
             .map(async workspace_name => {
                 const workspace = workspaces[workspace_name];
                 await workspace.create('good_repo');
-                await workspace.create_workspace_resource();
-                await workspace.create_project_resource();
+                workspace.create_workspace_resource();
+                workspace.create_project_resource();
             });
         await Promise.all(workspace_creation_sequence);
         await favorite.add({

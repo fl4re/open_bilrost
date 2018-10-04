@@ -68,8 +68,8 @@ describe('Commit Manager', function() {
     before("create fixtures", async function () {
         this.timeout(4000);
         await workspace.create('good_repo');
-        await workspace.create_workspace_resource();
-        await workspace.create_project_resource();
+        workspace.create_workspace_resource();
+        workspace.create_project_resource();
         mock_workpsace = await mock_workspace(workspace.get_guid(), workspace.get_path(), "s3", ifs_map, "good_repo");
         mock_workpsace.properties = workspace.get_workspace_resource();
         mock_workpsace.project = project(workspace.get_project_resource());
