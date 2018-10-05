@@ -261,23 +261,6 @@ describe('Run Workspace related functional tests for the API', function() {
 
         });
 
-        it('Add to favorite list', function (done) {
-            client
-                .post('/assetmanager/workspaces/favorites')
-                .send({file_uri: workspaces.carol.get_file_uri()})
-                .set("Content-Type", "application/json")
-                .set("Accept", 'application/json')
-                .expect(200)
-                .end(async (err, res) => {
-                    if (err) {
-                        return done({ error: err.toString(), status: res.status, body: res.body });
-                    }
-                    let obj = await favorite.find(workspaces.carol.get_file_uri());
-                    obj.should.be.an.Object;
-                    done();
-                });
-        });
-
         it('Dont create a workspace when the target location already exists', function (done) {
             this.timeout(8*this.timeout());
             client
@@ -304,23 +287,6 @@ describe('Run Workspace related functional tests for the API', function() {
                         done('This error is not the one expected!');
                     }
                 });
-        });
-
-        it('Forget the copied Workspace from favorite list', function(done){
-            client
-                .delete(`/assetmanager/workspaces/${workspaces.carol.get_encoded_file_uri()}/favorites`)
-                .send()
-                .set("Accept", 'application/json')
-                .set("Content-Type", "application/json")
-                .expect(200)
-                .end(async (err, res) => {
-                    if (err) {
-                        return done({ error: err.toString(), status: res.status, body: res.body });
-                    }
-                    should.equal(await favorite.find(workspaces.carol.get_encoded_file_uri()), undefined);
-                    done();
-                });
-
         });
 
     });
