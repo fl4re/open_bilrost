@@ -4,7 +4,7 @@
 
 'use strict';
 
-module.exports = (name, guid, statuses) => ({
+module.exports = (name, guid, statuses = [], subscriptions = []) => ({
     guid,
     name: name,
     description: 'This is your first workspace cloned from DLC_1 branch !',
@@ -14,8 +14,8 @@ module.exports = (name, guid, statuses) => ({
     updated_at: '2011-01-26T19:14:43Z',
     type: 'application/vnd.bilrost.workspace+json',
     tags: ['Hello', 'World'],
-    subscriptions: [],
     stage: [],
+    subscriptions,
     statuses,
     project: {
         full_name: 'fl4re/open_bilrost_test_project',

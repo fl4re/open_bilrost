@@ -47,8 +47,8 @@ describe('Run Workspace related functional tests for the API', function() {
             .map(async workspace_name => {
                 const workspace = workspaces[workspace_name];
                 await workspace.create(workspace_name === 'luke' ? 'bad_repo' : 'good_repo');
-                await workspace.create_workspace_resource();
-                await workspace.create_project_resource();
+                workspace.create_workspace_resource();
+                workspace.create_project_resource();
             });
         await Promise.all(workspace_creation_sequence);
     });

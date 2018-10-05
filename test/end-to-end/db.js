@@ -23,8 +23,8 @@ describe('Check database behaviors', function() {
             this.timeout(5*this.timeout());
             try {
                 await workspace.create('good_repo');
-                await workspace.create_workspace_resource();
-                await workspace.create_project_resource();
+                workspace.create_workspace_resource();
+                workspace.create_project_resource();
                 await workspace.create_asset({
                     meta: {
                         ref: "/assets/sync_test.level"

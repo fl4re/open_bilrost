@@ -28,8 +28,8 @@ describe('Run Asset related functional tests for the API', function() {
     });
     before("Creating fixtures", async () => {
         await workspace.create('good_repo');
-        await workspace.create_workspace_resource();
-        await workspace.create_project_resource();
+        workspace.create_workspace_resource();
+        workspace.create_project_resource();
         database = await workspace.instance_database();
     });
     after("Removing fixtures", () => workspace.remove());
@@ -579,10 +579,15 @@ describe('Run Asset related functional tests for the API', function() {
 
     describe('Deleting assets!', function() {
 
-        it('Delete an asset', done => {
+        it('Delete an asset and checks subscription list is cleared up', done => {
 
             const asset_path = workspace.get_internal_path(test_level_asset.meta.ref);
-
+            const subscription_reference = [{
+                id: 1,
+                type: 'ASSET',
+                ref: test_level_asset.meta.ref
+            }];
+            workspace.create_workspace_resource([], subscription_reference);
             client
                 .delete(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}${test_level_asset.meta.ref}`)
                 .set("Content-Type", "application/json")
@@ -593,7 +598,10 @@ describe('Run Asset related functional tests for the API', function() {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    fs.readJson(asset_path, async json =>{
+                    const workspace_resource = workspace.read_workspace_resource();
+                    const is_sub_found = workspace_resource.subscriptions.find(({ id }) => id === subscription_reference.id);
+                    should.equal(is_sub_found, null);
+                    fs.readJson(asset_path, async json => {
                         should.equal(json.code, 'ENOENT');
                         test_level_asset = workspace.create_asset(test_level_asset);
                         try {

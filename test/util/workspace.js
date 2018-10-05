@@ -57,10 +57,10 @@ module.exports = (name, fixture) => {
     const remove = async () => {
         await fixture.remove();
     };
-    const get_workspace_resource = (statuses = []) => workspace_resource_presenter(get_name(), get_guid(), statuses);
+    const get_workspace_resource = (statuses, subscriptions) => workspace_resource_presenter(get_name(), get_guid(), statuses, subscriptions);
     const read_workspace_resource = () => fs.readJsonSync(get_internal_path('workspace'));
-    const create_project_resource = () => fs.outputJson(get_internal_path('project'), get_project_resource());
-    const create_workspace_resource = (statuses = []) => fs.outputJson(get_internal_path('workspace'), get_workspace_resource(statuses));
+    const create_project_resource = () => fs.outputJsonSync(get_internal_path('project'), get_project_resource());
+    const create_workspace_resource = (statuses, subscriptions) => fs.outputJsonSync(get_internal_path('workspace'), get_workspace_resource(statuses, subscriptions));
     const format_asset = (subset = {}) => asset_presenter(subset);
     const create_asset = asset => {
         const absolute_path = utilities.ref_to_absolute_path(asset.meta.ref, get_path());

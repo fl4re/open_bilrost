@@ -111,19 +111,21 @@ module.exports = function(server, context) {
             .catch(error => handler.handleError(error));
     });
 
-    server.del(assets_regexp, function(req, res, next) {
+    server.del(assets_regexp, async (req, res, next) => {
         const handler = new Handler(req, res, next);
         const workspace_identifier = sanitize(req.params[0]);
         const asset_ref = sanitize(req.params[1]);
-        let workspace;
-        _workspace.find(workspace_identifier)
-            .then(ws => {
-                workspace = ws;
-                return workspace.check_overall_validation();
-            })
-            .then(() => workspace.asset.delete(asset_ref))
-            .then(() => handler.sendJSON('Ok', 204))
-            .catch(error => handler.handleError(error));
+        try {
+            const workspace = await _workspace.find(workspace_identifier);
+            await workspace.check_overall_validation();
+            await workspace.asset.delete(asset_ref);
+            const workspaces = workspace.get_subscriptions();
+            const sub_id = workspaces.find(({ ref }) => ref === asset_ref);
+            await workspace.remove_subscription(sub_id);
+            handler.sendJSON('Ok', 204);
+        } catch (error) {
+            handler.handleError(error);
+        }
     });
 
     server.post('/assetmanager/workspaces', function(req, res, next) {
@@ -339,16 +341,17 @@ module.exports = function(server, context) {
             .catch(err => handler.handleError(err));
     });
 
-    server.del(id_subscriptions_regexp, function(req, res, next) {
+    server.del(id_subscriptions_regexp, async (req, res, next) => {
         const workspace_identifier = decodeURIComponent(req.params[0]);
         let subscription_identifier = decodeURIComponent(req.params[1]);
-
         const handler = new Handler(req, res, next);
-
-        _workspace.find(workspace_identifier)
-            .then(workspace => workspace.remove_subscription(subscription_identifier))
-            .then(() => handler.sendJSON('Ok', 200))
-            .catch(err => handler.handleError(err));
+        try {
+            const workspace = await _workspace.find(workspace_identifier);
+            await workspace.remove_subscription(subscription_identifier);
+            handler.sendJSON('Ok', 200);
+        } catch (err) {
+            handler.handleError(err);
+        }
     });
 
     server.get(stage_regexp, function(req, res, next) {
