@@ -129,8 +129,8 @@ describe('Integrity status', function() {
 
         this.timeout(5000);
         await workspace.create('bad_repo');
-        await workspace.create_workspace_resource();
-        await workspace.create_project_resource();
+        workspace.create_workspace_resource();
+        workspace.create_project_resource();
         const adapter = ifs_adapter(workspace.get_path(), ifs_map);
         const fake_workspace = {
             get_guid: () => workspace_identifiers.guid,

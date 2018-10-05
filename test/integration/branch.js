@@ -31,8 +31,8 @@ describe('Run Workspace related functional tests for the API', function() {
     before("Creating fixtures", async function () {
         this.timeout(4000);
         await workspace.create('good_repo');
-        await workspace.create_workspace_resource();
-        await workspace.create_project_resource();
+        workspace.create_workspace_resource();
+        workspace.create_project_resource();
     });
     after("Removing fixtures", () => workspace.remove());
 

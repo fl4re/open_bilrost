@@ -9,7 +9,6 @@ const start_bilrost_client = require('../util/local_bilrost_client');
 const bilrost = require('../util/server');
 const fixture = require('../util/fixture')('integration_s3_vcs');
 const workspace = require('../util/workspace')('ken', fixture);
-const favorite = require('../../lib/favorite')(fixture.get_config_path());
 
 let client;
 
@@ -35,8 +34,8 @@ describe('Run Version Control related functional tests for the API', function() 
     before("Creating fixtures", async function () {
         this.timeout(4000);
         await workspace.create('good_repo');
-        await workspace.create_workspace_resource();
-        await workspace.create_project_resource();
+        workspace.create_workspace_resource();
+        workspace.create_project_resource();
     });
 
     after("Removing fixtures", () => workspace.remove());
@@ -306,7 +305,6 @@ describe('Run Version Control related functional tests for the API', function() 
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
                     should.not.exist(err);
-                    should.equal(await favorite.find(workspace.get_name()), undefined);
                     done();
                 });
 

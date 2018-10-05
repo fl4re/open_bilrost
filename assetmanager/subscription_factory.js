@@ -12,9 +12,9 @@ let Subscription_factory = {
     generate_guid: () => {
         return require('crypto').randomBytes(20).toString('hex');
     },
-    
+
     create: (workspace, id, type, descriptor) => {
-        if(type === Subscription.ASSET) {
+        if (type === Subscription.ASSET) {
             return new Subscription.Asset_subscription(workspace, id, descriptor);
         } else if(type === Subscription.NAMESPACE) {
             return new Subscription.Namespace_subscription(workspace, id, descriptor);
