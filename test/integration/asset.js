@@ -96,6 +96,7 @@ describe('Run Asset related functional tests for the API', function() {
                 });
         });
 
+
         it('Create an asset with a random extension', done => {
             const random_extension = Math.random().toString(36).substring(10);
 
@@ -277,6 +278,29 @@ describe('Run Asset related functional tests for the API', function() {
                 });
         });
 
+        it('Cannot create an asset that has common reference in "main" and "dependencies" values', done => {
+            const asset_ref = '/assets/level';
+            const asset = {
+                main: "/resources/test",
+                comment: "This a test asset",
+                tags: ["hello", "test"],
+                dependencies: ["/resources/test"],
+                semantics: []
+            };
+            client
+                .put(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}${asset_ref}`)
+                .send(asset)
+                .set("Content-Type", "application/json")
+                .set("Accept", 'application/json')
+                .expect(400)
+                .end(async (err, res) => {
+                    if (err) {
+                        return done({ error: err.toString(), status: res.status, body: res.body });
+                    }
+                    done();
+                });
+        });
+
 
     });
 
@@ -321,6 +345,23 @@ describe('Run Asset related functional tests for the API', function() {
             }).catch(done);
         });
 
+        after("remove referenced assets", done =>  {
+            // test level
+            const test04_ref = '/assets/levels/test/004/test_004.level';
+            workspace.remove_asset(test_002.meta.ref);
+            workspace.remove_asset(test_003.meta.ref);
+            workspace.remove_asset(test04_ref);
+            test_level_asset = workspace.create_asset(test_level_asset);
+            Promise.all([
+                database.remove(test_002.meta.ref),
+                database.remove(test_003.meta.ref),
+                database.remove(test04_ref),
+                database.add(test_level_asset)
+            ]).then(function(){
+                done();
+            }).catch(done);
+        });
+
         it('Rename an asset', done =>  {
             let asset = {
                 "comment": "",
@@ -336,7 +377,7 @@ describe('Run Asset related functional tests for the API', function() {
             const new_asset_ref = '/assets/levels/test/004/test_004.level';
             client
                 .post(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/rename${test_level_asset.meta.ref}`)
-                .send({ new: new_asset_ref})
+                .send({ new: new_asset_ref })
                 .set("Content-Type", "application/vnd.bilrost.asset+json")
                 .set("Accept", "application/json")
                 .set("Last-Modified", workspace.read_asset(asset_ref).meta.modified)
@@ -366,23 +407,6 @@ describe('Run Asset related functional tests for the API', function() {
                         done();
                     });
                 });
-        });
-
-        after("remove referenced assets", done =>  {
-            // test level
-            const test04_ref = '/assets/levels/test/004/test_004.level';
-            workspace.remove_asset(test_002.meta.ref);
-            workspace.remove_asset(test_003.meta.ref);
-            workspace.remove_asset(test04_ref);
-            test_level_asset = workspace.create_asset(test_level_asset);
-            Promise.all([
-                database.remove(test_002.meta.ref),
-                database.remove(test_003.meta.ref),
-                database.remove(test04_ref),
-                database.add(test_level_asset)
-            ]).then(function(){
-                done();
-            }).catch(done);
         });
 
         it('Cannot rename an unexisted asset', done => {
@@ -465,11 +489,11 @@ describe('Run Asset related functional tests for the API', function() {
         it('Replace an asset data', done => {
 
             const asset = {
-                "comment": "",
-                "tags": [],
-                "main": "/resources/test/a/test_005",
-                "dependencies": [],
-                "semantics": []
+                comment: '',
+                tags: [],
+                main: '/resources/test/a/test_005',
+                dependencies: ['/resources/mall/mall_demo'],
+                semantics: []
             };
 
             client
@@ -477,7 +501,7 @@ describe('Run Asset related functional tests for the API', function() {
                 .send(asset)
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
-                .set("Last-Modified", workspace.read_asset(test_level_asset.meta.ref).meta.modified)
+                .set("Last-Modified", workspace.get_last_modified(test_level_asset.meta.ref))
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
@@ -493,13 +517,45 @@ describe('Run Asset related functional tests for the API', function() {
 
         });
 
-        it('Cannot replace an asset data with a none matching modified date', done => {
+        // it('Replace an asset data with common reference in main and dependency references', done => {
+
+        //     const asset = {
+        //         comment: '',
+        //         tags: [],
+        //         main: '/resources/mall/mall_demo',
+        //         dependencies: ['/resources/mall/mall_demo'],
+        //         semantics: []
+        //     };
+
+        //     client
+        //         .put(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}${test_level_asset.meta.ref}`)
+        //         .send(asset)
+        //         .set("Content-Type", "application/json")
+        //         .set("Accept", 'application/json')
+        //         .set("Last-Modified", workspace.get_last_modified(test_level_asset.meta.ref))
+        //         .expect(200)
+        //         .end((err, res) => {
+        //             if (err) {
+        //                 return done({ error: err.toString(), status: res.status, body: res.body });
+        //             }
+        //             let object_returned = res.body;
+        //             const object_readed = workspace.read_asset(test_level_asset.meta.ref);
+        //             should.deepEqual(object_readed, object_returned);
+        //             delete object_readed.meta;
+        //             asset.dependencies.splice(0, 1);
+        //             should.deepEqual(object_readed, asset);
+        //             done();
+        //         });
+
+        // });
+
+        it('Cannot replace with common dependency and main reference', done => {
 
             const asset = {
                 "comment": "",
                 "tags": [],
                 "main": "/resources/test/a/test_005",
-                "dependencies": [],
+                "dependencies": ["/resources/test/a/test_005"],
                 "semantics": []
             };
 
@@ -508,8 +564,8 @@ describe('Run Asset related functional tests for the API', function() {
                 .send(workspace.format_asset(asset))
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
-                .set("Last-Modified", "2016-03-18T10:54:05.860Z")
-                .expect(412)
+                .set("Last-Modified", workspace.get_last_modified(test_level_asset.meta.ref))
+                .expect(400)
                 .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
@@ -529,7 +585,7 @@ describe('Run Asset related functional tests for the API', function() {
                 "semantics": ""
             };
 
-            const modified = workspace.read_asset(test_level_asset.meta.ref).meta.modified;
+            const modified = workspace.get_last_modified(test_level_asset.meta.ref);
 
             client
                 .put(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}${test_level_asset.meta.ref}`)
@@ -557,7 +613,7 @@ describe('Run Asset related functional tests for the API', function() {
                 "semantics": []
             };
 
-            const modified = workspace.read_asset(test_level_asset.meta.ref).meta.modified;
+            const modified = workspace.get_last_modified(test_level_asset.meta.ref);
 
             client
                 .put(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}${test_level_asset.meta.ref}`)

@@ -284,7 +284,7 @@ asset_model = workspace => {
             throw _error_outputs.ALREADYEXIST(ref);
         },
         () => {
-            asset = Object.assign({
+            asset = Object.assign({}, {
                 dependencies: [],
                 tags: [],
                 main: "",
@@ -306,6 +306,9 @@ asset_model = workspace => {
             let valid_asset = validator.is_valid_schema(asset);
             if (valid_asset.errors.length) {
                 throw _error_outputs.CORRUPT(valid_asset.errors);
+            }
+            if (asset.dependencies.includes(asset.main)) {
+                throw _error_outputs.CORRUPT('common deps and main reference');
             }
 
             return validator.is_invalid_paths_in_data(asset)
@@ -345,20 +348,30 @@ asset_model = workspace => {
                 throw _error_outputs.CORRUPT(invalid_reference);
             }
 
-            const rename_asset_dependencies = () => {
-                return workspace.database.search({ dependencies: { '$contains': ref } })
-                    .then(search_result => {
-                        return Promise.all(search_result.items.map(found_asset => {
-                            const index = found_asset.dependencies.indexOf(ref);
-                            if (~index) {
-                                found_asset.dependencies[index] = new_ref;
-                                found_asset.modified = new Date().toISOString();
-                                return workspace.adapter.outputFormattedJson(get_relative_path(found_asset.meta.ref), found_asset)
-                                    .then(() => workspace.database.remove(found_asset.meta.ref))
-                                    .then(() => workspace.database.add(found_asset));
-                            }
-                        }));
-                    });
+            const rename_asset_dependencies = async () => {
+                const assets_with_same_main = await workspace.database.search({ main: ref });
+                const assets_with_same_deps = await workspace.database.search({ dependencies: { '$contains': ref } });
+                const rename_deps = assets_with_same_deps.items.map(async found_asset => {
+                    const index = found_asset.dependencies.indexOf(ref);
+                    if (~index) {
+                        found_asset.dependencies[index] = new_ref;
+                        found_asset.modified = new Date().toISOString();
+                        await workspace.adapter.outputFormattedJson(get_relative_path(found_asset.meta.ref), found_asset);
+                        await workspace.database.remove(found_asset.meta.ref);
+                        await workspace.database.add(found_asset);
+                    }
+                });
+                const rename_main = assets_with_same_main.items.map(async found_asset => {
+                    if (found_asset.dependencies.includes(new_ref)) {
+                        throw _error_outputs.CORRUPT(` ${found_asset} ref is already defined in dependencies list`);
+                    }
+                    found_asset.main = new_ref;
+                    found_asset.modified = new Date().toISOString();
+                    await workspace.adapter.outputFormattedJson(get_relative_path(found_asset.meta.ref), found_asset);
+                    await workspace.database.remove(found_asset.meta.ref);
+                    await workspace.database.add(found_asset);
+                });
+                await Promise.all([...rename_deps, ...rename_main]);
             };
 
             const write_and_index_asset = () => {
@@ -391,13 +404,17 @@ asset_model = workspace => {
             new_asset.meta = new_asset.meta || asset.meta;
             new_asset.meta.modified = new Date().toISOString();
 
-            //
             new_asset.dependencies && new_asset.dependencies.sort();
             new_asset.tags && new_asset.tags.sort();
 
             let valid_asset = validator.is_valid_schema(new_asset);
             if (valid_asset.errors.length) {
                 throw _error_outputs.CORRUPT(valid_asset.errors);
+            }
+
+            if (new_asset.dependencies.includes(new_asset.main)) {
+                const index = new_asset.dependencies.indexOf(new_asset.main);
+                new_asset.dependencies.splice(index, 1);
             }
             return validator.is_invalid_paths_in_data(new_asset)
                 .catch(err => { throw _error_outputs.CORRUPT(err); })

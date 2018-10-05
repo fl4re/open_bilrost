@@ -69,6 +69,7 @@ module.exports = (name, fixture) => {
         return asset;
     };
     const read_asset = ref => fs.readJsonSync(utilities.ref_to_absolute_path(ref, get_path()));
+    const get_last_modified = asset => read_asset(asset).meta.modified;
     const remove_asset = ref => fs.removeSync(utilities.ref_to_absolute_path(ref, get_path()));
     const create_resource = relative => fs.outputFileSync(_path.join(get_path(), relative));
     const remove_resource = relative => fs.removeSync(_path.join(get_path(), relative));
@@ -116,6 +117,7 @@ module.exports = (name, fixture) => {
         format_asset,
         create_asset,
         read_asset,
+        get_last_modified,
         remove_asset,
         create_resource,
         remove_resource,
