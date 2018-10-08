@@ -7,7 +7,7 @@
 const status_config = require('../../assetmanager/status.config.json');
 const fixture = require('../util/fixture')('integration_status');
 const workspace = require('../util/workspace')('eloise', fixture);
-const bilrost = require('../util/server');
+const bilrost = require('../util/server')(fixture);
 
 describe('Run Status related functional tests for the API', function() {
 

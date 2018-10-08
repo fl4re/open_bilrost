@@ -7,8 +7,8 @@
 const should = require('should');
 const path = require('path');
 const fs = require('fs-extra');
-const server = require('../util/server');
 const fixture = require('../util/fixture')('integration_asset');
+const server = require('../util/server')(fixture);
 const workspace = require('../util/workspace')('eloise', fixture);
 
 let client, database, test_level_asset = {
@@ -22,15 +22,14 @@ let client, database, test_level_asset = {
 };
 
 describe('Run Asset related functional tests for the API', function() {
-
-    before("Starting a Content Browser server", async () => {
-        client = await server.start();
-    });
     before("Creating fixtures", async () => {
         await workspace.create('good_repo');
         workspace.create_workspace_resource();
         workspace.create_project_resource();
         database = await workspace.instance_database();
+    });
+    before("Starting a Content Browser server", async () => {
+        client = await server.start();
     });
     after("Removing fixtures", () => workspace.remove());
 

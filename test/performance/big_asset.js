@@ -14,7 +14,7 @@ const v8 = require('v8');
 const fixture = require('../util/fixture')('performance_big_asset');
 const workspace = require('../util/workspace')('eloise', fixture);
 
-const bilrost = require('../util/server');
+const bilrost = require('../util/server')(fixture);
 
 const MB = 1024 * 1024;
 let random_names = [];
