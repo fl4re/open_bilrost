@@ -44,29 +44,6 @@ describe('Run Version Control related functional tests for the API', function() 
 
         let new_subscription_id;
 
-        it('Add Asset Subscription to Workspace', function(done) {
-            this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
-            client
-                .post(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/subscriptions`)
-                .send({
-                    type: "ASSET",
-                    descriptor: "/assets/test_1_1_0.level"
-                })
-                .set('Accept', 'application/json')
-                .expect(200)
-                .end((err, res) => {
-                    if (err) {
-                        return done({ error: err.toString(), status: res.status, body: res.body });
-                    }
-
-                    res.error.should.equal(false);
-                    res.body.should.be.an.Object;
-                    res.body.type.should.equal('ASSET');
-                    new_subscription_id = res.body.id;
-                    done();
-                });
-        });
-
         it('Add Namespace Subscription to Workspace', function(done) {
             this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
             client
@@ -105,6 +82,46 @@ describe('Run Version Control related functional tests for the API', function() 
                     res.body.should.be.an.Object;
                     res.body.type.should.equal('SEARCH');
 
+                    done();
+                });
+        });
+
+        it('Reset subscription list', function(done) {
+            this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
+            client
+                .del(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/subscriptions`)
+                .send()
+                .set('Accept', 'application/json')
+                .expect(200)
+                .end((err, res) => {
+                    if (err) {
+                        return done({ error: err.toString(), status: res.status, body: res.body });
+                    }
+                    const subscription_list = workspace.read_workspace_resource().subscriptions;
+                    should.equal(subscription_list.length, 0);
+                    done();
+                });
+        });
+
+        it('Add Asset Subscription to Workspace', function(done) {
+            this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
+            client
+                .post(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/subscriptions`)
+                .send({
+                    type: "ASSET",
+                    descriptor: "/assets/test_1_1_0.level"
+                })
+                .set('Accept', 'application/json')
+                .expect(200)
+                .end((err, res) => {
+                    if (err) {
+                        return done({ error: err.toString(), status: res.status, body: res.body });
+                    }
+
+                    res.error.should.equal(false);
+                    res.body.should.be.an.Object;
+                    res.body.type.should.equal('ASSET');
+                    new_subscription_id = res.body.id;
                     done();
                 });
         });
