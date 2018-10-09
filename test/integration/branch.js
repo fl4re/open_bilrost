@@ -10,7 +10,7 @@ global.debug = true;
 const should = require('should');
 const fixture = require('../util/fixture')('integration_branch');
 const workspace = require('../util/workspace')('carol', fixture);
-const bilrost = require('../util/server');
+const bilrost = require('../util/server')(fixture);
 
 let client, encoded_file_uri = workspace.get_encoded_file_uri();
 

@@ -9,8 +9,8 @@ global.debug = true;
 
 const should = require('should');
 const fs = require('fs-extra');
-const bilrost = require('../util/server');
 const fixture = require('../util/fixture')('integration_workspace');
+const bilrost = require('../util/server')(fixture);
 const workspace_factory = require('../util/workspace');
 const favorite = require('../../lib/favorite')(fixture.get_config_path());
 
