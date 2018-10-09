@@ -9,7 +9,7 @@ const workspace_factory = require('../util/workspace');
 const fixture = require('../util/fixture')('integration_browse');
 const favorite = require('../../lib/favorite')(fixture.get_config_path());
 
-const bilrost = require('../util/server');
+const bilrost = require('../util/server')(fixture);
 
 let client, workspaces, bob_test_asset;
 

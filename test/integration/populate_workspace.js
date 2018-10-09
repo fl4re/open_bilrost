@@ -9,7 +9,7 @@ const should = require('should');
 const fixture = require('../util/fixture')('integration_populate_workspace');
 const workspace = require('../util/workspace')('carol', fixture);
 const favorite = require('../../lib/favorite')(fixture.get_config_path());
-const bilrost = require('../util/server');
+const bilrost = require('../util/server')(fixture);
 
 let client;
 

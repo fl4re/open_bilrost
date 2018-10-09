@@ -6,8 +6,8 @@
 
 const should = require('should');
 const start_bilrost_client = require('../util/local_bilrost_client');
-const bilrost = require('../util/server');
 const fixture = require('../util/fixture')('integration_s3_vcs');
+const bilrost = require('../util/server')(fixture);
 const workspace = require('../util/workspace')('ken', fixture);
 
 let client;
