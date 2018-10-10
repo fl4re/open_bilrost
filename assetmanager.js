@@ -149,7 +149,6 @@ module.exports = function(server, context) {
                                 .then(workspace => workspace.check_overall_validation()
                                     .then(() => handler.sendJSON(_workspace_metadata_presenter.present(workspace), 200, 'workspace')))
                                 .catch(output => {
-
                                     favorite
                                         .remove(workspace.guid)
                                         .then(() => workspace_factory.delete_workspace(workspace_file_uri))
@@ -341,6 +340,18 @@ module.exports = function(server, context) {
             .catch(err => handler.handleError(err));
     });
 
+    server.del(subscriptions_regexp, async (req, res, next) => {
+        const workspace_identifier = decodeURIComponent(req.params[0]);
+        const handler = new Handler(req, res, next);
+        try {
+            const workspace = await _workspace.find(workspace_identifier);
+            await workspace.remove_all_subscriptions();
+            handler.sendJSON('Ok', 200);
+        } catch (err) {
+            handler.handleError(err);
+        }
+    });
+
     server.del(id_subscriptions_regexp, async (req, res, next) => {
         const workspace_identifier = decodeURIComponent(req.params[0]);
         let subscription_identifier = decodeURIComponent(req.params[1]);
@@ -353,6 +364,7 @@ module.exports = function(server, context) {
             handler.handleError(err);
         }
     });
+
 
     server.get(stage_regexp, function(req, res, next) {
         const workspace_identifier = decodeURIComponent(req.params[0]);
