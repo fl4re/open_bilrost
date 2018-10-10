@@ -377,6 +377,19 @@ module.exports = function(server, context) {
             .catch(err => handler.handleError(err));
     });
 
+    server.del(stage_regexp, async (req, res, next) => {
+        const workspace_identifier = decodeURIComponent(req.params[0]);
+        const handler = new Handler(req, res, next);
+
+        try {
+            const workspace = await _workspace.find(workspace_identifier);
+            await workspace.empty_stage();
+            handler.sendJSON('Ok', 200);
+        } catch (err) {
+            handler.handleError(err);
+        }
+    });
+
     server.post(ref_stage_regexp, function(req, res, next) {
         const workspace_identifier = decodeURIComponent(req.params[0]);
         const asset_ref = decodeURIComponent(req.params[1]);
