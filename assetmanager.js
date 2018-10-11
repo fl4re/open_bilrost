@@ -143,15 +143,12 @@ module.exports = function(server, context) {
                     const project_id = `${organization}/${project_name}`;
                     _project.get(project_id)
                         .then(project => workspace_factory.create_and_populate_workspace(project, branch, context.protocol, workspace_file_uri, name, description, context.credentials))
-                        .then(workspace => {
-                            favorite.add({ name: workspace.name, file_uri: workspace.file_uri })
-                                .then(() => _workspace.find_by_file_uri(workspace_file_uri))
+                        .then(() => {
+                            return _workspace.find_by_file_uri(workspace_file_uri)
                                 .then(workspace => workspace.check_overall_validation()
                                     .then(() => handler.sendJSON(_workspace_metadata_presenter.present(workspace), 200, 'workspace')))
                                 .catch(output => {
-                                    favorite
-                                        .remove(workspace.guid)
-                                        .then(() => workspace_factory.delete_workspace(workspace_file_uri))
+                                    return workspace_factory.delete_workspace(workspace_file_uri)
                                         .then(() => handler.handleError(output.error ? output.error : errors.INTERNALERROR(output)));
                                 });
                         })
@@ -185,15 +182,12 @@ module.exports = function(server, context) {
                         .then(_project.get)
                         .then(project => repo_manager.get_current_branch()
                             .then(branch => workspace_factory.populate_workspace(project, branch, workspace_file_uri, name, description)))
-                        .then(workspace => {
-                            favorite.add({ name: workspace.name, file_uri: workspace.file_uri })
-                                .then(() => _workspace.find_by_file_uri(workspace_file_uri))
+                        .then(() => {
+                            return _workspace.find_by_file_uri(workspace_file_uri)
                                 .then(workspace => workspace.check_overall_validation()
                                     .then(() => handler.sendJSON(_workspace_metadata_presenter.present(workspace), 200, 'workspace')))
                                 .catch(output => {
-                                    favorite
-                                        .remove(workspace.guid)
-                                        .then(() => handler.handleError(output.error ? output.error : errors.INTERNALERROR(output)));
+                                    handler.handleError(output.error ? output.error : errors.INTERNALERROR(output));
                                 });
                         })
                         .catch(error => {

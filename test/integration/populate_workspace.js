@@ -8,7 +8,6 @@ const should = require('should');
 
 const fixture = require('../util/fixture')('integration_populate_workspace');
 const workspace = require('../util/workspace')('carol', fixture);
-const favorite = require('../../lib/favorite')(fixture.get_config_path());
 const bilrost = require('../util/server')(fixture);
 
 let client;
@@ -59,11 +58,10 @@ describe('Run Workspace related functional tests for the API', function() {
                 .set('Content-Type', 'application/json')
                 .set('Accept', 'application/json')
                 .expect(200)
-                .end(async (err, res) => {
+                .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    let obj = await favorite.find(workspace.get_file_uri());
 
                     obj.should.be.an.Object;
                     should.equal(workspace.validate_workspace_root_directories(), true);
@@ -73,18 +71,15 @@ describe('Run Workspace related functional tests for the API', function() {
         });
         it('Delete well the populated workspace', function(done){
             client
-                .delete(`/assetmanager/workspaces/${workspace.get_name()}`)
+                .delete(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}`)
                 .send()
                 .set("Accept", 'application/json')
                 .set("Content-Type", "application/json")
                 .expect(200)
-                .end(async (err, res) => {
+                .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    let obj = await favorite.find(workspace.get_file_uri());
-
-                    should.equal(obj, undefined);
                     should.equal(workspace.validate_workspace_root_directories(), false);
                     done();
                 });
