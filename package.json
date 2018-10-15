@@ -4,7 +4,7 @@
     "bilrost-server": "./bin/start.js"
   },
   "description": "Bilrost client server",
-  "version": "2.0.27",
+  "version": "2.0.28",
   "main": "index.js",
   "private": false,
   "engines": {
