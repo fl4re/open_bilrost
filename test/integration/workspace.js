@@ -216,9 +216,6 @@ describe('Run Workspace related functional tests for the API', function() {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    let obj = await favorite.find(workspaces.carol.get_file_uri());
-
-                    obj.should.be.an.Object;
                     should.equal(workspaces.carol.validate_workspace_root_directories(), true);
                     done();
                 });

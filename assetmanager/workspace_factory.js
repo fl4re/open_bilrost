@@ -27,7 +27,7 @@ const save = function save(workspace_path, workspace_resource) {
 };
 
 const workspace_factory = {
-    create_workspace (url, branch, file_uri, name, credentials) {
+    create_workspace (url, branch, file_uri, credentials) {
         const path = utilities.convert_file_uri_to_path(file_uri);
         return new Promise((resolve, reject) => {
             fs.exists(path, exists => {
@@ -48,7 +48,7 @@ const workspace_factory = {
                 throw error.statusCode === 403 ? error : _error_outputs.INTERNALERROR(error);
             });
     },
-    populate_workspace (project, branch, file_uri, name, description = '') {
+    populate_workspace (project, branch, file_uri, description = '') {
         const path = utilities.convert_file_uri_to_path(file_uri);
         const get_internal_file_full_path = name => Path.join(path, '.bilrost', name ? name : '/');
         const create_internal_file = (name, content) => promisify(fs.outputFile)(get_internal_file_full_path(name), stringify(content));
@@ -58,7 +58,6 @@ const workspace_factory = {
         let now_iso_date = new Date().toISOString();
         const workspace = {
             guid,
-            name,
             description,
             version: '2.0.0',
             created_at: now_iso_date,
@@ -81,7 +80,7 @@ const workspace_factory = {
                 throw _error_outputs.INTERNALERROR(error);
             });
     },
-    create_and_populate_workspace (project, branch, protocol, file_uri, name, description, credentials) {
+    create_and_populate_workspace (project, branch, protocol, file_uri, description, credentials) {
         var url;
         if (protocol === 'ssh') {
             url = project.ssh_url;
@@ -90,8 +89,8 @@ const workspace_factory = {
         } else {
             throw _error_outputs.INTERNALERROR(`${protocol} is not supported`);
         }
-        return workspace_factory.create_workspace(url, branch, file_uri, name, credentials)
-            .then(() => workspace_factory.populate_workspace(project, branch, file_uri, name, description));
+        return workspace_factory.create_workspace(url, branch, file_uri, credentials)
+            .then(() => workspace_factory.populate_workspace(project, branch, file_uri, description));
     },
     save,
     delete_workspace (url) {

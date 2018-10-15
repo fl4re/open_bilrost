@@ -131,7 +131,6 @@ module.exports = function(server, context) {
     server.post('/assetmanager/workspaces', function(req, res, next) {
         const handler = new Handler(req, res, next);
         const workspace_file_uri = req.body.file_uri;
-        const name = req.body.name;
         const description = req.body.description;
         const organization = req.body.organization;
         const project_name = req.body.project_name;
@@ -142,16 +141,13 @@ module.exports = function(server, context) {
                 if (workspace.error && workspace.error.statusCode === 404) {
                     const project_id = `${organization}/${project_name}`;
                     _project.get(project_id)
-                        .then(project => workspace_factory.create_and_populate_workspace(project, branch, context.protocol, workspace_file_uri, name, description, context.credentials))
-                        .then(workspace => {
-                            favorite.add({ name: workspace.name, file_uri: workspace.file_uri })
-                                .then(() => _workspace.find_by_file_uri(workspace_file_uri))
+                        .then(project => workspace_factory.create_and_populate_workspace(project, branch, context.protocol, workspace_file_uri, description, context.credentials))
+                        .then(() => {
+                            return _workspace.find_by_file_uri(workspace_file_uri)
                                 .then(workspace => workspace.check_overall_validation()
                                     .then(() => handler.sendJSON(_workspace_metadata_presenter.present(workspace), 200, 'workspace')))
                                 .catch(output => {
-                                    favorite
-                                        .remove(workspace.guid)
-                                        .then(() => workspace_factory.delete_workspace(workspace_file_uri))
+                                    return workspace_factory.delete_workspace(workspace_file_uri)
                                         .then(() => handler.handleError(output.error ? output.error : errors.INTERNALERROR(output)));
                                 });
                         })
@@ -167,7 +163,6 @@ module.exports = function(server, context) {
     server.post('/assetmanager/workspaces/populate', function(req, res, next) {
         const handler = new Handler(req, res, next);
         const workspace_file_uri = req.body.file_uri;
-        const name = req.body.name;
         const description = req.body.description;
         _workspace.find_by_file_uri(workspace_file_uri)
             .then(() => handler.handleError(errors.ALREADYEXIST(workspace_file_uri)))
@@ -184,16 +179,13 @@ module.exports = function(server, context) {
                     repo_manager.get_project_id()
                         .then(_project.get)
                         .then(project => repo_manager.get_current_branch()
-                            .then(branch => workspace_factory.populate_workspace(project, branch, workspace_file_uri, name, description)))
-                        .then(workspace => {
-                            favorite.add({ name: workspace.name, file_uri: workspace.file_uri })
-                                .then(() => _workspace.find_by_file_uri(workspace_file_uri))
+                            .then(branch => workspace_factory.populate_workspace(project, branch, workspace_file_uri, description)))
+                        .then(() => {
+                            return _workspace.find_by_file_uri(workspace_file_uri)
                                 .then(workspace => workspace.check_overall_validation()
                                     .then(() => handler.sendJSON(_workspace_metadata_presenter.present(workspace), 200, 'workspace')))
                                 .catch(output => {
-                                    favorite
-                                        .remove(workspace.guid)
-                                        .then(() => handler.handleError(output.error ? output.error : errors.INTERNALERROR(output)));
+                                    handler.handleError(output.error ? output.error : errors.INTERNALERROR(output));
                                 });
                         })
                         .catch(error => {
