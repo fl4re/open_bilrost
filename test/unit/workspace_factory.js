@@ -21,11 +21,12 @@ describe('Workspace factory model functional checks', () => {
 
     it('Create and populate a workspace', function(done) {
         this.timeout(this.timeout * 3);
-        workspace_factory.create_and_populate_workspace(project, branch, 'ssh', fixtures_path, "test", "hello world")
+        const description = "hello world";
+        workspace_factory.create_and_populate_workspace(project, branch, 'ssh', fixtures_path, description)
             .then(() => {
                 fs.readJson(path.join(fixtures_path, '/.bilrost/workspace'), (err, work) => {
                     should.not.exist(err);
-                    should.equal(work.name, "test");
+                    should.equal(work.description, description);
                     fs.readJson(path.join(fixtures_path, '/.bilrost/project'), (err, proj) => {
                         should.not.exist(err);
                         should.equal(proj.ssh_url, ssh_url);

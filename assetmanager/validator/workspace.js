@@ -43,10 +43,6 @@ const workspace_schema = {
     "id": "/workspaces",
     "type": "object",
     "properties": {
-        "name": {
-            "type":"string",
-            "pattern": sanitize.regularExpression
-        },
         "version": {
             "type":"string",
             "pattern": /^[0-9.]*$/
@@ -91,7 +87,7 @@ const workspace_schema = {
             "uniqueItems": true
         }
     },
-    required: ["name", "guid", "created_at", "pushed_at", "updated_at", "version", "tags", "subscriptions", "stage"]
+    required: ["guid", "created_at", "pushed_at", "updated_at", "version", "tags", "subscriptions", "stage"]
 };
 
 const project_schema = {
