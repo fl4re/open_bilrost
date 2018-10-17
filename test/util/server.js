@@ -10,7 +10,7 @@ const supertest = require('supertest');
 
 const port_factory = require('./port_factory');
 
-const asset_manager = require('../../assetmanager');
+const controllers = require('../../controllers');
 const content_browser = require('../../contentbrowser');
 const amazon_client = require('../../lib/amazon-client');
 const cache = require('../../lib/cache');
@@ -54,7 +54,7 @@ module.exports = fixture => {
 
             return new Promise(resolve => {
                 server.listen(port, () => {
-                    asset_manager(server, context);
+                    controllers(server, context);
                     content_browser(server, context);
                     resolve(client);
                 });

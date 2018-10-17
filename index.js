@@ -107,7 +107,7 @@ require('./lib/static')(server);
 require('./authentication')(server, bilrost_client);
 require('./config')(server, config);
 require('./contentbrowser')(server, version_control_system_context);
-require('./assetmanager')(server, version_control_system_context);
+require('./controllers')(server, version_control_system_context);
 
 server.static({
     route: "api-ui",
