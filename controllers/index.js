@@ -6,4 +6,6 @@ module.exports = (server, context) => {
     require('./status')(server, context);
     require('./subscription')(server, context);
     require('./workspace')(server, context);
+    require('./project')(server, context);
+    require('./favorite')(server, context);
 };
