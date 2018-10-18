@@ -47,24 +47,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
     after("Removing fixtures", () => Promise.all(Object.keys(workspaces).map(workspace_name => workspaces[workspace_name].remove())));
 
-    describe('-- [GET] /contentbrowser', function(){
-        it("", function(done) {
-
-            client
-                .get('/contentbrowser')
-                .set("Content-Type", "application/json")
-                .set("Accept", 'application/json')
-                .expect(200)
-                .end((err, res) => {
-                    if (err) {
-                        return done({ error: err.toString(), status: res.status, body: res.body });
-                    }
-                    done();
-                });
-
-        });
-    });
-
     describe('-- [GET] /contentbrowser/projects/', function(){
         it("", function(done) {
 

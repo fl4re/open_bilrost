@@ -11,7 +11,6 @@ const supertest = require('supertest');
 const port_factory = require('./port_factory');
 
 const controllers = require('../../controllers');
-const content_browser = require('../../contentbrowser');
 const amazon_client = require('../../lib/amazon-client');
 const cache = require('../../lib/cache');
 const favorite = require('../../lib/favorite');
@@ -55,7 +54,6 @@ module.exports = fixture => {
             return new Promise(resolve => {
                 server.listen(port, () => {
                     controllers(server, context);
-                    content_browser(server, context);
                     resolve(client);
                 });
             });

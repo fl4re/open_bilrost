@@ -4,23 +4,83 @@
 
 'use strict';
 
+const _url = require('url');
+
 const Handler = require('../lib/handler');
 
 const workspace_factory = require('../assetmanager/workspace_factory');
 const _repo_manager = require('../assetmanager/repo_manager');
 const utilities = require('../assetmanager/utilities');
 const _workspace_metadata_presenter = require('../assetmanager/workspace_presenter').Workspace_metadata_presenter;
+const Workspace_presenter = require("../assetmanager/workspace_presenter").Workspace_presenter;
+
+const list_workspaces_regexp = /^\/contentbrowser\/workspaces(\/)?$/;
+const get_workspaces_regexp = /^\/contentbrowser\/workspaces\/([^/]*)$/;
 
 const workspaces_regexp = /^\/assetmanager\/workspaces\/([^/]*)$/;
 const workspace_reset_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/reset$/;
-const favorites_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/favorites$/;
 
 const errors = require('../lib/errors')('asset manager');
+
+// Utility for slicing a list of files
+const slice = (files, start, number) => files.slice(start, start + number);
+
+// Utility to create the next reference url for paging
+const get_next_url = (url, next) => {
+    let parsed_url = _url.parse(url, true);
+    parsed_url.query.start = next;
+    parsed_url.search = undefined;  // If search is set it prevails over the query, we must unset it
+    return parsed_url.format();
+};
 
 module.exports = function(server, context) {
     const favorite = context.favorite;
     const _project = require('../assetmanager/project_manager')(context);
     const _workspace = require('../assetmanager/workspace')(context);
+
+    server.get(list_workspaces_regexp, function(req, res, next) {
+        const handler = new Handler(req, res, next);
+        const options = {
+            filterName: req.query.name,
+            maxResults: parseInt(req.query.maxResults, 10) || 100,
+            start: parseInt(req.query.start, 10) || 0
+        };
+        _workspace
+            .list(options)
+            .then(workspaces => {
+                const length = workspaces.length;
+                workspaces = slice(workspaces, options.start, options.maxResults);
+                const output = {
+                    kind: 'workspace-list',
+                    items: workspaces.map(workspace => Workspace_presenter.present(workspace))
+                };
+                if (options.start + workspaces.length < length) {
+                    const indexOfMoreResults = options.start + options.maxResults;
+                    output.nextLink = get_next_url(req.url, indexOfMoreResults);
+                }
+                output.totalItems = length;
+                handler.sendJSON(output, 200);
+            })
+            .catch(err => handler.handleError(err));
+    });
+
+    server.get(get_workspaces_regexp, function(req, res, next) {
+        let handler = new Handler(req, res, next);
+        let workspace_identifier = decodeURIComponent(req.params[0]);
+        if (!workspace_identifier) {
+            return handler.handleError(new Error("Missing workspace id"));
+        }
+
+        _workspace.find(workspace_identifier)
+            .then(workspace => {
+                const output = {
+                    kind: 'workspace-list',
+                    items: [Workspace_presenter.present(workspace)]
+                };
+                output.totalItems = output.items.length;
+                handler.sendJSON(output, 200);
+            }).catch(err => handler.handleError(err));
+    });
 
     server.post('/assetmanager/workspaces', function(req, res, next) {
         const handler = new Handler(req, res, next);
@@ -91,39 +151,11 @@ module.exports = function(server, context) {
             });
     });
 
-    server.post('/assetmanager/workspaces/favorites', function(req, res, next) {
-        const handler = new Handler(req, res, next);
-        const workspace_file_uri = req.body.file_uri;
-        _workspace.find_by_file_uri(workspace_file_uri)
-            .then(workspace => workspace.check_overall_validation()
-                .then(() => favorite.add({ name: workspace.get_name(), file_uri: workspace.get_file_uri()}))
-                .then(() => handler.sendJSON(_workspace_metadata_presenter.present(workspace), 200, 'workspace')))
-            .catch(workspace => {
-                handler.handleError(workspace);
-            });
-    });
-
-    server.post('/assetmanager/workspaces/favorites/reset', function(req, res, next) {
-        const handler = new Handler(req, res, next);
-        favorite.flush()
-            .then(() => handler.sendJSON('Ok', 200))
-            .catch(handler.handleError);
-    });
-
     server.post(workspace_reset_regexp, function(req, res, next) {
         const workspace_identifier = decodeURIComponent(req.params[0]);
         const handler = new Handler(req, res, next);
         _workspace.find(workspace_identifier)
             .then(workspace => workspace.reset())
-            .then(() => handler.sendJSON('Ok', 200))
-            .catch(workspace => handler.handleError(workspace.error || workspace));
-    });
-
-    server.del(favorites_regexp, function(req, res, next) {
-        const workspace_identifier = decodeURIComponent(req.params[0]);
-        const handler = new Handler(req, res, next);
-        _workspace.find(workspace_identifier)
-            .then(workspace => favorite.remove(workspace.get_name()).then(() => workspace.database.close()), () => favorite.remove(req.params[0]))
             .then(() => handler.sendJSON('Ok', 200))
             .catch(workspace => handler.handleError(workspace.error || workspace));
     });
