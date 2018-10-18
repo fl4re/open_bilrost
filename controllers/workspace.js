@@ -82,36 +82,35 @@ module.exports = function(server, context) {
             }).catch(err => handler.handleError(err));
     });
 
-    server.post('/assetmanager/workspaces', function(req, res, next) {
+    server.post('/assetmanager/workspaces', async (req, res, next) => {
         const handler = new Handler(req, res, next);
         const workspace_file_uri = req.body.file_uri;
         const description = req.body.description;
         const organization = req.body.organization;
         const project_name = req.body.project_name;
         const branch = req.body.branch;
-        _workspace.find_by_file_uri(workspace_file_uri)
-            .then(() => handler.handleError(errors.ALREADYEXIST(workspace_file_uri)))
-            .catch(workspace => {
-                if (workspace.error && workspace.error.statusCode === 404) {
-                    const project_id = `${organization}/${project_name}`;
-                    _project.get(project_id)
-                        .then(project => workspace_factory.create_and_populate_workspace(project, branch, context.protocol, workspace_file_uri, description, context.credentials))
-                        .then(() => {
-                            return _workspace.find_by_file_uri(workspace_file_uri)
-                                .then(workspace => workspace.check_overall_validation()
-                                    .then(() => handler.sendJSON(_workspace_metadata_presenter.present(workspace), 200, 'workspace')))
-                                .catch(output => {
-                                    return workspace_factory.delete_workspace(workspace_file_uri)
-                                        .then(() => handler.handleError(output.error ? output.error : errors.INTERNALERROR(output)));
-                                });
-                        })
-                        .catch(error => {
-                            handler.handleError(error);
-                        });
-                } else {
-                    handler.handleError(errors.INTERNALERROR(workspace));
+        try {
+            await _workspace.find_by_file_uri(workspace_file_uri);
+            handler.handleError(errors.ALREADYEXIST(workspace_file_uri));
+        } catch (workspace) {
+            if (workspace.error && workspace.error.statusCode === 404) {
+                const project_id = `${organization}/${project_name}`;
+                try {
+                    const project = await _project.get(project_id);
+                    await workspace_factory.create_and_populate_workspace(project, branch, context.protocol, workspace_file_uri, description, context.credentials);
+                    const workspace = await _workspace.find_by_file_uri(workspace_file_uri);
+                    await workspace.check_overall_validation();
+                    handler.sendJSON(_workspace_metadata_presenter.present(workspace), 200, 'workspace');
+                } catch (output) {
+                    try {
+                        await workspace_factory.delete_workspace(workspace_file_uri);
+                    } catch (ignored_deletion_error) {}
+                    handler.handleError(output.error ? output.error : errors.INTERNALERROR(output));
                 }
-            });
+            } else {
+                handler.handleError(errors.INTERNALERROR(workspace));
+            }
+        }
     });
 
     server.post('/assetmanager/workspaces/populate', function(req, res, next) {
