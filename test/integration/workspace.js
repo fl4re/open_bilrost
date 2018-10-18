@@ -59,7 +59,7 @@ describe('Run Workspace related functional tests for the API', function() {
 
             client
                 .post('/assetmanager/workspaces/favorites')
-                .send({ file_uri: workspaces.alice.get_file_uri() })
+                .send({ file_uri: workspaces.alice.get_file_uri(), name: workspaces.alice.get_name() })
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect(200)
@@ -77,7 +77,7 @@ describe('Run Workspace related functional tests for the API', function() {
 
             client
                 .post('/assetmanager/workspaces/favorites')
-                .send({file_uri: workspaces.bob.get_file_uri()})
+                .send({ file_uri: workspaces.bob.get_file_uri(), name: workspaces.bob.get_name() })
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect(200)

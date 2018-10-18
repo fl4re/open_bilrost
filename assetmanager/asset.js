@@ -198,7 +198,7 @@ asset_model = workspace => {
                         directory_path = `${directory_path}/`;
                         const ref = `${workspace_utilities.relative_path_to_ref(directory_path)}/`;
                         return {
-                            url: `/contentbrowser/workspaces/${workspace.get_name()}${ref}`,
+                            url: `/contentbrowser/workspaces/${workspace.get_file_uri()}${ref}`,
                             ref
                         };
                     });

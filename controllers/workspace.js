@@ -104,7 +104,7 @@ module.exports = function(server, context) {
                 } catch (output) {
                     try {
                         await workspace_factory.delete_workspace(workspace_file_uri);
-                    } catch (ignored_deletion_error) {}
+                    } catch (ignored_deletion_error) { /* do nothing */ }
                     handler.handleError(output.error ? output.error : errors.INTERNALERROR(output));
                 }
             } else {
@@ -113,69 +113,65 @@ module.exports = function(server, context) {
         }
     });
 
-    server.post('/assetmanager/workspaces/populate', function(req, res, next) {
+    server.post('/assetmanager/workspaces/populate', async (req, res, next) => {
         const handler = new Handler(req, res, next);
         const workspace_file_uri = req.body.file_uri;
         const description = req.body.description;
-        _workspace.find_by_file_uri(workspace_file_uri)
-            .then(() => handler.handleError(errors.ALREADYEXIST(workspace_file_uri)))
-            .catch(workspace => {
-                const is_not_valid = workspace.error && workspace.error.statusCode === 500 && workspace.error.message && workspace.error.message.includes('Status manager') && workspace.error.message.includes('schema');
-                const is_project_not_found = workspace.error && workspace.error.statusCode === 500 && workspace.error.message && workspace.error.message.includes('Project factory') && workspace.error.message.includes('ENOENT');
-                if (is_project_not_found || is_not_valid) {
-                    const repo_manager = _repo_manager.create({
-                        host_vcs: 'git',
-                        cwd: utilities.convert_file_uri_to_path(workspace_file_uri),
-                        credentials: context.credentials
-                    });
-
-                    repo_manager.get_project_id()
-                        .then(_project.get)
-                        .then(project => repo_manager.get_current_branch()
-                            .then(branch => workspace_factory.populate_workspace(project, branch, workspace_file_uri, description)))
-                        .then(() => {
-                            return _workspace.find_by_file_uri(workspace_file_uri)
-                                .then(workspace => workspace.check_overall_validation()
-                                    .then(() => handler.sendJSON(_workspace_metadata_presenter.present(workspace), 200, 'workspace')))
-                                .catch(output => {
-                                    handler.handleError(output.error ? output.error : errors.INTERNALERROR(output));
-                                });
-                        })
-                        .catch(error => {
-                            handler.handleError(error);
-                        });
-                } else {
-                    handler.handleError(errors.INTERNALERROR(workspace));
+        try {
+            await _workspace.find_by_file_uri(workspace_file_uri);
+            handler.handleError(errors.ALREADYEXIST(workspace_file_uri));
+        } catch (workspace) {
+            const is_not_valid = workspace.error && workspace.error.statusCode === 500 &&
+                workspace.error.message && workspace.error.message.includes('Status manager') && workspace.error.message.includes('schema');
+            const is_project_not_found = workspace.error && workspace.error.statusCode === 500 &&
+                workspace.error.message && workspace.error.message.includes('Project factory') && workspace.error.message.includes('ENOENT');
+            if (is_project_not_found || is_not_valid) {
+                const repo_manager = _repo_manager.create({
+                    host_vcs: 'git',
+                    cwd: utilities.convert_file_uri_to_path(workspace_file_uri),
+                    credentials: context.credentials
+                });
+                try {
+                    const id = await repo_manager.get_project_id();
+                    const project = await _project.get(id);
+                    const branch = await repo_manager.get_current_branch();
+                    await workspace_factory.populate_workspace(project, branch, workspace_file_uri, description);
+                    const workspace = await _workspace.find_by_file_uri(workspace_file_uri);
+                    await workspace.check_overall_validation();
+                    handler.sendJSON(_workspace_metadata_presenter.present(workspace), 200, 'workspace');
+                } catch (output) {
+                    handler.handleError(output.error ? output.error : errors.INTERNALERROR(output));
                 }
-            });
+            } else {
+                handler.handleError(errors.INTERNALERROR(workspace));
+            }
+        }
     });
 
-    server.post(workspace_reset_regexp, function(req, res, next) {
+    server.post(workspace_reset_regexp, async (req, res, next) => {
         const workspace_identifier = decodeURIComponent(req.params[0]);
         const handler = new Handler(req, res, next);
-        _workspace.find(workspace_identifier)
-            .then(workspace => workspace.reset())
-            .then(() => handler.sendJSON('Ok', 200))
-            .catch(workspace => handler.handleError(workspace.error || workspace));
+        try {
+            const workspace = await _workspace.find(workspace_identifier);
+            await workspace.reset();
+            handler.sendJSON('Ok', 200);
+        } catch (workspace) {
+            handler.handleError(workspace);
+        }
     });
 
-    server.del(workspaces_regexp, function(req, res, next) {
+    server.del(workspaces_regexp, async (req, res, next) => {
         const workspace_identifier = decodeURIComponent(req.params[0]);
         const handler = new Handler(req, res, next);
-        let workspace;
-        _workspace.find(workspace_identifier)
-            .then(ws => {
-                workspace = ws;
-                return workspace.database.close();
-            })
-            .then(() => workspace_factory
-                .delete_workspace(workspace.get_file_uri())
-                .then(() => favorite.remove(workspace.get_name()))
-            )
-            .then(() => {
-                workspace.remove_database_semaphore();
-                handler.sendJSON('Ok', 200);
-            })
-            .catch(output => handler.handleError(output.error));
+        try {
+            const workspace = await _workspace.find(workspace_identifier);
+            await workspace.database.close();
+            await workspace_factory.delete_workspace(workspace.get_file_uri());
+            await favorite.remove(workspace.get_file_uri());
+            workspace.remove_database_semaphore();
+            handler.sendJSON('Ok', 200);
+        } catch (output) {
+            handler.handleError(output.error);
+        }
     });
 };
