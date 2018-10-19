@@ -4,6 +4,8 @@
 
 'use strict';
 
+const should = require('should');
+
 const status_config = require('../../assetmanager/status.config.json');
 const fixture = require('../util/fixture')('integration_status');
 const workspace = require('../util/workspace')('eloise', fixture);
@@ -37,8 +39,8 @@ describe('Run Status related functional tests for the API', function() {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    res.body.integrity_status.should.equal(status_config.integrity.VALID);
-                    res.body.sync_status.should.equal(status_config.sync.UP_TO_DATE);
+                    should.equal(res.body.integrity_status, status_config.integrity.VALID);
+                    should.equal(res.body.sync_status, status_config.sync.UP_TO_DATE);
                     done();
                 });
         });

@@ -14,28 +14,17 @@ It deals with notion of workspace and assets. See following docs for more inform
 const Handler = require('../lib/handler');
 const _path = require('path').posix;
 
-const projects_regexp = /^\/contentbrowser\/projects\/([^/]*)?(?:\/)?([^/]*)?/;
-const projects_assets_regexp = /^\/contentbrowser\/projects\/([^/]*)\/([^/]*)(?:\/)?(.*)?\/(assets\/.*)/;
-const projects_resources_regexp = /^\/contentbrowser\/projects\/([^/]*)\/([^/]*)(?:\/)?(.*)?\/(resources\/.*)/;
-
-const sanitize = function(query_argument) {
-    if (query_argument === undefined) {
-        query_argument = '';
-    }
-    return query_argument;
-};
-
 module.exports = function(server, context) {
     const Project = require('../assetmanager/project_manager')(context);
-    
+
     // /contentbrowser/projects/{project_full_name}/{branch_name}/{asset_ref}?{filter}{paging}
-    server.get(projects_assets_regexp, function(req, res, next) {
-        let handler = new Handler(req, res, next);
-        let organization = sanitize(req.params[0]);
-        let name = sanitize(req.params[1]);
-        let branch_name = sanitize(req.params[2]);
-        let asset_ref = sanitize(req.params[3]);
-        let options = {
+    server.get(/^\/contentbrowser\/projects\/([^/]*)\/([^/]*)(?:\/)?(.*)?\/(assets\/.*)/, function(req, res, next) {
+        const handler = new Handler(req, res, next);
+        const organization = req.params.organization;
+        const name = req.params.repository;
+        const branch_name = req.params.branch;
+        const asset_ref = req.params.ref;
+        const options = {
             filterName: req.query.uri,
             maxResults: parseInt(req.query.maxResults, 10),
             start: parseInt(req.query.start, 10)
@@ -49,25 +38,23 @@ module.exports = function(server, context) {
     });
 
     // /contentbrowser/projects/{project_full_name}/{branch_name}/{resource_ref}?{filter}{paging}
-    server.get(projects_resources_regexp, function(req, res, next) {
+    server.get(/^\/contentbrowser\/projects\/([^/]*)\/([^/]*)(?:\/)?(.*)?\/(resources\/.*)/, function(req, res, next) {
         res.status(501);
         res.end();
         next();
     });
 
     // /contentbrowser/projects/{project_full_name}?{filter}{paging}
-    server.get(projects_regexp, function(req, res, next) {
-        let handler = new Handler(req, res, next);
-        let org = sanitize(req.params[0]);
-        let project_name = sanitize(req.params[1]);
-        let options = {
+    server.get(/^\/contentbrowser\/projects\/([^/]*)?(?:\/)?([^/]*)?/, function(req, res, next) {
+        const handler = new Handler(req, res, next);
+        const project_full_name = req.params.project_full_name;
+        const options = {
             filterName: req.query.name,
             maxResults: parseInt(req.query.maxResults, 10),
             start: parseInt(req.query.start, 10)
         };
 
-        var identifier = _path.join(org+'/', project_name);
-        Project.get(identifier, options)
+        Project.get(project_full_name, options)
             .then(project => {
                 handler.sendJSON(project, 200);
             })
