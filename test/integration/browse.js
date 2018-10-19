@@ -159,7 +159,7 @@ describe('Run Content Browser related test for content browser api', function ()
 
         before("Add bob workspace", function(done) {
 
-            client.post('/assetmanager/workspaces/favorites')
+            client.post('/assetmanager/favorites')
                 .send({ file_uri: workspaces.bob.get_file_uri(), name: workspaces.bob.get_name() })
                 .set("Content-Type", 'application/json')
                 .set("Accept", 'application/json')
