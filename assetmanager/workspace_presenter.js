@@ -8,7 +8,6 @@ module.exports = {
     Workspace_metadata_presenter: {
         present: ({ properties }) => ({
             name: properties.name,
-            guid: properties.guid,
             description: properties.description,
             type: properties.type
         })
