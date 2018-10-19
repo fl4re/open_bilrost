@@ -14,12 +14,6 @@ const utilities = require('../assetmanager/utilities');
 const _workspace_metadata_presenter = require('../assetmanager/workspace_presenter').Workspace_metadata_presenter;
 const Workspace_presenter = require("../assetmanager/workspace_presenter").Workspace_presenter;
 
-const list_workspaces_regexp = /^\/contentbrowser\/workspaces(\/)?$/;
-const get_workspaces_regexp = /^\/contentbrowser\/workspaces\/([^/]*)$/;
-
-const workspaces_regexp = /^\/assetmanager\/workspaces\/([^/]*)$/;
-const workspace_reset_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/reset$/;
-
 const errors = require('../lib/errors')('asset manager');
 
 // Utility for slicing a list of files
@@ -38,48 +32,49 @@ module.exports = function(server, context) {
     const _project = require('../assetmanager/project_manager')(context);
     const _workspace = require('../assetmanager/workspace')(context);
 
-    server.get(list_workspaces_regexp, function(req, res, next) {
+    server.get(/^\/contentbrowser\/workspaces(\/)?$/, async (req, res, next) => {
         const handler = new Handler(req, res, next);
         const options = {
             filterName: req.query.name,
             maxResults: parseInt(req.query.maxResults, 10) || 100,
             start: parseInt(req.query.start, 10) || 0
         };
-        _workspace
-            .list(options)
-            .then(workspaces => {
-                const length = workspaces.length;
-                workspaces = slice(workspaces, options.start, options.maxResults);
-                const output = {
-                    kind: 'workspace-list',
-                    items: workspaces.map(workspace => Workspace_presenter.present(workspace))
-                };
-                if (options.start + workspaces.length < length) {
-                    const indexOfMoreResults = options.start + options.maxResults;
-                    output.nextLink = get_next_url(req.url, indexOfMoreResults);
-                }
-                output.totalItems = length;
-                handler.sendJSON(output, 200);
-            })
-            .catch(err => handler.handleError(err));
+        try {
+            let workspaces = await _workspace.list(options);
+            const length = workspaces.length;
+            workspaces = slice(workspaces, options.start, options.maxResults);
+            const output = {
+                kind: 'workspace-list',
+                items: workspaces.map(workspace => Workspace_presenter.present(workspace))
+            };
+            if (options.start + workspaces.length < length) {
+                const indexOfMoreResults = options.start + options.maxResults;
+                output.nextLink = get_next_url(req.url, indexOfMoreResults);
+            }
+            output.totalItems = length;
+            handler.sendJSON(output, 200);
+        } catch (err) {
+            handler.handleError(err);
+        }
     });
-
-    server.get(get_workspaces_regexp, function(req, res, next) {
-        let handler = new Handler(req, res, next);
-        let workspace_identifier = decodeURIComponent(req.params[0]);
+    server.get('/contentbrowser/workspaces/:identifier', async (req, res, next) => {
+        const handler = new Handler(req, res, next);
+        const workspace_identifier = req.params.identifier;
         if (!workspace_identifier) {
             return handler.handleError(new Error("Missing workspace id"));
         }
 
-        _workspace.find(workspace_identifier)
-            .then(workspace => {
-                const output = {
-                    kind: 'workspace-list',
-                    items: [Workspace_presenter.present(workspace)]
-                };
-                output.totalItems = output.items.length;
-                handler.sendJSON(output, 200);
-            }).catch(err => handler.handleError(err));
+        try {
+            const workspace = await _workspace.find(workspace_identifier);
+            const output = {
+                kind: 'workspace-list',
+                items: [Workspace_presenter.present(workspace)]
+            };
+            output.totalItems = output.items.length;
+            handler.sendJSON(output, 200);
+        } catch (err) {
+            handler.handleError(err);
+        }
     });
 
     server.post('/assetmanager/workspaces', async (req, res, next) => {
@@ -148,9 +143,10 @@ module.exports = function(server, context) {
         }
     });
 
-    server.post(workspace_reset_regexp, async (req, res, next) => {
-        const workspace_identifier = decodeURIComponent(req.params[0]);
+    server.post('/assetmanager/workspaces/:identifier/reset', async (req, res, next) => {
         const handler = new Handler(req, res, next);
+        const workspace_identifier = req.params.identifier;
+
         try {
             const workspace = await _workspace.find(workspace_identifier);
             await workspace.reset();
@@ -160,9 +156,10 @@ module.exports = function(server, context) {
         }
     });
 
-    server.del(workspaces_regexp, async (req, res, next) => {
-        const workspace_identifier = decodeURIComponent(req.params[0]);
+    server.del('/assetmanager/workspaces/:identifier', async (req, res, next) => {
         const handler = new Handler(req, res, next);
+        const workspace_identifier = req.params.identifier;
+
         try {
             const workspace = await _workspace.find(workspace_identifier);
             await workspace.database.close();

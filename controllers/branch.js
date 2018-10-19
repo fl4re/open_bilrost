@@ -6,27 +6,23 @@
 
 const Handler = require('../lib/handler');
 
-const current_branch_regexp = /^\/contentbrowser\/workspaces\/(.*)\/branch$/;
-
-const create_branch_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/branch\/(.*)$/;
-const delete_branch_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/branch\/(.*)$/;
-const change_branch_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/branch\/(.*)\/change$/;
-const branches_regexp = /^\/contentbrowser\/workspaces\/(.*)\/branches$/;
-
 module.exports = function(server, context) {
     const _workspace = require('../assetmanager/workspace')(context);
 
-    server.get(current_branch_regexp, (req, res, next) => {
+    server.get('/contentbrowser/workspaces/:identifier/branch', async (req, res, next) => {
         const handler = new Handler(req, res, next);
-        const workspace_identifier = decodeURIComponent(req.params[0]);
-        _workspace.find(workspace_identifier)
-            .then(workspace => handler.sendJSON(workspace.get_branch(), 200))
-            .catch(err => handler.handleError(err));
+        const workspace_identifier = req.params.identifier;
+        try {
+            const workspace = await _workspace.find(workspace_identifier);
+            handler.sendJSON(workspace.get_branch(), 200);
+        } catch (err) {
+            handler.handleError(err);
+        }
     });
 
-    server.get(branches_regexp, function(req, res, next) {
+    server.get('/contentbrowser/workspaces/:identifier/branches', function(req, res, next) {
         const handler = new Handler(req, res, next);
-        const workspace_identifier = decodeURIComponent(req.params[0]);
+        const workspace_identifier = req.params.identifier;
         _workspace.find(workspace_identifier)
             .then(workspace => workspace.branch.get_names())
             .then(branches => {
@@ -42,10 +38,10 @@ module.exports = function(server, context) {
             .catch(err => handler.handleError(err));
     });
 
-    server.post(change_branch_regexp, async (req, res, next) => {
+    server.post('/assetmanager/workspaces/:identifier/branch/:name/change', async (req, res, next) => {
         const handler = new Handler(req, res, next);
-        const workspace_identifier = decodeURIComponent(req.params[0]);
-        const branch_name = decodeURIComponent(req.params[1]);
+        const workspace_identifier = req.params.identifier;
+        const branch_name = req.params.name;
         try {
             const workspace = await _workspace.find(workspace_identifier);
             await workspace.branch.change(branch_name);
@@ -55,10 +51,10 @@ module.exports = function(server, context) {
         }
     });
 
-    server.put(create_branch_regexp, async (req, res, next) => {
+    server.put('/assetmanager/workspaces/:identifier/branch/:name', async (req, res, next) => {
         const handler = new Handler(req, res, next);
-        const workspace_identifier = decodeURIComponent(req.params[0]);
-        const branch_name = decodeURIComponent(req.params[1]);
+        const workspace_identifier = req.params.identifier;
+        const branch_name = req.params.name;
         try {
             const workspace = await _workspace.find(workspace_identifier);
             await workspace.branch.create(branch_name);
@@ -68,10 +64,10 @@ module.exports = function(server, context) {
         }
     });
 
-    server.del(delete_branch_regexp, async (req, res, next) => {
+    server.del('/assetmanager/workspaces/:identifier/branch/:name', async (req, res, next) => {
         const handler = new Handler(req, res, next);
-        const workspace_identifier = decodeURIComponent(req.params[0]);
-        const branch_name = decodeURIComponent(req.params[1]);
+        const workspace_identifier = req.params.identifier;
+        const branch_name = req.params.name;
         try {
             const workspace = await _workspace.find(workspace_identifier);
             await workspace.branch.del(branch_name);

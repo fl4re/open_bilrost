@@ -6,13 +6,10 @@
 
 const Handler = require('../lib/handler');
 
-const commits_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/commits$/;
-const ref_commits_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/commits(\/(?:assets|resources)\/.*)?$/;
-
 module.exports = function(server, context) {
     const _workspace = require('../assetmanager/workspace')(context);
 
-    server.get(ref_commits_regexp, async (req, res, next) => {
+    server.get(/^\/assetmanager\/workspaces\/([^/]*)\/commits(\/(?:assets|resources)\/.*)?$/, async (req, res, next) => {
         const workspace_identifier = decodeURIComponent(req.params[0]);
         const ref = req.params[1] ? decodeURIComponent(req.params[1]) : undefined;
         const maxResults = req.query.maxResults ? parseInt(req.query.maxResults, 10) : 10;
@@ -33,8 +30,8 @@ module.exports = function(server, context) {
         }
     });
 
-    server.post(commits_regexp, async (req, res, next) => {
-        const workspace_identifier = decodeURIComponent(req.params[0]);
+    server.post('/assetmanager/workspaces/:identifier/commits', async (req, res, next) => {
+        const workspace_identifier = req.params.identifier;
         const message = req.body.message;
 
         const handler = new Handler(req, res, next);
