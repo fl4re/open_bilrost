@@ -107,28 +107,22 @@ module.exports = function(server, context) {
         const workspace_identifier = sanitize(req.params[0]);
         const asset_ref = sanitize(req.params[1]);
         const modified = sanitize(req.headers['last-modified']);
-        const is_body_a_json_to_parse = typeof req.body === 'string' || req.body instanceof Buffer;
-        let asset_representation;
-        try {
-            asset_representation = is_body_a_json_to_parse ? JSON.parse(req.body) : req.body;
-        } catch (err) {
-            return handler.handleError(errors.CORRUPT(err));
-        }
+        const asset_representation = req.body;
         const workspace = await _workspace.find(workspace_identifier);
         try {
             await workspace.check_overall_validation();
             const asset = await workspace.asset.create(asset_ref, asset_representation);
-            return handler.sendJSON(asset, 201);
+            handler.sendJSON(asset, 201);
         } catch (error) {
             if (error && error.statusCode === 403) {
                 try {
                     const asset = await workspace.asset.replace(asset_ref, asset_representation, modified);
-                    return handler.sendJSON(asset, 200);
+                    handler.sendJSON(asset, 200);
                 } catch (error) {
-                    return handler.handleError(error);
+                    handler.handleError(error);
                 }
             } else {
-                return handler.handleError(error);
+                handler.handleError(error);
             }
         }
     });
@@ -138,12 +132,7 @@ module.exports = function(server, context) {
         const workspace_identifier = sanitize(req.params[0]);
         const asset_ref = sanitize(req.params[1]);
         const modified = sanitize(req.headers['last-modified']);
-        var new_asset_ref;
-        try {
-            new_asset_ref = JSON.parse(req.body).new;
-        } catch (err) {
-            return handler.handleError(errors.CORRUPT(err));
-        }
+        const new_asset_ref = req.body.new;
         let workspace;
         try {
             workspace = await _workspace.find(workspace_identifier);
