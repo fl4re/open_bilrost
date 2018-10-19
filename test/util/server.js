@@ -40,6 +40,8 @@ module.exports = fixture => {
             });
             server.use(restify.queryParser());
             server.use(restify.bodyParser());
+            server.use(restify.dateParser());
+
             const client = supertest(server);
 
             // Context

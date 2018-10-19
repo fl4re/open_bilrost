@@ -80,7 +80,7 @@ describe('Integration tests --DO_NOT_RUN', function() {
             should.not.exist(error);
             // eslint-disable-next-line no-console
             console.log(stderr);
-            should.equal(stdout.match(/success/gi).length, 14);
+            should.equal(stdout.match(/success/gi).length, 15);
             git.read('/resources/alice_resource.txt', { rev: 'HEAD' })
                 .then(() => done('Alice resource still exist!'))
                 .catch(err => {

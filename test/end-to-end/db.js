@@ -33,7 +33,6 @@ describe('Check database behaviors', function() {
                 });
                 client
                     .get(`/contentbrowser/workspaces/${workspace.get_encoded_file_uri()}/assets/`)
-                    .set("Content-Type", "application/json")
                     .set("Accept", 'application/json')
                     .expect("Content-Type", "application/json")
                     .expect(200)
@@ -64,7 +63,6 @@ describe('Check database behaviors', function() {
         it('List persisted asset', function (done) {
             client
                 .get(`/contentbrowser/workspaces/${workspace.get_encoded_file_uri()}/assets/`)
-                .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect("Content-Type", "application/json")
                 .expect(200)
