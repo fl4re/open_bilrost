@@ -19,6 +19,7 @@ module.exports = (guid, worskpace_path, host_vcs, ifs_map, branch, adapter) => {
     this.utilities = workspace_utilities(this.get_internal_file_path);
     this.adapter = adapter ? adapter : mock_ifs_adapter(worskpace_path, ifs_map);
     this.get_adapter = () => this.adapter;
+    this.get_encoded_file_uri = () => worskpace_path;
     this.project = {
         get_host_vcs: () => host_vcs
     };

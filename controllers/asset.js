@@ -56,7 +56,7 @@ module.exports = function(server, context) {
                         let output = asset.output;
                         if (output.items) {
                             output.items = output.items.map(ass => {
-                                ass.url = _path.join("/contentbrowser/workspaces/", workspace.get_guid(), ass.meta.ref);
+                                ass.url = _path.join("/contentbrowser/workspaces/", workspace.get_encoded_file_uri(), ass.meta.ref);
                                 return ass;
                             });
                         }

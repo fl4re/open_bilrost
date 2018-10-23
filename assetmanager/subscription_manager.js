@@ -29,7 +29,7 @@ class Subscription_manager {
     }
 
     get_subscriptions () {
-        let subscriptions = this.subscriptions.map(subscription => Subscription_presenter.present(subscription, this.workspace.properties));
+        let subscriptions = this.subscriptions.map(subscription => Subscription_presenter.present(subscription, this.workspace.get_encoded_file_uri()));
         return subscriptions;
     }
 
@@ -74,7 +74,7 @@ class Subscription_manager {
                         .then(() => subscription.pull_dependencies())
                         .then(() => subscription.validate_dependencies())
                         .then(() => this.subscriptions.push(subscription))
-                        .then(() => Subscription_presenter.present(subscription, this.workspace.properties))
+                        .then(() => Subscription_presenter.present(subscription, this.workspace.get_encoded_file_uri()))
                         .catch(err => {
                             throw _error_outputs.INTERNALERROR(err);
                         });

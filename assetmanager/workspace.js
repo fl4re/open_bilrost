@@ -55,6 +55,7 @@ const Workspace = function(file_uri, context) {
     }
 
     this.get_file_uri = () => file_uri;
+    this.get_encoded_file_uri = () => encodeURIComponent(file_uri);
     this.get_base_absolute_path = () => utilities.convert_file_uri_to_path(this.get_file_uri());
     this.get_name = () => this.properties.name;
     this.get_guid = () => this.properties.guid;
@@ -133,8 +134,8 @@ const Workspace = function(file_uri, context) {
             }
 
             // add other metadata to the resource
-            this.properties.resources_url = `/contentbrowser/workspaces/${this.get_name()}/resources/`;
-            this.properties.assets_url = `/contentbrowser/workspaces/${this.get_name()}/assets/`;
+            this.properties.resources_url = `/contentbrowser/workspaces/${this.get_encoded_file_uri()}/resources/`;
+            this.properties.assets_url = `/contentbrowser/workspaces/${this.get_encoded_file_uri()}/assets/`;
         }, err => {
             this.error = _error_outputs.NOTFOUND(err);
             throw this;
