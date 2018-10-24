@@ -7,19 +7,16 @@
 module.exports = {
     Workspace_metadata_presenter: {
         present: ({ properties }) => ({
-            name: properties.name,
             description: properties.description,
-            type: properties.type
         })
     },
     Workspace_presenter: {
-        present: ({ properties, project }) => ({
+        present: ({ properties, project, get_file_uri }) => ({
             project: {
                 full_name: project.get_full_name(),
                 host: project.get_host_vcs()
             },
-            guid: properties.guid,
-            name: properties.name,
+            file_uri: get_file_uri(),
             description: properties.description,
             version: properties.version,
             pushed_at: properties.pushed_at,

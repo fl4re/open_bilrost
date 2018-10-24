@@ -238,7 +238,7 @@ describe('Run Content Browser related test for content browser api', function ()
                     }
                     obj.items.length.should.be.equal(1);
                     obj.totalItems.should.be.equal(1);
-                    obj.items[0].name.should.be.equal(workspaces.luke.get_name());
+                    obj.items[0].file_uri.should.be.equal(workspaces.luke.get_file_uri());
                     done();
                 });
 
@@ -426,45 +426,6 @@ describe('Run Content Browser related test for content browser api', function ()
                 });
         });
 
-    });
-
-    describe('-- [GET] /contentbrowser/workspaces/{id}', function() {
-
-        it('retrieves eloise by name', (done) => {
-            client
-                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}`)
-                .set("Content-Type", "application/json")
-                .set("Accept", 'application/json')
-                .expect("Content-Type", "application/json")
-                .expect(200)
-                .end((err, res) => {
-                    const obj = res.body;
-                    if (err) {
-                        return done({ error: err.toString(), status: res.status, body: obj });
-                    }
-                    obj.items.should.have.lengthOf(1);
-                    obj.items.should.containDeep([workspaces.bob.get_workspace_resource()]);
-                    done();
-                });
-        });
-
-        it('retrieves eloise by file uri', (done) => {
-            client
-                .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}`)
-                .set("Content-Type", "application/json")
-                .set("Accept", 'application/json')
-                .expect("Content-Type", "application/json")
-                .expect(200)
-                .end((err, res) => {
-                    const obj = res.body;
-                    if (err) {
-                        return done({ error: err.toString(), status: res.status, body: obj });
-                    }
-                    obj.items.should.have.lengthOf(1);
-                    obj.items.should.containDeep([workspaces.bob.get_workspace_resource()]);
-                    done();
-                });
-        });
     });
 
     describe('-- [GET] /contentbrowser/workspaces/{workspace_name}/assets/', function() {

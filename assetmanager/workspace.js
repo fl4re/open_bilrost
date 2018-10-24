@@ -131,10 +131,6 @@ const Workspace = function(file_uri, context) {
             if (!this.properties.stage) {
                 this.properties.stage = [];
             }
-
-            // add other metadata to the resource
-            this.properties.resources_url = `/contentbrowser/workspaces/${this.get_name()}/resources/`;
-            this.properties.assets_url = `/contentbrowser/workspaces/${this.get_name()}/assets/`;
         }, err => {
             this.error = _error_outputs.NOTFOUND(err);
             throw this;
