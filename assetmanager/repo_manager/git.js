@@ -55,7 +55,7 @@ class Repo_manager_git extends Repo_manager {
         this.validate_vcs_pattern = 'true';
         this.repo_folder = ".git";
         this.current_branch_name = "git rev-parse --abbrev-ref HEAD";
-        this.pull_command = "git pull";
+        this.pull_command = branch => `git pull origin ${branch}`;
         this.new_branch_command = name => "git checkout -q -b " + name;
         this.change_branch_command = name => "git checkout -q " + name;
         this.delete_branch_command = name => "git branch -D " + name;
@@ -357,10 +357,11 @@ class Repo_manager_git extends Repo_manager {
         });
     }
 
-    _pull () {
+    _pull (branch) {
         return new Promise((resolve, reject) => {
-            this.exec(this.pull_command, { cwd: this.cwd, maxBuffer: max_buffer }, (error, stdout, stderr) => {
-                if (error || stderr) {
+            this.exec(this.pull_command(branch), { cwd: this.cwd, maxBuffer: max_buffer }, (error, stdout, stderr) => {
+                const is_error_output = stderr && !stdout.includes('Already up');
+                if (error || is_error_output) {
                     reject(errors.INTERNALERROR(error || stderr));
                 } else {
                     resolve();
@@ -394,16 +395,12 @@ class Repo_manager_git extends Repo_manager {
             });
         });
         return this._fetch_all()
-            .then(() => this._pull(), err => {
-                // eslint-disable-next-line no-console
-                console.warn(err);
-                return this._pull();
-            })
             .then(change, err => {
                 // eslint-disable-next-line no-console
                 console.warn(err);
                 return change();
-            });
+            })
+            .then(() => this._pull(branch_name));
     }
 
     delete_branch (branch_name) {
