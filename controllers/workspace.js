@@ -6,7 +6,7 @@
 
 const _url = require('url');
 
-const Handler = require('../lib/handler');
+const create_handler = require('../lib/handler');
 
 const workspace_factory = require('../assetmanager/workspace_factory');
 const _repo_manager = require('../assetmanager/repo_manager');
@@ -33,7 +33,7 @@ module.exports = function(server, context) {
     const _workspace = require('../assetmanager/workspace')(context);
 
     server.get(/^\/contentbrowser\/workspaces(\/)?$/, async (req, res, next) => {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         const options = {
             filterName: req.query.name,
             maxResults: parseInt(req.query.maxResults, 10) || 100,
@@ -58,7 +58,7 @@ module.exports = function(server, context) {
         }
     });
     server.get('/contentbrowser/workspaces/:identifier', async (req, res, next) => {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         const workspace_identifier = req.params.identifier;
         if (!workspace_identifier) {
             return handler.handleError(new Error("Missing workspace id"));
@@ -78,7 +78,7 @@ module.exports = function(server, context) {
     });
 
     server.post('/assetmanager/workspaces', async (req, res, next) => {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         const workspace_file_uri = req.body.file_uri;
         const description = req.body.description;
         const organization = req.body.organization;
@@ -109,7 +109,7 @@ module.exports = function(server, context) {
     });
 
     server.post('/assetmanager/workspaces/populate', async (req, res, next) => {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         const workspace_file_uri = req.body.file_uri;
         const description = req.body.description;
         try {
@@ -144,20 +144,20 @@ module.exports = function(server, context) {
     });
 
     server.post('/assetmanager/workspaces/:identifier/reset', async (req, res, next) => {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         const workspace_identifier = req.params.identifier;
 
         try {
             const workspace = await _workspace.find(workspace_identifier);
             await workspace.reset();
-            handler.sendJSON('Ok', 200);
+            handler.sendText('Ok', 200);
         } catch (workspace) {
             handler.handleError(workspace);
         }
     });
 
     server.del('/assetmanager/workspaces/:identifier', async (req, res, next) => {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         const workspace_identifier = req.params.identifier;
 
         try {
@@ -166,7 +166,7 @@ module.exports = function(server, context) {
             await workspace_factory.delete_workspace(workspace.get_file_uri());
             await favorite.remove(workspace.get_file_uri());
             workspace.remove_database_semaphore();
-            handler.sendJSON('Ok', 200);
+            handler.sendText('Ok', 200);
         } catch (output) {
             handler.handleError(output.error);
         }

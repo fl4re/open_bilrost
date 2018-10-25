@@ -8,4 +8,6 @@ module.exports = (server, context) => {
     require('./workspace')(server, context);
     require('./project')(server, context);
     require('./favorite')(server, context);
+    require('./config')(server, context.config);
+    require('./authentication')(server, context.bilrost_client);
 };

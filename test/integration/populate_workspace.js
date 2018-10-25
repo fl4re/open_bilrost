@@ -56,7 +56,6 @@ describe('Run Workspace related functional tests for the API', function() {
                     description: workspace.get_project_resource().description.comment
                 })
                 .set('Content-Type', 'application/json')
-                .set('Accept', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
@@ -73,7 +72,6 @@ describe('Run Workspace related functional tests for the API', function() {
             client
                 .delete(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}`)
                 .send()
-                .set("Accept", 'application/json')
                 .set("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {

@@ -4,7 +4,7 @@
 
 'use strict';
 
-const Handler = require('../lib/handler');
+const create_handler = require('../lib/handler');
 
 const sanitize = function(query_argument) {
     if (query_argument === undefined) {
@@ -17,7 +17,7 @@ module.exports = function(server, context) {
     const _workspace = require('../assetmanager/workspace')(context);
 
     server.get('/assetmanager/workspaces/:identifier/status', async (req, res, next) => {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         const workspace_identifier = req.params.identifier;
 
         try {
@@ -31,7 +31,7 @@ module.exports = function(server, context) {
     });
 
     server.get('/assetmanager/workspaces/:identifier/statuses', async (req, res, next) => {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         const workspace_identifier = req.params.identifier;
 
         try {
@@ -44,7 +44,7 @@ module.exports = function(server, context) {
     });
 
     server.get(/^\/assetmanager\/workspaces\/([^/]*)\/status(\/(?:assets|resources)\/.*)/, async (req, res, next) => {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         const workspace_identifier = sanitize(req.params[0]);
         const ref = sanitize(req.params[1]);
 

@@ -61,7 +61,6 @@ describe('Run Workspace related functional tests for the API', function() {
                 .post('/assetmanager/favorites')
                 .send({ file_uri: workspaces.alice.get_file_uri(), name: workspaces.alice.get_name() })
                 .set("Content-Type", "application/json")
-                .set("Accept", 'application/json')
                 .expect(200)
                 .end(async (err, res) => {
                     if (err) {
@@ -79,7 +78,6 @@ describe('Run Workspace related functional tests for the API', function() {
                 .post('/assetmanager/favorites')
                 .send({ file_uri: workspaces.bob.get_file_uri(), name: workspaces.bob.get_name() })
                 .set("Content-Type", "application/json")
-                .set("Accept", 'application/json')
                 .expect(200)
                 .end(async (err, res) => {
                     if (err) {
@@ -97,7 +95,6 @@ describe('Run Workspace related functional tests for the API', function() {
                 .post('/assetmanager/favorites')
                 .send({ file_uri: workspaces.alice.get_file_uri() })
                 .set("Content-Type", "application/json")
-                .set("Accept", 'application/json')
                 .expect(403)
                 .end(async (err, res) => {
                     if (err) {
@@ -116,7 +113,6 @@ describe('Run Workspace related functional tests for the API', function() {
                 .post('/assetmanager/favorites')
                 .send({ file_uri: workspaces.luke.get_file_uri() })
                 .set("Content-Type", "application/json")
-                .set("Accept", 'application/json')
                 .expect(500)
                 .end((err, res) => {
                     if (err) {
@@ -134,7 +130,6 @@ describe('Run Workspace related functional tests for the API', function() {
 
             client
                 .delete(`/assetmanager/favorites/${workspaces.alice.get_name()}`)
-                .set("Accept", 'application/json')
                 .expect(200)
                 .end(async (err, res) => {
                     if (err) {
@@ -149,7 +144,6 @@ describe('Run Workspace related functional tests for the API', function() {
         it('Remove all favorite workspaces', function(done){
             client
                 .post(`/assetmanager/favorites/reset`)
-                .set("Accept", 'application/json')
                 .expect(200)
                 .end(async (err, res) => {
                     if (err) {
@@ -164,7 +158,6 @@ describe('Run Workspace related functional tests for the API', function() {
         it('Check workspace removal is idempotent', function(done){
             client
                 .delete(`/assetmanager/favorites/${workspaces.bob.get_name()}`)
-                .set("Accept", 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
@@ -182,7 +175,6 @@ describe('Run Workspace related functional tests for the API', function() {
             client
                 .delete(`/assetmanager/workspaces/${encodeURIComponent(workspaces.carol.get_file_uri())}`)
                 .send()
-                .set("Accept", 'application/json')
                 .set("Content-Type", "application/json")
                 .expect(200)
                 .end(async (err, res) => {
@@ -210,7 +202,6 @@ describe('Run Workspace related functional tests for the API', function() {
                     branch: 'good_repo',
                 })
                 .set("Content-Type", "application/json")
-                .set("Accept", 'application/json')
                 .expect(200)
                 .end(async (err, res) => {
                     if (err) {
@@ -229,7 +220,6 @@ describe('Run Workspace related functional tests for the API', function() {
                 .post(`/assetmanager/workspaces/${encodeURIComponent(workspaces.carol.get_file_uri())}/reset`)
                 .send()
                 .set("Content-Type", "application/json")
-                .set("Accept", 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
@@ -245,7 +235,6 @@ describe('Run Workspace related functional tests for the API', function() {
             client
                 .delete(`/assetmanager/favorites/${workspaces.carol.get_encoded_file_uri()}`)
                 .send()
-                .set("Accept", 'application/json')
                 .set("Content-Type", "application/json")
                 .expect(200)
                 .end(async (err, res) => {
@@ -272,7 +261,6 @@ describe('Run Workspace related functional tests for the API', function() {
                     branch: 'good_repo',
                 })
                 .set("Content-Type", "application/json")
-                .set("Accept", 'application/json')
                 .expect(403)
                 .end((err, res) => {
                     if (err) {

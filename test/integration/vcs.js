@@ -40,7 +40,6 @@ describe('Run Version Control related functional tests for the API', function() 
 
             client
                 .get(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/commits?maxResults=3`)
-                .set('Accept', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
@@ -60,7 +59,6 @@ describe('Run Version Control related functional tests for the API', function() 
 
             client
                 .get(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/commits/assets/test_1_1_0.level`)
-                .set('Accept', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
@@ -79,7 +77,6 @@ describe('Run Version Control related functional tests for the API', function() 
 
             client
                 .get(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/commits?start_at_revision=HEAD&maxResults=2`)
-                .set('Accept', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
@@ -99,7 +96,6 @@ describe('Run Version Control related functional tests for the API', function() 
             client
                 .delete(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}`)
                 .send({ hard_delete: true })
-                .set('Accept', 'application/json')
                 .set("Content-Type", "application/json")
                 .end(async (err, res) => {
                     if (err) {
