@@ -70,7 +70,7 @@ describe('Run Asset related functional tests for the API', function () {
             client
                 .put(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}${asset_ref}`)
                 .send(asset)
-                .set("Content-Type", "application/vnd.bilrost.level+json")
+                .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .expect(201)
                 .end((err, res) => {

@@ -377,7 +377,7 @@ describe('Run Asset related functional tests for the API', function() {
             client
                 .post(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/rename${test_level_asset.meta.ref}`)
                 .send({ new: new_asset_ref })
-                .set("Content-Type", "application/vnd.bilrost.asset+json")
+                .set("Content-Type", "application/json")
                 .set("Accept", "application/json")
                 .set("Last-Modified", workspace.read_asset(asset_ref).meta.modified)
                 .expect(200)
@@ -414,8 +414,8 @@ describe('Run Asset related functional tests for the API', function() {
             client
                 .post(path.join('/assetmanager/workspaces/', workspace.get_encoded_file_uri(), 'rename', '/assets/unvalid'))
                 .send({ new: new_asset_ref})
-                .set("Content-Type", "application/vnd.bilrost.asset+json")
-                .set("Accept", 'application/json')
+                .set("Content-Type", "application/json")
+                .set("Accept", "application/json")
                 .set("Last-Modified", workspace.format_asset().meta.modified)
                 .expect(404)
                 .end((err, res) => {
@@ -432,7 +432,7 @@ describe('Run Asset related functional tests for the API', function() {
             client
                 .post(path.join('/assetmanager/workspaces/', workspace.get_encoded_file_uri(), 'rename', new_asset_ref))
                 .send({ new: new_asset_ref})
-                .set("Content-Type", "application/vnd.bilrost.asset+json")
+                .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
                 .set("Last-Modified", "2016-03-18T10:54:05.860Z")
                 .expect(412)
@@ -452,7 +452,7 @@ describe('Run Asset related functional tests for the API', function() {
                 .send({ new: '/invalid' })
                 .set("Content-Type", "application/json")
                 .set("Accept", 'application/json')
-                .set("Last-Modified", workspace.format_asset().meta.modified)
+                .set("Last-Modified", workspace.read_asset(test_003.meta.ref).meta.modified)
                 .expect(400)
                 .end((err, res) => {
                     if (err) {
@@ -468,10 +468,10 @@ describe('Run Asset related functional tests for the API', function() {
             client
                 .post(path.join('/assetmanager/workspaces/', workspace.get_encoded_file_uri(), 'rename', test_003.meta.ref))
                 .send({ new: '/invalid' })
-                .set("Content-Type", "application/json")
+                .set("Content-Type", "application/invalid/json")
                 .set("Accept", 'application/json')
-                .set("Last-Modified", workspace.format_asset().meta.modified)
-                .expect(400)
+                .set("Last-Modified", workspace.read_asset(test_003.meta.ref).meta.modified)
+                .expect(500)
                 .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
@@ -499,7 +499,7 @@ describe('Run Asset related functional tests for the API', function() {
                 .put(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}${test_level_asset.meta.ref}`)
                 .send(asset)
                 .set("Content-Type", "application/json")
-                .set("Accept", 'application/json')
+                .set("accept", 'application/json')
                 .set("Last-Modified", workspace.get_last_modified(test_level_asset.meta.ref))
                 .expect(200)
                 .end((err, res) => {

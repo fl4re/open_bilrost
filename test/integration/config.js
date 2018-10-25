@@ -36,7 +36,7 @@ describe('Authentication', function() {
     before('create server', function(done) {
         server = restify.createServer({});
         server.use(restify.queryParser());
-        server.use(restify.bodyParser()); // POST mapped in req.params, req.body
+        server.use(restify.bodyParser());
         config(server, mock_config);
         server.listen(PORT, done);
         server.server.setTimeout(10);
