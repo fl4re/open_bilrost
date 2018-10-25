@@ -6,10 +6,9 @@
 
 module.exports = {
     Subscription_metadata_presenter: {
-        present: (subscription, workspace) => {
+        present: subscription => {
             return {
                 id: subscription.id,
-                url: `/assetmanager/workspaces/${workspace.name}/subscriptions/${subscription.id}`,
                 type: subscription.type,
                 descriptor: subscription.descriptor,
             };

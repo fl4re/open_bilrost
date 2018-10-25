@@ -54,12 +54,6 @@ module.exports = function(server, context) {
                 return Asset.find_asset_by_ref(workspace, asset_ref, options)
                     .then(asset => {
                         let output = asset.output;
-                        if (output.items) {
-                            output.items = output.items.map(ass => {
-                                ass.url = _path.join("/contentbrowser/workspaces/", workspace.get_guid(), ass.meta.ref);
-                                return ass;
-                            });
-                        }
                         if (asset.indexOfMoreResults) {
                             output.nextLink = get_next_url(req.url, asset.indexOfMoreResults);
                         }

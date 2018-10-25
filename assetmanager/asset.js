@@ -197,10 +197,7 @@ asset_model = workspace => {
                         // insert final slash to tell to unformat well final file name because this is a directory name
                         directory_path = `${directory_path}/`;
                         const ref = `${workspace_utilities.relative_path_to_ref(directory_path)}/`;
-                        return {
-                            url: `/contentbrowser/workspaces/${workspace.get_file_uri()}${ref}`,
-                            ref
-                        };
+                        return ref;
                     });
                     search_results.totalItems = search_results.items.length;
                     return search_results;
