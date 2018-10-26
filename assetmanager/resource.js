@@ -56,7 +56,7 @@ function Resource (workspace) {
     this.repo_manager = resource_repo_manager;
     this.commit_manager = commit_manager(workspace, resource_repo_manager, asset_finder, asset_reader);
 
-    this.get = (ref, options) => {
+    this.get = (ref, options) => { // to get_fs
         let _this = this;
         if (!options) {
             options = {};

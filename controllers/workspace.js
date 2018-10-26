@@ -54,14 +54,14 @@ module.exports = function(server, context) {
             output.totalItems = length;
             handler.sendJSON(output, 200);
         } catch (err) {
-            handler.handleError(err);
+            handler.sendError(err);
         }
     });
     server.get('/contentbrowser/workspaces/:identifier', async (req, res, next) => {
         const handler = create_handler(req, res, next);
         const workspace_identifier = req.params.identifier;
         if (!workspace_identifier) {
-            return handler.handleError(new Error("Missing workspace id"));
+            return handler.sendError(new Error("Missing workspace id"));
         }
 
         try {
@@ -73,7 +73,7 @@ module.exports = function(server, context) {
             output.totalItems = output.items.length;
             handler.sendJSON(output, 200);
         } catch (err) {
-            handler.handleError(err);
+            handler.sendError(err);
         }
     });
 
@@ -86,7 +86,7 @@ module.exports = function(server, context) {
         const branch = req.body.branch;
         try {
             await _workspace.find_by_file_uri(workspace_file_uri);
-            handler.handleError(errors.ALREADYEXIST(workspace_file_uri));
+            handler.sendError(errors.ALREADYEXIST(workspace_file_uri));
         } catch (workspace) {
             if (workspace.error && workspace.error.statusCode === 404) {
                 const project_id = `${organization}/${project_name}`;
@@ -100,10 +100,10 @@ module.exports = function(server, context) {
                     try {
                         await workspace_factory.delete_workspace(workspace_file_uri);
                     } catch (ignored_deletion_error) { /* do nothing */ }
-                    handler.handleError(output.error ? output.error : errors.INTERNALERROR(output));
+                    handler.sendError(output.error ? output.error : errors.INTERNALERROR(output));
                 }
             } else {
-                handler.handleError(errors.INTERNALERROR(workspace));
+                handler.sendError(errors.INTERNALERROR(workspace));
             }
         }
     });
@@ -114,7 +114,7 @@ module.exports = function(server, context) {
         const description = req.body.description;
         try {
             await _workspace.find_by_file_uri(workspace_file_uri);
-            handler.handleError(errors.ALREADYEXIST(workspace_file_uri));
+            handler.sendError(errors.ALREADYEXIST(workspace_file_uri));
         } catch (workspace) {
             const is_not_valid = workspace.error && workspace.error.statusCode === 500 &&
                 workspace.error.message && workspace.error.message.includes('Status manager') && workspace.error.message.includes('schema');
@@ -135,10 +135,10 @@ module.exports = function(server, context) {
                     await workspace.check_overall_validation();
                     handler.sendJSON(_workspace_metadata_presenter.present(workspace), 200, 'workspace');
                 } catch (output) {
-                    handler.handleError(output.error ? output.error : errors.INTERNALERROR(output));
+                    handler.sendError(output.error ? output.error : errors.INTERNALERROR(output));
                 }
             } else {
-                handler.handleError(errors.INTERNALERROR(workspace));
+                handler.sendError(errors.INTERNALERROR(workspace));
             }
         }
     });
@@ -152,7 +152,7 @@ module.exports = function(server, context) {
             await workspace.reset();
             handler.sendText('Ok', 200);
         } catch (workspace) {
-            handler.handleError(workspace);
+            handler.sendError(workspace);
         }
     });
 
@@ -168,7 +168,7 @@ module.exports = function(server, context) {
             workspace.remove_database_semaphore();
             handler.sendText('Ok', 200);
         } catch (output) {
-            handler.handleError(output.error);
+            handler.sendError(output.error);
         }
     });
 };

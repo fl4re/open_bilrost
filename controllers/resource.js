@@ -27,7 +27,7 @@ module.exports = function(server, context) {
 
         let handler = create_handler(req, res, next);
         if (ref.split('.bilrost').length > 1) {
-            handler.handleError(errors('Asset').RESTRICTED('.bilrost directory'));
+            handler.sendError(errors('Asset').RESTRICTED('.bilrost directory'));
         }
         try {
             const workspace = await _workspace.find(workspace_identifier);
@@ -50,7 +50,7 @@ module.exports = function(server, context) {
             }
             handler.sendJSON(output, 200);
         } catch (err) {
-            handler.handleError(err);
+            handler.sendError(err);
         }
     });
 

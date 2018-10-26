@@ -21,7 +21,7 @@ module.exports = function(server, context) {
             await favorite.add({ name: workspace_name, file_uri: workspace.get_file_uri()});
             handler.sendJSON(_workspace_metadata_presenter.present(workspace), 200, 'workspace');
         } catch (workspace) {
-            handler.handleError(workspace);
+            handler.sendError(workspace);
         }
     });
 
@@ -32,7 +32,7 @@ module.exports = function(server, context) {
             await favorite.remove(workspace_identifier);
             handler.sendText('Ok', 200);
         } catch (workspace) {
-            handler.handleError(workspace.error || workspace);
+            handler.sendError(workspace.error || workspace);
         }
     });
 
@@ -42,7 +42,7 @@ module.exports = function(server, context) {
             await favorite.flush();
             handler.sendText('Ok', 200);
         } catch (err) {
-            handler.handleError(err);
+            handler.sendError(err);
         }
     });
 };

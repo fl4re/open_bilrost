@@ -13,7 +13,7 @@ module.exports = (server, config) => {
             const conf = config.get_all();
             handler.sendJSON(conf, 200);
         } catch (err) {
-            handler.handleError(err);
+            handler.sendError(err);
         }
     });
 
@@ -24,7 +24,7 @@ module.exports = (server, config) => {
             const value = config[key] || 'N/A';
             handler.sendJSON(value, 200);
         } catch (err) {
-            handler.handleError(err);
+            handler.sendError(err);
         }
     });
 
@@ -36,7 +36,7 @@ module.exports = (server, config) => {
             config[key] = new_value;
             handler.sendJSON('Ok', 204);
         } catch (err) {
-            handler.handleError(err);
+            handler.sendError(err);
         }
     });
 
@@ -47,7 +47,7 @@ module.exports = (server, config) => {
             config.del(key);
             handler.sendJSON('Ok', 204);
         } catch (err) {
-            handler.handleError(err);
+            handler.sendError(err);
         }
     });
 };

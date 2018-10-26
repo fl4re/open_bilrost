@@ -16,7 +16,7 @@ module.exports = function(server, context) {
             const workspace = await _workspace.find(workspace_identifier);
             handler.sendJSON(workspace.get_branch(), 200);
         } catch (err) {
-            handler.handleError(err);
+            handler.sendError(err);
         }
     });
 
@@ -35,7 +35,7 @@ module.exports = function(server, context) {
                 };
                 handler.sendJSON(output, 200);
             })
-            .catch(err => handler.handleError(err));
+            .catch(err => handler.sendError(err));
     });
 
     server.post('/assetmanager/workspaces/:identifier/branch/:name/change', async (req, res, next) => {
@@ -47,7 +47,7 @@ module.exports = function(server, context) {
             await workspace.branch.change(branch_name);
             handler.sendText('Ok', 200);
         } catch (workspace) {
-            handler.handleError(workspace.error);
+            handler.sendError(workspace.error);
         }
     });
 
@@ -60,7 +60,7 @@ module.exports = function(server, context) {
             await workspace.branch.create(branch_name);
             handler.sendText('created', 201);
         } catch (workspace) {
-            handler.handleError(workspace.error);
+            handler.sendError(workspace.error);
         }
     });
 
@@ -73,7 +73,7 @@ module.exports = function(server, context) {
             await workspace.branch.del(branch_name);
             handler.sendText('removed', 200);
         } catch (workspace)  {
-            handler.handleError(workspace.error);
+            handler.sendError(workspace.error);
         }
     });
 };

@@ -14,11 +14,11 @@ module.exports = function(server, bilrost_client) {
         bilrost_client.get(`/auth/access_token?code=${access_code}`, function(err, req, res, obj) {
             if (err) {
                 server.log.error(err);
-                handler.handleError(err);
+                handler.sendError(err);
             } else {
                 fs.readFile(path.join(__dirname, '..', 'static', 'login.html'), (err, data) => {
                     if (err) {
-                        handler.handleError(err);
+                        handler.sendError(err);
                         return;
                     }
                     data = data.toString();
@@ -34,9 +34,9 @@ module.exports = function(server, bilrost_client) {
         bilrost_client.get("/auth/access_code", function(err, req, res) {
             if (err) {
                 server.log.error(err);
-                handler.handleError(err);
+                handler.sendError(err);
             } else if (res.statusCode !== 302) {
-                handler.handleError("Internal error. Backend should return redirect and returned " + res.statusCode);
+                handler.sendError("Internal error. Backend should return redirect and returned " + res.statusCode);
             } else {
                 handler.redirect(res.headers.location);
             }
@@ -47,9 +47,9 @@ module.exports = function(server, bilrost_client) {
         bilrost_client.get("/rest3d/user", function(err, req, res, obj) {
             if (err) {
                 server.log.error(err);
-                handler.handleError(err);
+                handler.sendError(err);
             } else if (res.statusCode !== 200) {
-                handler.handleError("Internal error. Backend should return 200 and returned " + res.statusCode);
+                handler.sendError("Internal error. Backend should return 200 and returned " + res.statusCode);
             } else {
                 handler.sendJSON(obj);
             }
@@ -63,7 +63,7 @@ module.exports = function(server, bilrost_client) {
         // Oauth can return an error parameter if something went wrong
         if (req.query.error) {
             server.log.error(req.query.error);
-            return handler.handleError(req.query.error);
+            return handler.sendError(req.query.error);
         }
 
         var access_code = req.query.code;
