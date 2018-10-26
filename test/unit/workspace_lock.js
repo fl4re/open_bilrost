@@ -23,8 +23,8 @@ describe('Workspace locks', function() {
     it("Lock workspace when committing", function(done) {
         workspace.find_by_file_uri(eloise.get_file_uri())
             .then(workspace => {
-                workspace.commit_files('foo');
-                workspace.commit_files('foo');
+                workspace.commit_and_push('foo');
+                workspace.commit_and_push('foo');
             })
             .catch(err => {
                 if (err.message === "workspace is locked") {
