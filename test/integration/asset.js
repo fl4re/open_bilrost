@@ -521,7 +521,6 @@ describe('Run Asset related functional tests for the API', function() {
         //         .put(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}${test_level_asset.meta.ref}`)
         //         .send(asset)
         //         .set("Content-Type", "application/json")
-        //         .set("Accept", 'application/json')
         //         .set("Last-Modified", workspace.get_last_modified(test_level_asset.meta.ref))
         //         .expect(200)
         //         .end((err, res) => {
@@ -624,18 +623,18 @@ describe('Run Asset related functional tests for the API', function() {
     describe('Deleting assets!', function() {
 
         it('Delete an asset and checks subscription list is cleared up', done => {
-
             const asset_path = workspace.get_internal_path(test_level_asset.meta.ref);
             const subscription_reference = [{
                 id: 1,
                 type: 'ASSET',
-                ref: test_level_asset.meta.ref
+                descriptor: test_level_asset.meta.ref
             }];
             workspace.create_workspace_resource([], subscription_reference);
             client
                 .delete(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}${test_level_asset.meta.ref}`)
                 .set("Content-Type", "application/json")
                 .set("Last-Modified", workspace.format_asset().meta.modified)
+                .set("Content-Type", "plain/text")
                 .expect(204)
                 .end((err, res) => {
                     if (err) {
