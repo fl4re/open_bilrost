@@ -1,5 +1,6 @@
 module.exports = (server, context) => {
     require('./asset')(server, context);
+    require('./resource')(server, context);
     require('./branch')(server, context);
     require('./commit')(server, context);
     require('./stage')(server, context);
