@@ -40,7 +40,7 @@ describe('Run Workspace related functional tests for the API', function() {
         client
             .get(`/contentbrowser/workspaces/${encoded_file_uri}/branch`)
             .expect(200)
-            .set('Accept', 'application/json')
+            .expect('Content-Type', 'application/json')
             .end((err, res) => {
                 if (err) {
                     return done({ error: err.toString(), status: res.status, body: res.body });
@@ -55,7 +55,7 @@ describe('Run Workspace related functional tests for the API', function() {
         client
             .get(`/contentbrowser/workspaces/${encoded_file_uri}/branches`)
             .expect(200)
-            .set('Accept', 'application/json')
+            .expect('Content-Type', 'application/json')
             .end((err, res) => {
                 if (err) {
                     return done({ error: err.toString(), status: res.status, body: res.body });
@@ -70,13 +70,13 @@ describe('Run Workspace related functional tests for the API', function() {
         client
             .put(`/assetmanager/workspaces/${encoded_file_uri}/branch/test`)
             .send()
-            .set('Accept', 'application/json')
             .expect(201)
+            .expect('Content-Type', 'text/plain')
             .end((err, res) => {
                 if (err) {
                     return done({ error: err.toString(), status: res.status, body: res.body });
                 }
-                should.equal(res.body, 'created');
+                should.equal(res.text, 'created');
                 done();
             });
     });
@@ -86,13 +86,13 @@ describe('Run Workspace related functional tests for the API', function() {
         client
             .post(`/assetmanager/workspaces/${encoded_file_uri}/branch/good_repo/change`)
             .send()
-            .set('Accept', 'application/json')
             .expect(200)
+            .expect('Content-Type', 'text/plain')
             .end((err, res) => {
                 if (err) {
                     return done({ error: err.toString(), status: res.status, body: res.body });
                 }
-                should.equal(res.body, 'Ok');
+                should.equal(res.text, 'Ok');
                 done();
             });
     });
@@ -102,12 +102,12 @@ describe('Run Workspace related functional tests for the API', function() {
             .del(`/assetmanager/workspaces/${encoded_file_uri}/branch/test`)
             .send()
             .expect(200)
-            .set('Accept', 'application/json')
+            .expect('Content-Type', 'text/plain')
             .end((err, res) => {
                 if (err) {
                     return done({ error: err.toString(), status: res.status, body: res.body });
                 }
-                should.equal(res.body, 'removed');
+                should.equal(res.text, 'removed');
                 done();
             });
     });
@@ -116,10 +116,10 @@ describe('Run Workspace related functional tests for the API', function() {
         client
             .put(`/assetmanager/workspaces/${encoded_file_uri}/branch/good_repo`)
             .send()
-            .set('Accept', 'application/json')
+            .expect('Content-Type', 'text/plain')
             .expect(500)
             .end((err, res) => {
-                should.exist(res.body.indexOf('"Repo manager" encoutered an unexpected failure'));
+                should.exist(res.text.indexOf('"Repo manager" encoutered an unexpected failure'));
                 done();
             });
     });
@@ -129,10 +129,10 @@ describe('Run Workspace related functional tests for the API', function() {
         client
             .post(`/assetmanager/workspaces/${encoded_file_uri}/branch/unknown/change`)
             .send()
-            .set('Accept', 'application/json')
+            .expect('Content-Type', 'text/plain')
             .expect(500)
             .end((err, res) => {
-                should.exist(res.body.indexOf('"Repo manager" encoutered an unexpected failure'));
+                should.exist(res.text.indexOf('"Repo manager" encoutered an unexpected failure'));
                 done();
             });
     });

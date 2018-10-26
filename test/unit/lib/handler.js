@@ -9,36 +9,36 @@ const sinon = require('sinon');
 const http = require('http');
 
 describe('handler', function() {
-    const Handler = require('../../../lib/handler');
-    const req = {headers: {accept: ['application/json']}};
+    const create_handler = require('../../../lib/handler');
+    const req = {};
     const res = new http.ServerResponse({});
     const next = sinon.spy();
 
     it('can be created', () => {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         assert(handler);
     });
 
     it('has a sendJSON method', () => {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         assert.equal('function', typeof handler.sendJSON);
     });
 
     it('has a handleError method', () => {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         assert.equal('function', typeof handler.handleError);
     });
 
     it('has a redirect method', () => {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         assert.equal('function', typeof handler.redirect);
     });
 
     describe('sendJSON', () => {
         let req, res, next;
-        const handler = () => new Handler(req, res, next);
+        const handler = () => create_handler(req, res, next);
         beforeEach(() => {
-            req = {headers: {accept: ['application/json']}};
+            req = {};
             res = new http.ServerResponse({});
             next = sinon.spy();
         });
@@ -60,28 +60,9 @@ describe('handler', function() {
                 handler().sendJSON(obj);
                 assert(next.called);
             });
-            it('sets cache control headers', () => {
-                handler().sendJSON(obj);
-                assert(res._headers['cache-control']);
-            });
-            it('allows CORS', () => {
-                handler().sendJSON(obj);
-                assert(res._headers['access-control-allow-origin']);
-            });
             it('sets content type to json', () => {
                 handler().sendJSON(obj);
                 assert.equal('application/json', res._headers['content-type']);
-            });
-        });
-        describe('(Error)', () => {
-            const error = new Error("Test error");
-            it('renders error statusCode', () => {
-                handler().sendJSON(error);
-                assert.equal(500, res.statusCode);
-            });
-            it('calls next', () => {
-                handler().sendJSON(error);
-                assert(next.called);
             });
         });
         describe('(object, status_code)', () => {
@@ -99,9 +80,91 @@ describe('handler', function() {
             });
         });
     });
+
+
+    describe('sendText', () => {
+        let req, res, next;
+        const handler = () => create_handler(req, res, next);
+        beforeEach(() => {
+            req = {};
+            res = new http.ServerResponse({});
+            next = sinon.spy();
+        });
+
+        describe('(text)', () => {
+            const output = 'one';
+            it('sets response', () => {
+                res = {setHeader: sinon.spy(), writeHead: sinon.spy(), end: sinon.spy()};
+                handler().sendText(output);
+                assert(res.setHeader.called);
+                assert(res.writeHead.called);
+                assert(res.end.calledWith(output));
+            });
+            it('sets status code to 200', () => {
+                handler().sendText(output);
+                assert.equal(200, res.statusCode);
+            });
+            it('calls next', () => {
+                handler().sendText(output);
+                assert(next.called);
+            });
+            it('sets content type to plain/text', () => {
+                handler().sendText(output);
+                assert.equal('text/plain', res._headers['content-type']);
+            });
+        });
+        describe('(text, status_code)', () => {
+            const output = 'one';
+            it('sets status code', () => {
+                handler().sendText(output, 233);
+                assert.equal(233, res.statusCode);
+            });
+        });
+    });
+
+    describe('sendHTML', () => {
+        let req, res, next;
+        const handler = () => create_handler(req, res, next);
+        beforeEach(() => {
+            req = {headers: {accept: ['application/json']}};
+            res = new http.ServerResponse({});
+            next = sinon.spy();
+        });
+
+        describe('(html)', () => {
+            const html = '<body></body>';
+            it('sets response', () => {
+                res = {setHeader: sinon.spy(), writeHead: sinon.spy(), end: sinon.spy()};
+                handler().sendHTML(html);
+                assert(res.setHeader.called);
+                assert(res.writeHead.called);
+                assert(res.end.calledWith(html));
+            });
+            it('sets status code to 200', () => {
+                handler().sendHTML(html);
+                assert.equal(200, res.statusCode);
+            });
+            it('calls next', () => {
+                handler().sendHTML(html);
+                assert(next.called);
+            });
+            it('sets content type to json', () => {
+                handler().sendHTML(html);
+                assert.equal('text/html', res._headers['content-type']);
+            });
+        });
+        describe('(html, status_code)', () => {
+            const html = '<body></body>';
+            it('sets status code', () => {
+                handler().sendHTML(html, 233);
+                assert.equal(233, res.statusCode);
+            });
+        });
+    });
+
     describe('sendError', () => {
         let req, res, next;
-        const handler = () => new Handler(req, res, next);
+        const handler = () => create_handler(req, res, next);
         beforeEach(() => {
             req = {headers: {accept: ['application/json']}};
             res = new http.ServerResponse({});
@@ -124,14 +187,6 @@ describe('handler', function() {
             it('calls next', () => {
                 handler().handleError(error);
                 assert(next.called);
-            });
-            it('sets cache control headers', () => {
-                handler().handleError(error);
-                assert(res._headers['cache-control']);
-            });
-            it('allows CORS', () => {
-                handler().handleError(error);
-                assert(res._headers['access-control-allow-origin']);
             });
             it('sets content type to json', () => {
                 handler().handleError(error);

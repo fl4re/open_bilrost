@@ -37,7 +37,7 @@ describe('IFS server module', function() {
     });
 
     before('create a client', function(done) {
-        client = restify.createStringClient({url: 'http://localhost:8781', accept: 'application/json'});
+        client = restify.createStringClient({ url: 'http://localhost:8781' });
         client.put('/ifs/test/' + fixtures , {}, done);
     });
 

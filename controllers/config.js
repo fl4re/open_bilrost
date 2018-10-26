@@ -4,11 +4,11 @@
 
 'use strict';
 
-const Handler = require('./lib/handler');
+const create_handler = require('../lib/handler');
 
 module.exports = (server, config) => {
     server.get('/config', function(req, res, next) {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         try {
             const conf = config.get_all();
             handler.sendJSON(conf, 200);
@@ -18,7 +18,7 @@ module.exports = (server, config) => {
     });
 
     server.get('/config/:key', function(req, res, next) {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         try {
             const key = req.params.key;
             const value = config[key] || 'N/A';
@@ -29,7 +29,7 @@ module.exports = (server, config) => {
     });
 
     server.put('/config/:key', function(req, res, next) {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         try {
             const key = req.params.key;
             const new_value = req.body.value;
@@ -41,7 +41,7 @@ module.exports = (server, config) => {
     });
 
     server.del('/config/:key', function(req, res, next) {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         try {
             const key = req.params.key;
             config.del(key);

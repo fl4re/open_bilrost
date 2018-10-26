@@ -7,8 +7,8 @@
 const _path = require('path').posix;
 const _url = require('url');
 
-const Asset = require('../assetmanager/asset');
-const Handler = require('../lib/handler');
+const _asset = require('../assetmanager/asset');
+const create_handler = require('../lib/handler');
 
 const assets_regexp = /^\/assetmanager\/workspaces\/([^/]*)(\/assets\/.*)/;
 const assets_rename_regexp = /^\/assetmanager\/workspaces\/([^/]*)\/rename(\/assets\/.*)/;
@@ -40,7 +40,7 @@ module.exports = function(server, context) {
 
     // WORKSPACES
     server.get(workspaces_assets_regexp, function(req, res, next) {
-        let handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         let workspace_identifier = decodeURIComponent(req.params[0]);
         let asset_ref = decodeURIComponent(req.params[1]);
         _workspace.find(workspace_identifier)
@@ -51,7 +51,7 @@ module.exports = function(server, context) {
                     start: parseInt(req.query.start, 10),
                     q: req.query.q
                 };
-                return Asset.find_asset_by_ref(workspace, asset_ref, options)
+                return _asset.find_asset_by_ref(workspace, asset_ref, options)
                     .then(asset => {
                         let output = asset.output;
                         if (asset.indexOfMoreResults) {
@@ -67,7 +67,7 @@ module.exports = function(server, context) {
         let workspace_identifier = decodeURIComponent(req.params[0]);
         let ref = decodeURIComponent(req.params[1]);
 
-        let handler = new Handler(req, res, next);
+        let handler = create_handler(req, res, next);
         if (ref.split('.bilrost').length > 1) {
             handler.handleError(errors('Asset').RESTRICTED('.bilrost directory'));
         }
@@ -97,7 +97,7 @@ module.exports = function(server, context) {
     });
 
     server.put(assets_regexp, async (req, res, next) => {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         const workspace_identifier = sanitize(req.params[0]);
         const asset_ref = sanitize(req.params[1]);
         const modified = sanitize(req.headers['last-modified']);
@@ -122,7 +122,7 @@ module.exports = function(server, context) {
     });
 
     server.post(assets_rename_regexp, async (req, res, next) => {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         const workspace_identifier = sanitize(req.params[0]);
         const asset_ref = sanitize(req.params[1]);
         const modified = sanitize(req.headers['last-modified']);
@@ -139,7 +139,7 @@ module.exports = function(server, context) {
     });
 
     server.del(assets_regexp, async (req, res, next) => {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         const workspace_identifier = sanitize(req.params[0]);
         const asset_ref = sanitize(req.params[1]);
         try {
@@ -149,7 +149,7 @@ module.exports = function(server, context) {
             const workspaces = workspace.get_subscriptions();
             const sub_id = workspaces.find(({ ref }) => ref === asset_ref);
             await workspace.remove_subscription(sub_id);
-            handler.sendJSON('Ok', 204);
+            handler.sendText('Ok', 204);
         } catch (error) {
             handler.handleError(error);
         }

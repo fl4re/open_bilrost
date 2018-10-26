@@ -4,8 +4,7 @@
 
 'use strict';
 
-const Handler = require('../lib/handler');
-
+const create_handler = require('../lib/handler');
 const _workspace_metadata_presenter = require('../assetmanager/workspace_presenter').Workspace_metadata_presenter;
 
 module.exports = function(server, context) {
@@ -13,7 +12,7 @@ module.exports = function(server, context) {
     const _workspace = require('../assetmanager/workspace')(context);
 
     server.post('/assetmanager/favorites', async (req, res, next) => {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         const workspace_file_uri = req.body.file_uri;
         const workspace_name = req.body.name;
         try {
@@ -28,20 +27,20 @@ module.exports = function(server, context) {
 
     server.del('/assetmanager/favorites/:identifier', async (req, res, next) => {
         const workspace_identifier = req.params.identifier;
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         try {
             await favorite.remove(workspace_identifier);
-            handler.sendJSON('Ok', 200);
+            handler.sendText('Ok', 200);
         } catch (workspace) {
             handler.handleError(workspace.error || workspace);
         }
     });
 
     server.post('/assetmanager/favorites/reset', async (req, res, next) => {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         try {
             await favorite.flush();
-            handler.sendJSON('Ok', 200);
+            handler.sendText('Ok', 200);
         } catch (err) {
             handler.handleError(err);
         }

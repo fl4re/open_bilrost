@@ -4,7 +4,7 @@
 
 'use strict';
 const assert = require('assert');
-const config = require('../../config');
+const config = require('../../controllers/config');
 const restify = require('restify');
 const PORT = require('../util/port_factory')();
 
