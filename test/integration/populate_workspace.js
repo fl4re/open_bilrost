@@ -55,13 +55,12 @@ describe('Run Workspace related functional tests for the API', function() {
                     name: workspace.get_name(),
                     description: workspace.get_project_resource().description.comment
                 })
-                .set('Content-Type', 'application/json')
+                .expect('Content-Type', 'application/vnd.bilrost.workspace+json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-
                     obj.should.be.an.Object;
                     should.equal(workspace.validate_workspace_root_directories(), true);
                     should.equal(workspace.validate_workspace_internal_directories(), true);
@@ -72,12 +71,13 @@ describe('Run Workspace related functional tests for the API', function() {
             client
                 .delete(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}`)
                 .send()
-                .set("Content-Type", "application/json")
+                .expect('Content-Type', 'text/plain')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
+                    res.text.should.equal('Ok');
                     should.equal(workspace.validate_workspace_root_directories(), false);
                     done();
                 });

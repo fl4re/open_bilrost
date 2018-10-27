@@ -33,6 +33,7 @@ describe('Run Status related functional tests for the API', function() {
             this.timeout(7*this.timeout()); // = 5 * default = 5 * 2000 = 10000
             client
                 .get(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/status`)
+                .expect('Content-Type', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
@@ -52,6 +53,7 @@ describe('Run Status related functional tests for the API', function() {
                     type: "ASSET",
                     descriptor: "/assets/test_1_1_0.level"
                 })
+                .expect('Content-Type', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
@@ -69,6 +71,7 @@ describe('Run Status related functional tests for the API', function() {
             this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
             client
                 .get(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/status/assets/test_1_1_0.level`)
+                .expect('Content-Type', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {

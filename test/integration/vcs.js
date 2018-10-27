@@ -41,6 +41,7 @@ describe('Run Version Control related functional tests for the API', function() 
             client
                 .get(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/commits?maxResults=3`)
                 .expect(200)
+                .expect('Content-Type', 'application/json')
                 .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
@@ -59,6 +60,7 @@ describe('Run Version Control related functional tests for the API', function() 
 
             client
                 .get(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/commits/assets/test_1_1_0.level`)
+                .expect('Content-Type', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
@@ -77,6 +79,7 @@ describe('Run Version Control related functional tests for the API', function() 
 
             client
                 .get(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/commits?start_at_revision=HEAD&maxResults=2`)
+                .expect('Content-Type', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
@@ -96,7 +99,7 @@ describe('Run Version Control related functional tests for the API', function() 
             client
                 .delete(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}`)
                 .send({ hard_delete: true })
-                .set("Content-Type", "application/json")
+                .expect('Content-Type', 'text/plain')
                 .end(async (err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });

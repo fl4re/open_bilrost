@@ -60,7 +60,7 @@ describe('Run Workspace related functional tests for the API', function() {
             client
                 .post('/assetmanager/favorites')
                 .send({ file_uri: workspaces.alice.get_file_uri(), name: workspaces.alice.get_name() })
-                .set("Content-Type", "application/json")
+                .expect('Content-Type', 'application/vnd.bilrost.workspace+json')
                 .expect(200)
                 .end(async (err, res) => {
                     if (err) {
@@ -77,7 +77,7 @@ describe('Run Workspace related functional tests for the API', function() {
             client
                 .post('/assetmanager/favorites')
                 .send({ file_uri: workspaces.bob.get_file_uri(), name: workspaces.bob.get_name() })
-                .set("Content-Type", "application/json")
+                .expect('Content-Type', 'application/vnd.bilrost.workspace+json')
                 .expect(200)
                 .end(async (err, res) => {
                     if (err) {
@@ -94,7 +94,7 @@ describe('Run Workspace related functional tests for the API', function() {
             client
                 .post('/assetmanager/favorites')
                 .send({ file_uri: workspaces.alice.get_file_uri() })
-                .set("Content-Type", "application/json")
+                .expect('Content-Type', 'application/json')
                 .expect(403)
                 .end(async (err, res) => {
                     if (err) {
@@ -112,7 +112,7 @@ describe('Run Workspace related functional tests for the API', function() {
             client
                 .post('/assetmanager/favorites')
                 .send({ file_uri: workspaces.luke.get_file_uri() })
-                .set("Content-Type", "application/json")
+                .expect('Content-Type', 'application/json')
                 .expect(500)
                 .end((err, res) => {
                     if (err) {
@@ -130,11 +130,13 @@ describe('Run Workspace related functional tests for the API', function() {
 
             client
                 .delete(`/assetmanager/favorites/${workspaces.alice.get_name()}`)
+                .expect("Content-Type", "text/plain")
                 .expect(200)
                 .end(async (err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
+                    res.text.should.equal('Ok');
                     should.equal(await favorite.find(workspaces.alice.get_file_uri()), undefined);
                     done();
                 });
@@ -144,11 +146,13 @@ describe('Run Workspace related functional tests for the API', function() {
         it('Remove all favorite workspaces', function(done){
             client
                 .post(`/assetmanager/favorites/reset`)
+                .expect("Content-Type", "text/plain")
                 .expect(200)
                 .end(async (err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
+                    res.text.should.equal('Ok');
                     should.equal(await favorite.find(workspaces.bob.get_file_uri()), undefined);
                     done();
                 });
@@ -158,11 +162,13 @@ describe('Run Workspace related functional tests for the API', function() {
         it('Check workspace removal is idempotent', function(done){
             client
                 .delete(`/assetmanager/favorites/${workspaces.bob.get_name()}`)
+                .expect("Content-Type", "text/plain")
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
+                    res.text.should.equal('Ok');
                     done();
                 });
         });
@@ -175,12 +181,13 @@ describe('Run Workspace related functional tests for the API', function() {
             client
                 .delete(`/assetmanager/workspaces/${encodeURIComponent(workspaces.carol.get_file_uri())}`)
                 .send()
-                .set("Content-Type", "application/json")
+                .expect("Content-Type", "text/plain")
                 .expect(200)
                 .end(async (err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
+                    res.text.should.equal('Ok');
                     should.equal(await favorite.find(workspaces.carol.get_file_uri()), undefined);
                     should.equal(workspaces.carol.validate_workspace_root_directories(), false);
                     done();
@@ -201,7 +208,7 @@ describe('Run Workspace related functional tests for the API', function() {
                     project_name: workspaces.carol.get_github_project().name,
                     branch: 'good_repo',
                 })
-                .set("Content-Type", "application/json")
+                .expect("Content-Type", 'application/vnd.bilrost.workspace+json')
                 .expect(200)
                 .end(async (err, res) => {
                     if (err) {
@@ -219,12 +226,13 @@ describe('Run Workspace related functional tests for the API', function() {
             client
                 .post(`/assetmanager/workspaces/${encodeURIComponent(workspaces.carol.get_file_uri())}/reset`)
                 .send()
-                .set("Content-Type", "application/json")
+                .expect("Content-Type", "text/plain")
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
+                    res.text.should.equal('Ok');
                     should.equal(fs.readdirSync(workspaces.carol.get_path()).length, 3);
                     done();
                 });
@@ -235,12 +243,13 @@ describe('Run Workspace related functional tests for the API', function() {
             client
                 .delete(`/assetmanager/favorites/${workspaces.carol.get_encoded_file_uri()}`)
                 .send()
-                .set("Content-Type", "application/json")
+                .expect("Content-Type", "text/plain")
                 .expect(200)
                 .end(async (err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
+                    res.text.should.equal('Ok');
                     should.equal(await favorite.find(workspaces.carol.get_encoded_file_uri()), undefined);
                     done();
                 });
@@ -260,7 +269,7 @@ describe('Run Workspace related functional tests for the API', function() {
                     project_name: workspaces.carol.get_github_project().name,
                     branch: 'good_repo',
                 })
-                .set("Content-Type", "application/json")
+                .expect("Content-Type", "application/json")
                 .expect(403)
                 .end((err, res) => {
                     if (err) {
