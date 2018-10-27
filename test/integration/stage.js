@@ -43,7 +43,6 @@ describe('Run Version Control related functional tests for the API', function() 
                     type: "ASSET",
                     descriptor: "/assets/test_1_1_0.level"
                 })
-                .set('Accept', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
@@ -62,14 +61,12 @@ describe('Run Version Control related functional tests for the API', function() 
             client
                 .del(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/stage`)
                 .send()
-                .set('Accept', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-                    res.body.should.equal('Ok');
-                    res.body.should.be.an.Object;
+                    res.text.should.equal('Ok');
                     done();
                 });
         });
@@ -80,15 +77,13 @@ describe('Run Version Control related functional tests for the API', function() 
             client
                 .post(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/stage/assets/test_1_1_0.level`)
                 .send()
-                .set('Accept', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
 
-                    res.body.should.equal('Ok');
-                    res.body.should.be.an.Object;
+                    res.text.should.equal('Ok');
                     done();
                 });
         });
@@ -98,7 +93,6 @@ describe('Run Version Control related functional tests for the API', function() 
             client
                 .post(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/stage/assets/levels/test_001.level`)
                 .send()
-                .set('Accept', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     should.exist(err);
@@ -112,7 +106,6 @@ describe('Run Version Control related functional tests for the API', function() 
             client
                 .post(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/stage/invalid/path`)
                 .send()
-                .set('Accept', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     should.exist(err);
@@ -124,7 +117,6 @@ describe('Run Version Control related functional tests for the API', function() 
         it('Get Workspace Stage with most recent entry', function(done) {
             client
                 .get(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/stage`)
-                .set('Accept', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
@@ -140,7 +132,6 @@ describe('Run Version Control related functional tests for the API', function() 
         it('Get Workspace Stage with most recent entry', function(done) {
             client
                 .get(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/stage`)
-                .set('Accept', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
@@ -156,14 +147,13 @@ describe('Run Version Control related functional tests for the API', function() 
         it('Delete Asset from Workspace Stage', function(done) {
             client
                 .delete(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/stage/assets/test_1_1_0.level`)
-                .set('Accept', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
                     res.body.should.be.a.String;
-                    res.body.should.equal('Ok');
+                    res.text.should.equal('Ok');
                     done();
                 });
         });

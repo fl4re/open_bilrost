@@ -80,6 +80,7 @@ const version_control_system_context = {
     amazon_client,
     cache,
     favorite,
+    config,
     get protocol () {
         return config.PROTOCOL;
     },
@@ -103,9 +104,6 @@ server.get('/', (req, res, next) => {
 });
 
 require('./lib/static')(server);
-
-require('./authentication')(server, bilrost_client);
-require('./config')(server, config);
 require('./controllers')(server, version_control_system_context);
 
 server.static({

@@ -349,11 +349,8 @@ const Workspace = function(file_uri, context) {
                     return this.empty_stage();
                 })
                 .then(() => {
-                    const res = {
-                        git: asset_commit_id
-                    };
                     this.remove_from_lock();
-                    return res;
+                    return asset_commit_id;
                 });
         })
         .catch(err => {

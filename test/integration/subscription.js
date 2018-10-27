@@ -45,7 +45,6 @@ describe('Run Version Control related functional tests for the API', function() 
                     type: "NAMESPACE",
                     descriptor: "/assets/prefab/"
                 })
-                .set('Accept', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
@@ -64,7 +63,6 @@ describe('Run Version Control related functional tests for the API', function() 
                     type: "SEARCH",
                     descriptor: "test created:> 2004 type: prefab"
                 })
-                .set('Accept', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
@@ -84,7 +82,6 @@ describe('Run Version Control related functional tests for the API', function() 
             client
                 .del(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/subscriptions`)
                 .send()
-                .set('Accept', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
@@ -104,7 +101,6 @@ describe('Run Version Control related functional tests for the API', function() 
                     type: "ASSET",
                     descriptor: "/assets/test_1_1_0.level"
                 })
-                .set('Accept', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
@@ -126,7 +122,6 @@ describe('Run Version Control related functional tests for the API', function() 
                     type: "NAMESPACE",
                     descriptor: "/invalid"
                 })
-                .set('Accept', 'application/json')
                 .expect(500)
                 .end((err, res) => {
                     should.exist(res.error);
@@ -137,7 +132,6 @@ describe('Run Version Control related functional tests for the API', function() 
         it('Get Subscription List with most recent entry', function(done) {
             client
                 .get(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/subscriptions`)
-                .set('Accept', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {

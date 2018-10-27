@@ -11,7 +11,7 @@ It deals with notion of workspace and assets. See following docs for more inform
 */
 'use strict';
 
-const Handler = require('../lib/handler');
+const create_handler = require('../lib/handler');
 const _path = require('path').posix;
 
 module.exports = function(server, context) {
@@ -19,7 +19,7 @@ module.exports = function(server, context) {
 
     // /contentbrowser/projects/{project_full_name}/{branch_name}/{asset_ref}?{filter}{paging}
     server.get(/^\/contentbrowser\/projects\/([^/]*)\/([^/]*)(?:\/)?(.*)?\/(assets\/.*)/, function(req, res, next) {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         const organization = req.params.organization;
         const name = req.params.repository;
         const branch_name = req.params.branch;
@@ -46,7 +46,7 @@ module.exports = function(server, context) {
 
     // /contentbrowser/projects/{project_full_name}?{filter}{paging}
     server.get(/^\/contentbrowser\/projects\/([^/]*)?(?:\/)?([^/]*)?/, function(req, res, next) {
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         const project_full_name = req.params.project_full_name;
         const options = {
             filterName: req.query.name,

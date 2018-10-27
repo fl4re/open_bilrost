@@ -22,7 +22,7 @@ var IFS = require("./services");
 var utilities = require('./utilities.js');
 
 module.exports = function(server) {
-    var Handler = require('./../lib/handler');
+    var create_handler = require('./../lib/handler');
     /*
      IFS is a rest interface to some internal FS.
      We have to separate the interface code from the FS implementation,
@@ -35,7 +35,7 @@ module.exports = function(server) {
     var pathRegEx = /^\/ifs\/([a-zA-Z0-9_.~-]+)\/(.*)/;  // /ifs/{key}/{path}
 
     server.get(pathRegEx, function(req, res, next) {
-        var handler = new Handler(req, res, next);
+        var handler = create_handler(req, res, next);
         var adapterName = decodeURI(req.params[0]);
         var adapter = adapters.get(adapterName);
         var path = decodeURI(req.params[1]);
@@ -88,7 +88,7 @@ module.exports = function(server) {
     });
 
     server.put(pathRegEx, function(req, res, next) {
-        var handler = new Handler(req, res, next);
+        var handler = create_handler(req, res, next);
         var local_path = decodeURI(req.params[1]);
         adapters.set(decodeURI(req.params[0]), {type: 'local', path: local_path})
             .then(function() {
@@ -99,13 +99,13 @@ module.exports = function(server) {
     });
 
     server.get('/ifs', function(req, res, next) {
-        var handler = new Handler(req, res, next);
+        var handler = create_handler(req, res, next);
         var file_systems = adapters.list();
         handler.sendJSON(file_systems);
     });
 
     server.get('/ifs/:id', function(req, res, next) {
-        var handler = new Handler(req, res, next);
+        var handler = create_handler(req, res, next);
         var adapter = adapters.get(decodeURI(req.params.id));
         handler.sendJSON(adapter);
     });

@@ -4,10 +4,11 @@
 
 'use strict';
 const assert = require('assert');
-const sinon = require('sinon');
-const authentication = require('../../../authentication');
 const restify = require('restify');
-const PORT = require('../../util/port_factory')();
+const sinon = require('sinon');
+
+const authentication = require('../../controllers/authentication');
+const PORT = require('../util/port_factory')();
 
 describe('Authentication', function() {
     var server;

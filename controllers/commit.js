@@ -4,7 +4,7 @@
 
 'use strict';
 
-const Handler = require('../lib/handler');
+const create_handler = require('../lib/handler');
 
 module.exports = function(server, context) {
     const _workspace = require('../assetmanager/workspace')(context);
@@ -15,7 +15,7 @@ module.exports = function(server, context) {
         const maxResults = req.query.maxResults ? parseInt(req.query.maxResults, 10) : 10;
         const start_at_revision = req.query.start_at_revision;
 
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         try {
             const workspace = await _workspace.find(workspace_identifier);
             const items = ref ? await workspace.get_commit_log(ref, start_at_revision, maxResults) : await workspace.get_commit_logs(start_at_revision, maxResults);
@@ -34,11 +34,11 @@ module.exports = function(server, context) {
         const workspace_identifier = req.params.identifier;
         const message = req.body.message;
 
-        const handler = new Handler(req, res, next);
+        const handler = create_handler(req, res, next);
         try {
             const workspace = await _workspace.find(workspace_identifier);
-            const commit_id = await workspace.commit_and_push(message);
-            handler.sendJSON(commit_id, 200);
+            const commit_id = await workspace.commit_files(message);
+            handler.sendText(commit_id, 200);
         } catch (err) {
             handler.handleError(err);
         }
