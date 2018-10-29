@@ -24,9 +24,9 @@ describe('handler', function() {
         assert.equal('function', typeof handler.sendJSON);
     });
 
-    it('has a handleError method', () => {
+    it('has a sendError method', () => {
         const handler = create_handler(req, res, next);
-        assert.equal('function', typeof handler.handleError);
+        assert.equal('function', typeof handler.sendError);
     });
 
     it('has a redirect method', () => {
@@ -175,21 +175,21 @@ describe('handler', function() {
             const error = new Error("Test error message");
             it('sets response to error stack', () => {
                 res = {setHeader: sinon.spy(), writeHead: sinon.spy(), end: sinon.spy()};
-                handler().handleError(error);
+                handler().sendError(error);
                 assert(res.setHeader.called);
                 assert(res.writeHead.called);
                 assert(res.end.calledWith(JSON.stringify(error.stack)));
             });
             it('sets status code to 500', () => {
-                handler().handleError(error);
+                handler().sendError(error);
                 assert.equal(500, res.statusCode);
             });
             it('calls next', () => {
-                handler().handleError(error);
+                handler().sendError(error);
                 assert(next.called);
             });
             it('sets content type to json', () => {
-                handler().handleError(error);
+                handler().sendError(error);
                 assert.equal('application/json', res._headers['content-type']);
             });
         });
@@ -197,13 +197,13 @@ describe('handler', function() {
             const error = {message: "Test error message", statusCode: 533};
             it('sets response to message', () => {
                 res = {setHeader: sinon.spy(), writeHead: sinon.spy(), end: sinon.spy()};
-                handler().handleError(error);
+                handler().sendError(error);
                 assert(res.setHeader.called);
                 assert(res.writeHead.called);
                 assert(res.end.calledWith(JSON.stringify(error.message)));
             });
             it('renders error statusCode', () => {
-                handler().handleError(error);
+                handler().sendError(error);
                 assert.equal(533, res.statusCode);
             });
         });
@@ -211,13 +211,13 @@ describe('handler', function() {
             const error = "Test error message";
             it('sets response to string', () => {
                 res = {setHeader: sinon.spy(), writeHead: sinon.spy(), end: sinon.spy()};
-                handler().handleError(error);
+                handler().sendError(error);
                 assert(res.setHeader.called);
                 assert(res.writeHead.called);
                 assert(res.end.calledWith(JSON.stringify(error)));
             });
             it('ignores status code', () => {
-                handler().handleError(error, 533);
+                handler().sendError(error, 533);
                 assert.equal(500, res.statusCode);
             });
         });

@@ -26,7 +26,7 @@ module.exports = function(server, context) {
             const full_status = await workspace.get_status();
             handler.sendJSON(full_status, 200);
         } catch (err) {
-            handler.handleError(err);
+            handler.sendError(err);
         }
     });
 
@@ -39,7 +39,7 @@ module.exports = function(server, context) {
             const statuses = await workspace.update_and_retrieve_status();
             handler.sendJSON(statuses, 200);
         } catch (err) {
-            handler.handleError(err);
+            handler.sendError(err);
         }
     });
 
@@ -53,7 +53,7 @@ module.exports = function(server, context) {
             const ref_status = await workspace.get_ref_status(ref);
             handler.sendJSON(ref_status, 200);
         } catch (err) {
-            handler.handleError(err);
+            handler.sendError(err);
         }
     });
 };

@@ -26,7 +26,7 @@ module.exports = function(server, context) {
                 items
             }, 200);
         } catch (err) {
-            handler.handleError(err);
+            handler.sendError(err);
         }
     });
 
@@ -40,7 +40,7 @@ module.exports = function(server, context) {
             const commit_id = await workspace.commit_and_push(message);
             handler.sendText(commit_id, 200);
         } catch (err) {
-            handler.handleError(err);
+            handler.sendError(err);
         }
     });
 

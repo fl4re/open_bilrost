@@ -41,7 +41,7 @@ module.exports = function(server) {
         var path = decodeURI(req.params[1]);
 
         if (!adapter) {
-            return handler.handleError("adapter "+adapterName+" not found");
+            return handler.sendError("adapter "+adapterName+" not found");
         }
 
         let promise;
@@ -83,7 +83,7 @@ module.exports = function(server) {
                 } else if (reason === "Not supported") {
                     statusCode = 400;
                 }
-                handler.handleError({message: reason, statusCode: statusCode});
+                handler.sendError({message: reason, statusCode: statusCode});
             });
     });
 
@@ -94,7 +94,7 @@ module.exports = function(server) {
             .then(function() {
                 handler.sendJSON("Ok");
             }, function(reason) {
-                handler.handleError(reason);
+                handler.sendError(reason);
             });
     });
 

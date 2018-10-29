@@ -18,7 +18,7 @@ module.exports = function(server, context) {
             const subscriptions = await workspace.get_subscriptions();
             handler.sendJSON({ subscriptions }, 200);
         } catch (err) {
-            handler.handleError(err);
+            handler.sendError(err);
         }
     });
 
@@ -33,7 +33,7 @@ module.exports = function(server, context) {
             const subscription = await workspace.add_subscription(req_type, req_descriptor);
             handler.sendJSON(subscription, 200);
         } catch (err) {
-            handler.handleError(err);
+            handler.sendError(err);
         }
     });
 
@@ -46,7 +46,7 @@ module.exports = function(server, context) {
             await workspace.remove_all_subscriptions();
             handler.sendText('Ok', 200);
         } catch (err) {
-            handler.handleError(err);
+            handler.sendError(err);
         }
     });
 
@@ -60,7 +60,7 @@ module.exports = function(server, context) {
             await workspace.remove_subscription(subscription_identifier);
             handler.sendText('Ok', 200);
         } catch (err) {
-            handler.handleError(err);
+            handler.sendError(err);
         }
     });
 };

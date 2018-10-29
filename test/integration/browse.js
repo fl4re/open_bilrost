@@ -52,7 +52,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get('/contentbrowser/projects/')
-                .set("Content-Type", "application/json")
                 .expect(500)
                 .end((err, res) => {
                     if (err) {
@@ -69,7 +68,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get('/contentbrowser/projects/fl4re')
-                .set("Content-Type", "application/json")
                 .expect(500)
                 .end((err, res) => {
                     if (err) {
@@ -86,7 +84,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get('/contentbrowser/projects/fl4re/open_bilrost_test_project')
-                .set("Content-Type", "application/json")
                 .expect(500)
                 .end((err, res) => {
                     if (err) {
@@ -102,7 +99,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get('/contentbrowser/projects/fl4re/open_bilrost_test_project')
-                .set("Content-Type", "application/json")
                 .expect(500)
                 .end((err, res) => {
                     if (err) {
@@ -119,7 +115,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get('/contentbrowser/projects/fl4re/open_bilrost_test_project/assets/')
-                .set("Content-Type", "application/json")
                 .expect(500)
                 .end((err, res) => {
                     if (err) {
@@ -137,7 +132,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get('/contentbrowser/projects/fl4re/open_bilrost_test_project/assets/test.level')
-                .set("Content-Type", "application/json")
                 .expect(500)
                 .end((err, res) => {
                     if (err) {
@@ -155,7 +149,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client.post('/assetmanager/favorites')
                 .send({ file_uri: workspaces.bob.get_file_uri(), name: workspaces.bob.get_name() })
-                .set("Content-Type", 'application/json')
                 .expect('Content-Type', 'application/vnd.bilrost.workspace+json')
                 .expect(200)
                 .end((err, res) => {
@@ -182,7 +175,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get('/contentbrowser/workspaces/')
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
@@ -201,7 +193,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get(`/contentbrowser/workspaces/${workspaces.luke.get_name()}`)
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(404)
                 .end((err, res) => {
@@ -218,7 +209,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get(`/contentbrowser/workspaces/${workspaces.luke.get_encoded_file_uri()}`)
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
@@ -256,7 +246,6 @@ describe('Run Content Browser related test for content browser api', function ()
                 .then(() => {
                     client
                         .get(`/contentbrowser/workspaces/${workspaces.luke.get_name()}`)
-                        .set("Content-Type", "application/json")
                         .expect(403)
                         .end((err, res) => {
                             if (err) {
@@ -271,7 +260,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get('/contentbrowser/workspaces/')
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .end((err, res) => {
                     const obj = res.body;
@@ -308,7 +296,6 @@ describe('Run Content Browser related test for content browser api', function ()
                 .then(() => {
                     client
                         .get(`/contentbrowser/workspaces/${workspaces.luke.get_name()}`)
-                        .set("Content-Type", "application/json")
                         .expect("Content-Type", "application/json")
                         .expect(200)
                         .end((err, res) => {
@@ -326,7 +313,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get('/contentbrowser/workspaces/')
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
@@ -345,7 +331,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get('/contentbrowser/workspaces/?maxResults=1')
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
@@ -357,7 +342,6 @@ describe('Run Content Browser related test for content browser api', function ()
                     obj.totalItems.should.be.above(1);
                     client
                         .get(obj.nextLink)
-                        .set("Content-Type", "application/json")
                         .expect("Content-Type", "application/json")
                         .expect(200)
                         .end((err, res) => {
@@ -377,7 +361,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get(`/contentbrowser/workspaces/?name=${workspaces.bob.get_name()}`)
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
@@ -397,7 +380,6 @@ describe('Run Content Browser related test for content browser api', function ()
                 .then(function() {
                     client
                         .get(`/contentbrowser/workspaces/${workspaces.luke.get_name()}`)
-                        .set("Content-Type", "application/json")
                         .expect(404)
                         .end((err, res) => {
                             if (err) {
@@ -415,7 +397,6 @@ describe('Run Content Browser related test for content browser api', function ()
         it('Retrieve test asset', function(done){
             client
                 .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}${bob_test_asset.meta.ref}`)
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/vnd.bilrost.level+json")
                 .expect(200)
                 .end((err, res) => {
@@ -433,7 +414,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/unknown`)
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(404)
                 .end((err, res) => {
@@ -449,7 +429,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/prefab/`)
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
@@ -468,7 +447,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/prefab/?maxResults=1`)
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
@@ -500,7 +478,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/prefab/?ref=*`)
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
@@ -519,7 +496,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/?q=mall`)
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
@@ -538,7 +514,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/?q=${encodeURIComponent(".level")}`)
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
@@ -557,7 +532,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/?q=${encodeURIComponent(".level OR test tag: TEST")}`)
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
@@ -576,7 +550,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/?q=${encodeURIComponent("type: level AND NOT (1_1_0 OR tag: TEST)")}`)
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
@@ -594,7 +567,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/?q=${encodeURIComponent('created:.. 2000 2040 AND comment: "test asset!"')}`)
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
@@ -613,7 +585,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/?q=${encodeURIComponent('dependency: /resources/test/test')}`)
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
@@ -632,7 +603,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/?q=${encodeURIComponent('dependency: /resources/test/test.invalid')}`)
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
@@ -651,7 +621,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/?q=${encodeURIComponent('tag: TEST')}`)
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
@@ -670,7 +639,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/assets/?q=${encodeURIComponent('tag: TESTWRONG')}`)
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
@@ -710,7 +678,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/resources/mall/mall_demo`)
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
@@ -730,7 +697,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/resources/unknown`)
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(404)
                 .end((err, res) => {
@@ -747,7 +713,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/resources/assets`)
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(404)
                 .end((err, res) => {
@@ -764,7 +729,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/resources/`)
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
@@ -784,7 +748,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/resources/?maxResults=1`)
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {
@@ -817,7 +780,6 @@ describe('Run Content Browser related test for content browser api', function ()
 
             client
                 .get(`/contentbrowser/workspaces/${workspaces.bob.get_encoded_file_uri()}/resources/?q=${encodeURIComponent("test OR mall")}`)
-                .set("Content-Type", "application/json")
                 .expect("Content-Type", "application/json")
                 .expect(200)
                 .end((err, res) => {

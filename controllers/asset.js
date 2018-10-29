@@ -53,7 +53,7 @@ module.exports = function(server, context) {
                         handler.sendJSON(output, 200, substr_ext(asset_ref));
                     })
                     .catch(error => {throw({error: error});});
-            }).catch(err => handler.handleError(err));
+            }).catch(err => handler.sendError(err));
     });
 
     server.put(/^\/assetmanager\/workspaces\/([^/]*)(\/assets\/.*)/, async (req, res, next) => {
@@ -73,10 +73,10 @@ module.exports = function(server, context) {
                     const asset = await workspace.asset.replace(asset_ref, asset_representation, modified);
                     handler.sendJSON(asset, 200);
                 } catch (error) {
-                    handler.handleError(error);
+                    handler.sendError(error);
                 }
             } else {
-                handler.handleError(error);
+                handler.sendError(error);
             }
         }
     });
@@ -94,7 +94,7 @@ module.exports = function(server, context) {
             const asset = await workspace.asset.rename(asset_ref, new_asset_ref, modified);
             handler.sendJSON(asset, 200);
         } catch (err) {
-            handler.handleError(err);
+            handler.sendError(err);
         }
     });
 
@@ -111,7 +111,7 @@ module.exports = function(server, context) {
             await workspace.remove_subscription(sub_id);
             handler.sendText('Ok', 204);
         } catch (error) {
-            handler.handleError(error);
+            handler.sendError(error);
         }
     });
 };

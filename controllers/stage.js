@@ -18,7 +18,7 @@ module.exports = function(server, context) {
             const stage = await workspace.get_stage();
             handler.sendJSON({ items: stage }, 200);
         } catch (err) {
-            handler.handleError(err);
+            handler.sendError(err);
         }
     });
 
@@ -31,7 +31,7 @@ module.exports = function(server, context) {
             await workspace.empty_stage();
             handler.sendText('Ok', 200);
         } catch (err) {
-            handler.handleError(err);
+            handler.sendError(err);
         }
     });
 
@@ -47,7 +47,7 @@ module.exports = function(server, context) {
             await workspace.add_asset_to_stage(asset_ref);
             handler.sendText('Ok', 200);
         } catch (err) {
-            handler.handleError(err);
+            handler.sendError(err);
         }
     });
 
@@ -61,7 +61,7 @@ module.exports = function(server, context) {
             await workspace.remove_asset_from_stage(asset_ref);
             handler.sendText('Ok', 200);
         } catch (err) {
-            handler.handleError(err);
+            handler.sendError(err);
         }
     });
 };

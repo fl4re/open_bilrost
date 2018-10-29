@@ -43,12 +43,12 @@ describe('Run Version Control related functional tests for the API', function() 
                     type: "ASSET",
                     descriptor: "/assets/test_1_1_0.level"
                 })
+                .expect('Content-Type', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-
                     res.error.should.equal(false);
                     res.body.should.be.an.Object;
                     res.body.type.should.equal('ASSET');
@@ -61,6 +61,7 @@ describe('Run Version Control related functional tests for the API', function() 
             client
                 .del(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/stage`)
                 .send()
+                .expect('Content-Type', 'text/plain')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
@@ -77,12 +78,12 @@ describe('Run Version Control related functional tests for the API', function() 
             client
                 .post(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/stage/assets/test_1_1_0.level`)
                 .send()
+                .expect('Content-Type', 'text/plain')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-
                     res.text.should.equal('Ok');
                     done();
                 });
@@ -93,6 +94,7 @@ describe('Run Version Control related functional tests for the API', function() 
             client
                 .post(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/stage/assets/levels/test_001.level`)
                 .send()
+                .expect('Content-Type', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     should.exist(err);
@@ -106,6 +108,7 @@ describe('Run Version Control related functional tests for the API', function() 
             client
                 .post(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/stage/invalid/path`)
                 .send()
+                .expect('Content-Type', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     should.exist(err);
@@ -118,11 +121,11 @@ describe('Run Version Control related functional tests for the API', function() 
             client
                 .get(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/stage`)
                 .expect(200)
+                .expect('Content-Type', 'application/json')
                 .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-
                     res.body.should.be.an.Object;
                     res.body.items[0].should.equal('/assets/test_1_1_0.level');
                     done();
@@ -133,11 +136,11 @@ describe('Run Version Control related functional tests for the API', function() 
             client
                 .get(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/stage`)
                 .expect(200)
+                .expect('Content-Type', 'application/json')
                 .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
                     }
-
                     res.body.should.be.an.Object;
                     res.body.items[0].should.equal('/assets/test_1_1_0.level');
                     done();
@@ -147,6 +150,7 @@ describe('Run Version Control related functional tests for the API', function() 
         it('Delete Asset from Workspace Stage', function(done) {
             client
                 .delete(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/stage/assets/test_1_1_0.level`)
+                .expect('Content-Type', 'text/plain')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {

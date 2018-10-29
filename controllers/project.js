@@ -33,7 +33,7 @@ module.exports = function(server, context) {
             .then(project => {
                 handler.sendJSON(project, 200);
             })
-            .catch(err => handler.handleError(err));
+            .catch(err => handler.sendError(err));
 
     });
 
@@ -58,7 +58,7 @@ module.exports = function(server, context) {
             .then(project => {
                 handler.sendJSON(project, 200);
             })
-            .catch(err => handler.handleError(err));
+            .catch(err => handler.sendError(err));
     });
 
 };

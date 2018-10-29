@@ -45,6 +45,7 @@ describe('Run Version Control related functional tests for the API', function() 
                     type: "NAMESPACE",
                     descriptor: "/assets/prefab/"
                 })
+                .expect('Content-Type', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
@@ -63,6 +64,7 @@ describe('Run Version Control related functional tests for the API', function() 
                     type: "SEARCH",
                     descriptor: "test created:> 2004 type: prefab"
                 })
+                .expect('Content-Type', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
@@ -82,6 +84,7 @@ describe('Run Version Control related functional tests for the API', function() 
             client
                 .del(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/subscriptions`)
                 .send()
+                .expect('Content-Type', 'text/plain')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
@@ -89,6 +92,7 @@ describe('Run Version Control related functional tests for the API', function() 
                     }
                     const subscription_list = workspace.read_workspace_resource().subscriptions;
                     should.equal(subscription_list.length, 0);
+                    should.equal(res.text, 'Ok');
                     done();
                 });
         });
@@ -101,6 +105,7 @@ describe('Run Version Control related functional tests for the API', function() 
                     type: "ASSET",
                     descriptor: "/assets/test_1_1_0.level"
                 })
+                .expect('Content-Type', 'application/json')
                 .expect(200)
                 .end((err, res) => {
                     if (err) {
@@ -122,6 +127,7 @@ describe('Run Version Control related functional tests for the API', function() 
                     type: "NAMESPACE",
                     descriptor: "/invalid"
                 })
+                .expect('Content-Type', 'application/json')
                 .expect(500)
                 .end((err, res) => {
                     should.exist(res.error);
@@ -133,6 +139,7 @@ describe('Run Version Control related functional tests for the API', function() 
             client
                 .get(`/assetmanager/workspaces/${workspace.get_encoded_file_uri()}/subscriptions`)
                 .expect(200)
+                .expect('Content-Type', 'application/json')
                 .end((err, res) => {
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: res.body });
