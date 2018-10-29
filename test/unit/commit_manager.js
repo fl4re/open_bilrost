@@ -130,7 +130,7 @@ describe('Commit Manager', function() {
     it('Commit changes on deleted files', function(done){
         this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
 
-        commit_manager.commit_files('Test commit')
+        commit_manager.commit_and_push('Test commit')
             .then(commit_id => {
                 should.exist(commit_id);
                 done();

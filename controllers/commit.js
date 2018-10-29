@@ -30,14 +30,14 @@ module.exports = function(server, context) {
         }
     });
 
-    server.post('/assetmanager/workspaces/:identifier/commits', async (req, res, next) => {
+    server.post('/assetmanager/workspaces/:identifier/push', async (req, res, next) => {
         const workspace_identifier = req.params.identifier;
         const message = req.body.message;
 
         const handler = create_handler(req, res, next);
         try {
             const workspace = await _workspace.find(workspace_identifier);
-            const commit_id = await workspace.commit_files(message);
+            const commit_id = await workspace.commit_and_push(message);
             handler.sendText(commit_id, 200);
         } catch (err) {
             handler.handleError(err);
