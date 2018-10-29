@@ -11,7 +11,7 @@ const status_collection = require('../../../assetmanager/databases/status_collec
 const Status_manager = require('../../../assetmanager/status_manager');
 const workspace_utilities = require('../../../assetmanager/workspace_utilities');
 const asset = require('../../../assetmanager/asset');
-const Resource = require('../../../assetmanager/resource');
+const _resource = require('../../../assetmanager/resource');
 const mock_ifs_adapter = require('./ifs_adapter');
 
 module.exports = (guid, worskpace_path, host_vcs, ifs_map, branch, adapter) => {
@@ -33,7 +33,7 @@ module.exports = (guid, worskpace_path, host_vcs, ifs_map, branch, adapter) => {
     this.update_subscriptions = () => Promise.resolve();
     this.database = assets_collection(guid);
     this.status_collection = status_collection(guid);
-    this.resource = new Resource(this);
+    this.resource = _resource(this);
     this.asset = asset(this);
     this.status_manager = new Status_manager(this);
     return Promise.resolve(this);

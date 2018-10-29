@@ -19,31 +19,33 @@ const validator = require('./validator/resource');
 
 mime.define(config.mime);
 
-function Resource (workspace) {
-    this.adapter = workspace.get_adapter();
-    this.validator = validator(workspace.adapter, workspace.utilities);
+module.exports = workspace => {
+    const adapter = workspace.get_adapter();
     const asset_repo_manager = repo_manager.create({
         host_vcs: 'git',
-        cwd: this.adapter.path,
+        cwd: adapter.path,
         utilities: workspace.utilities
     });
-    const list_assets = ref => workspace.database.search({
-        '$or': [
-            {
-                dependencies: {
-                    '$contains': ref
-                }
-            },
-            {
-                main : ref
-            }
-        ]
-    })
-        .then(search_results => search_results.items.map(asset => asset.meta.ref));
-    const identity = identity_manager(this.adapter, asset_repo_manager, workspace.utilities, list_assets);
+    const list_assets = async ref => {
+        const search_results = await workspace.database.search({
+            '$or':
+                [
+                    {
+                        dependencies: {
+                            '$contains': ref
+                        }
+                    },
+                    {
+                        main : ref
+                    }
+                ]
+        });
+        return search_results.items.map(asset => asset.meta.ref);
+    };
+    const identity = identity_manager(adapter, asset_repo_manager, workspace.utilities, list_assets);
     const resource_repo_manager = repo_manager.create({
         host_vcs: workspace.project.get_host_vcs(),
-        cwd: this.adapter.path,
+        cwd: adapter.path,
         context: workspace.get_context(),
         subscription_manager: workspace.subscription_manager,
         identity,
@@ -52,12 +54,7 @@ function Resource (workspace) {
     const asset_finder = (ref, options) => asset.find_asset_by_ref(workspace, ref, options);
     const asset_reader = (ref, options) => asset_repo_manager.read(ref, options);
 
-    this.identity = identity;
-    this.repo_manager = resource_repo_manager;
-    this.commit_manager = commit_manager(workspace, resource_repo_manager, asset_finder, asset_reader);
-
-    this.get = (ref, options) => { // to get_fs
-        let _this = this;
+    const get = async (ref, options) => {
         if (!options) {
             options = {};
         }
@@ -71,13 +68,13 @@ function Resource (workspace) {
             ref = "/resources/";
         }
         let path = workspace.utilities.ref_to_relative_path(ref);
-        let promise;
-        if (options.q) {
-            promise = IFS.search_query(_this.adapter, path, options.q);
-        } else {
-            promise = IFS.get_stats(_this.adapter, path);
-        }
-        return promise.then(result => {
+        try {
+            let result;
+            if (options.q) {
+                result = await IFS.search_query(adapter, path, options.q);
+            } else {
+                result = await IFS.get_stats(adapter, path);
+            }
             if (result.kind === "file-list") {
                 result.items = result.items.filter(file => !~config.ignore.indexOf(file.name));
                 if (options.filterName) {
@@ -87,11 +84,11 @@ function Resource (workspace) {
                 result.items = ifs_util.slice(result.items, options.start, options.maxResults);
                 result.items = result.items.map(item => {
                     item = ifs_util.format_file(item);
-                    item.ref = workspace.utilities.absolute_path_to_ref(item.path, this.adapter.path);
+                    item.ref = workspace.utilities.absolute_path_to_ref(item.path, adapter.path);
                     return item;
                 });
                 if (options.start + result.items.length < total) {
-                    _this.indexOfMoreResults = options.start + options.maxResults;
+                    var indexOfMoreResults = options.start + options.maxResults;
                 }
                 result.totalItems = total;
             } else if (
@@ -102,26 +99,31 @@ function Resource (workspace) {
                     'ETag': result.mtime.getTime().toString() + result.ino + result.size
                 };
                 result = ifs_util.format_file(result);
-                result.ref = workspace.utilities.absolute_path_to_ref(result.path, this.adapter.path);
+                result.ref = workspace.utilities.absolute_path_to_ref(result.path, adapter.path);
                 result.header = header;
             } else {
                 throw "error";
             }
-            _this.output = result;
-            return _this;
-        }).catch(function(err) {
-            _this.error = errors.NOTFOUND(path);
+            return {
+                indexOfMoreResults,
+                output: result
+            };
+        } catch (err) {
+            console.log(err);
             switch (err) {
             case "Not found":
-                _this.error = errors.NOTFOUND(path);
-                break;
+                throw errors.NOTFOUND(path);
             case "Not support":
-                _this.error = errors.FILETYPENOTSUPPORTED();
-                break;
+                throw errors.FILETYPENOTSUPPORTED();
+            default:
+                throw errors.INTERNALERROR(err);
             }
-            throw _this;
-        });
+        }
     };
-}
-
-module.exports = Resource;
+    return {
+        get,
+        commit_manager: commit_manager(workspace, resource_repo_manager, asset_finder, asset_reader),
+        validator: validator(workspace.adapter, workspace.utilities),
+        repo_manager: resource_repo_manager
+    };
+};

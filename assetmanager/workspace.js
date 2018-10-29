@@ -16,7 +16,7 @@ const utilities = require('./utilities');
 const adapters = require('../ifs/adapters');
 const branch_model = require('./branch');
 const asset = require('./asset');
-const Resource = require("./resource");
+const _resource = require("./resource");
 const assets_collection = require('./databases/assets_collection');
 const status_collection = require('./databases/status_collection');
 const Subscription_manager = require('./subscription_manager');
@@ -167,7 +167,7 @@ const Workspace = function(file_uri, context) {
     };
 
     const instantiate_resource = () => {
-        this.resource = new Resource(this);
+        this.resource = _resource(this);
     };
 
     this.populate_db = () => {
