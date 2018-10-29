@@ -338,12 +338,12 @@ const Workspace = function(file_uri, context) {
         this.update_stage();
         return this.save();
     };
-    this.commit_files = message => this.with_lock(() => this.resource.commit_manager.get_commitable_files()
+    this.commit_and_push = message => this.with_lock(() => this.resource.commit_manager.get_commitable_files()
         .then(resource_commitable_files => {
             let asset_commit_id;
             return this.resource.identity.build_and_stage_identity_files(resource_commitable_files)
-                .then(() => this.resource.commit_manager.commit_files(message, resource_commitable_files))
-                .then(() => this.asset.commit_manager.commit_files(message))
+                .then(() => this.resource.commit_manager.commit_and_push(message, resource_commitable_files))
+                .then(() => this.asset.commit_manager.commit_and_push(message))
                 .then(id => {
                     asset_commit_id = id;
                     return this.empty_stage();

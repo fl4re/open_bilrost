@@ -77,7 +77,7 @@ const commit_manager = (workspace, repo_manager, asset_finder, asset_reader) => 
             }));
     };
 
-    const commit_files = (message, commit_files) => {
+    const commit_and_push = (message, commit_files) => {
         const lazy_get_commitable_files = () => new Promise((resolve, reject) => {
             if (commit_files) {
                 resolve(commit_files);
@@ -102,9 +102,9 @@ const commit_manager = (workspace, repo_manager, asset_finder, asset_reader) => 
     };
 
     return {
-        get_commitable_files: get_commitable_files,
-        get_commit_log: get_commit_log,
-        commit_files: commit_files,
+        get_commitable_files,
+        get_commit_log,
+        commit_and_push
     };
 };
 
