@@ -37,7 +37,7 @@ module.exports = function(server, context) {
         const handler = create_handler(req, res, next);
         try {
             const workspace = await _workspace.find(workspace_identifier);
-            const commit_id = await workspace.commit_files(message);
+            const commit_id = await workspace.commit_and_push(message);
             handler.sendText(commit_id, 200);
         } catch (err) {
             handler.handleError(err);
