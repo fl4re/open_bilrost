@@ -7,12 +7,39 @@
 const crypto = require('crypto');
 
 const errors = require('../lib/errors')('Identity');
+const IFS = require('../ifs/services');
 
 const filter_error = err => {
     throw errors.INTERNALERROR(err);
 };
 
+const ifs_ignores = ['.git'];
+
 module.exports = (ifs_adapter, git_repo_manager, utilities, list_parent_assets) => {
+
+    const list = async (ref = '/resources/') => {
+        const path = workspace.utilities.resource_ref_to_identity_path(ref);
+        try {
+            return await IFS.get_stats(ifs_adapter, path, ifs_ignores);
+        } catch (err) {
+            if (err === "Not found" || err.toString().includes('ENOENT')) {
+                throw errors.NOTFOUND(path);
+            } else if (err === "Not support") {
+                throw errors.FILETYPENOTSUPPORTED();
+            } else {
+                throw errors.INTERNALERROR(err);
+            }
+        }
+    };
+
+    const search = async (ref = '/resources', query) => {
+        const path = workspace.utilities.resource_ref_to_identity_path(ref);
+        try {
+            return await IFS.search_query(adapter, path, query, ifs_ignores);
+        } catch (err) {
+           filter_error(ref);
+        }
+    };
 
     const build_hash = path => new Promise((resolve, reject) => {
         const fd_hash = ifs_adapter.createReadStream(path);
@@ -38,7 +65,7 @@ module.exports = (ifs_adapter, git_repo_manager, utilities, list_parent_assets) 
                     code: 1 // no identity file
                 };
             } else {
-                throw err;
+                filter_error(err);
             }
         })
         .then(hash => build_hash(utilities.ref_to_relative_path(ref))
@@ -48,10 +75,11 @@ module.exports = (ifs_adapter, git_repo_manager, utilities, list_parent_assets) 
                         code: 2 // no resources
                     };
                 } else {
-                    throw err;
+                    filter_error(err);
                 }
             })
-            .then(read_hash => read_hash === hash));
+            .then(read_hash => read_hash === hash))
+            .catch(filter_error);
 
     const build_resource_identity = path => build_hash(path)
         .then(read_hash => ifs_adapter.outputFormattedJson(utilities.resource_path_to_identity_path(path), { hash: read_hash }));
@@ -62,6 +90,7 @@ module.exports = (ifs_adapter, git_repo_manager, utilities, list_parent_assets) 
             await ifs_adapter.removeFile(utilities.resource_path_to_identity_path(path));
         }
     };
+
     const build_and_stage_identity_files = resource_commitable_files => {
         const mapped_resource_files = [...resource_commitable_files.mod_paths, ...resource_commitable_files.add_paths];
         const identity_files_to_add = mapped_resource_files;
@@ -75,7 +104,7 @@ module.exports = (ifs_adapter, git_repo_manager, utilities, list_parent_assets) 
         const stage_identity_files = () => {
             const add_identities_to_git_stage = git_repo_manager.add_files(identity_files_to_add.map(utilities.resource_path_to_identity_path));
             const remove_identities_from_git_stage = git_repo_manager.remove_files(identity_files_to_remove.map(utilities.resource_path_to_identity_path));
-            return Promise.all([add_identities_to_git_stage, remove_identities_from_git_stage]);
+            return Promise.all([add_identities_to_git_stage, remove_identities_from_git_stage])
         };
 
         return build_identity_files()
@@ -84,6 +113,8 @@ module.exports = (ifs_adapter, git_repo_manager, utilities, list_parent_assets) 
     };
 
     return {
+        list,
+        search,
         get_resource_hash,
         build_and_stage_identity_files,
         compare

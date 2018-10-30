@@ -61,9 +61,7 @@ module.exports = workspace => {
     const asset_reader = (ref, options) => asset_repo_manager.read(ref, options);
 
     const format_items = items => items
-        .filter(file => !files_to_ignore.find(ignore_entry => file.path.includes(ignore_entry)))
         .map(item => {
-            item = ifs_util.format_file(item);
             item.ref = workspace.utilities.absolute_path_to_ref(item.path, adapter.path);
             return item;
         });
@@ -71,7 +69,7 @@ module.exports = workspace => {
     const find_from_fs = async (ref, query) => {
         const path = workspace.utilities.ref_to_relative_path(ref);
         try {
-            const result = await IFS.search_query(adapter, path, query);
+            const result = await IFS.search_query(adapter, path, query, files_to_ignore);
             result.items = format_items(result.items);
             return result;
         } catch (err) {
@@ -89,18 +87,14 @@ module.exports = workspace => {
         }
         const path = workspace.utilities.ref_to_relative_path(ref);
         try {
-            let result = await IFS.get_stats(adapter, path);
+            let result = await IFS.get_stats(adapter, path, files_to_ignore);
             if (result.kind === "file-list") {
                 result.items = format_items(result.items);
             } else if (
                 !result.kind && !~files_to_ignore.indexOf(result.name)
             ) {
-                const modified = result.mtime;
-                const etag = modified.getTime().toString() + result.ino + result.size;
                 result = ifs_util.format_file(result);
                 result.ref = workspace.utilities.absolute_path_to_ref(result.path, adapter.path);
-                result.modified = modified;
-                result.etag = etag;
             } else {
                 throw errors.INTERNALERROR('Unvalid ifs output');
             }
