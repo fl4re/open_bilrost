@@ -62,7 +62,7 @@ class Repo_manager_git extends Repo_manager {
         this.branches_command = "git remote show origin";
         this.fetch_all_command = "git fetch --all";
         this.local_branch_name_command = "git branch";
-        this.checkout_command = (host_url, branch) => "git clone -b " + branch + " " + host_url + " .";
+        this.checkout_command = (host_url, branch) => "git clone -c core.longpaths=true -b " + branch + " " + host_url + " .";
         this.commit_info_command = "git log -n 1";
         this.scrap_commit_info_regexp = /commit ([0-9a-zA-Z]{1,})/;
         this.diff_command = "git diff";
