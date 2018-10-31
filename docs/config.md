@@ -4,7 +4,7 @@
 Bilrost uses nconf as a key/value local store. For some use cases, we need to store persistently data. Nconf is great for doing this with json files, and support also remote storage.
 
 ### Where to find?
-        %APPDATA/Bilrost on Windows®
+        %LOCALAPPDATA/Bilrost on Windows®
         ~/Library/Bilrost on Mac®
 
 ### Which files?
