@@ -787,9 +787,9 @@ describe('Run Content Browser related test for content browser api', function ()
                     if (err) {
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
-                    obj.items.length.should.be.above(16);
+                    obj.items.length.should.be.equal(12);
                     obj.items.map(item => item.should.have.properties("ref", "path"));
-                    obj.totalItems.should.be.above(16);
+                    obj.totalItems.should.be.equal(12);
                     done();
                 });
 

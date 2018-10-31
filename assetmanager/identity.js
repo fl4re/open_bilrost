@@ -56,14 +56,12 @@ module.exports = (ifs_adapter, git_repo_manager, utilities, list_parent_assets) 
     const build_resource_identity = path => build_hash(path)
         .then(read_hash => ifs_adapter.outputFormattedJson(utilities.resource_path_to_identity_path(path), { hash: read_hash }));
 
-    const remove_resource_identity = path => list_parent_assets(utilities.relative_path_to_ref(path))
-        .then(parents => {
-            const len = parents.length;
-            if (len <= 1) {
-                return ifs_adapter.removeFile(utilities.resource_path_to_identity_path(path));
-            }
-        });
-
+    const remove_resource_identity = async path => {
+        const parents = await list_parent_assets(utilities.relative_path_to_ref(path));
+        if (parents.length <= 1) {
+            await ifs_adapter.removeFile(utilities.resource_path_to_identity_path(path));
+        }
+    };
     const build_and_stage_identity_files = resource_commitable_files => {
         const mapped_resource_files = [...resource_commitable_files.mod_paths, ...resource_commitable_files.add_paths];
         const identity_files_to_add = mapped_resource_files;
@@ -86,8 +84,8 @@ module.exports = (ifs_adapter, git_repo_manager, utilities, list_parent_assets) 
     };
 
     return {
-        get_resource_hash: get_resource_hash,
-        build_and_stage_identity_files: build_and_stage_identity_files,
-        compare: compare
+        get_resource_hash,
+        build_and_stage_identity_files,
+        compare
     };
 };
