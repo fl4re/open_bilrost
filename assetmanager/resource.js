@@ -8,7 +8,6 @@
 const asset = require('./asset');
 const repo_manager = require('./repo_manager');
 const IFS = require('../ifs/services');
-const ifs_util = require('../ifs/utilities');
 const errors = require('../lib/errors')('Resource');
 const commit_manager = require('./commit_manager');
 const identity_manager = require('./identity');
@@ -34,11 +33,13 @@ module.exports = workspace => {
                 [
                     {
                         dependencies: {
-                            '$contains': ref
+                            $regex: ref
                         }
                     },
                     {
-                        main: ref
+                        main: {
+                            $regex: ref
+                        }
                     }
                 ]
         });
@@ -60,18 +61,10 @@ module.exports = workspace => {
     const asset_finder = (ref, options) => asset.find_asset_by_ref(workspace, ref, options);
     const asset_reader = (ref, options) => asset_repo_manager.read(ref, options);
 
-    const format_items = items => items
-        .map(item => {
-            item.ref = workspace.utilities.absolute_path_to_ref(item.path, adapter.path);
-            return item;
-        });
-
     const find_from_fs = async (ref, query) => {
         const path = workspace.utilities.ref_to_relative_path(ref);
         try {
-            const result = await IFS.search_query(adapter, path, query, files_to_ignore);
-            result.items = format_items(result.items);
-            return result;
+            return await IFS.search_query(adapter, path, query, files_to_ignore);
         } catch (err) {
             if (err.toString().includes('ENOENT')) {
                 throw errors.NOTFOUND(err);
@@ -87,18 +80,7 @@ module.exports = workspace => {
         }
         const path = workspace.utilities.ref_to_relative_path(ref);
         try {
-            let result = await IFS.get_stats(adapter, path, files_to_ignore);
-            if (result.kind === "file-list") {
-                result.items = format_items(result.items);
-            } else if (
-                !result.kind && !~files_to_ignore.indexOf(result.name)
-            ) {
-                result = ifs_util.format_file(result);
-                result.ref = workspace.utilities.absolute_path_to_ref(result.path, adapter.path);
-            } else {
-                throw errors.INTERNALERROR('Unvalid ifs output');
-            }
-            return result;
+            return await IFS.get_stats(adapter, path, files_to_ignore);
         } catch (err) {
             if (err === "Not found" || err.toString().includes('ENOENT')) {
                 throw errors.NOTFOUND(path);
@@ -110,46 +92,43 @@ module.exports = workspace => {
         }
     };
 
-    const get_from_db = async ref => {
-        let ident = {}, assets;
-        try {
-            ident.hash = await identity.get_resource_hash(ref);
-        } catch (err) {
-            const message = err.message || err.toString();
-            const is_message_to_ignore = message.includes('ENOENT') || message.includes('EISDIR');
-            if (!is_message_to_ignore) {
-                throw errors.INTERNALERROR(err);
-            }
-        }
-        try {
-            assets = await list_assets(ref);
-        } catch (err) {
-            throw errors.INTERNALERROR(err);
-        }
+    const format_resource_item = async (identity_item, fs_item) => {
+        const assets = await list_assets(identity_item.ref);
         return {
-            assets,
-            ...ident
+            ...fs_item,
+            ...identity_item,
+            assets
         };
     };
 
+    const format_resource_items = async (identity_items, fs_items) => Promise.all(identity_items.map(async identity_item => {
+        const associated_fs_item = fs_items.find(({ path }) => path === identity_item.path) || {};
+        const assets = await list_assets(identity_item.ref);
+        return {
+            ...identity_item,
+            ...associated_fs_item,
+            assets
+        };
+    }));
+
     const get = async ref => {
         try {
-            const file_system_res = await get_from_fs(ref);
-            if (file_system_res.items) {
-                file_system_res.items = await Promise.all(file_system_res.items.map(async item => {
-                    const db_res = await get_from_db(item.ref);
-                    return {
-                        ...item,
-                        ...db_res
-                    };
-                }));
-                return file_system_res;
+            const [identity_res, ifs_res] = await Promise.all([
+                identity.list(ref),
+                get_from_fs(ref)
+                    .catch(err => {
+                        if (err.statusCode !== 404) {
+                            throw errors.INTERNALERROR(err);
+                        } else {
+                            return { items: [] };
+                        }
+                    })
+            ]);
+            if (identity_res.items) {
+                identity_res.items = await format_resource_items(identity_res.items, ifs_res.items);
+                return identity_res;
             } else {
-                const db_res = await get_from_db(ref);
-                return {
-                    ...file_system_res,
-                    ...db_res
-                };
+                return await format_resource_item(identity_res, ifs_res);
             }
         } catch (err) {
             throw err.statusCode ? err : errors.INTERNALERROR(err);
@@ -158,15 +137,17 @@ module.exports = workspace => {
 
     const find = async (ref, query) => {
         try {
-            const file_system_res = await find_from_fs(ref, query);
-            file_system_res.items = await Promise.all(file_system_res.items.map(async item => {
-                const db_res = await get_from_db(item.ref);
-                return {
-                    ...item,
-                    ...db_res
-                };
-            }));
-            return file_system_res;
+            const [identity_res, ifs_res] = await Promise.all([
+                identity.find(ref, query),
+                find_from_fs(ref, query)
+                    .catch(err => {
+                        if (!err.message.includes('ENOENT')) {
+                            throw err;
+                        }
+                    })
+            ]);
+            identity_res.items = await format_resource_items(identity_res.items, ifs_res.items);
+            return identity_res;
         } catch (err) {
             throw err.statusCode ? err : errors.INTERNALERROR(err);
         }

@@ -32,28 +32,27 @@ module.exports = {
             var code = _file.error.code;
             return {
                 kind: code,
-                id: _file.name,
+                name: _file.name,
                 fileSize: code,
                 createdDate: code,
                 modifiedDate: code,
                 fileExtension: _file.extension,
                 path: _file.path,
-                "mime-type": _file.mime,
+                mime: _file.isFile() ? _file.mime : ""
             };
         } else {
             return {
                 kind: _file.isFile() ? "file" : "dir",
-                id: _file.name,
+                name: _file.name,
                 fileSize: _file.size,
                 createdDate: _file.ctime,
                 modifiedDate: _file.mtime,
                 fileExtension: _file.extension,
-                hasChildren: _file.hasChildren,
                 path: _file.path,
                 etag: _file.mtime.getTime().toString() + _file.ino + _file.size,
-                "mime-type": _file.mime
+                mime: _file.isFile() ? _file.mime : ""
             };
         }
     }
-    
+
 };

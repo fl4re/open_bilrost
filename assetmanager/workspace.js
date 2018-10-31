@@ -420,7 +420,7 @@ module.exports = context => {
         if (identifiers && identifiers.file_uri) {
             return find_by_file_uri(identifiers.file_uri);
         } else {
-            return Promise.reject({error: _error_outputs.NOTFOUND('workspace identifier in favorite list')});
+            return Promise.reject({error: _error_outputs.NOTFOUND(identifiers)});
         }
     }
 
