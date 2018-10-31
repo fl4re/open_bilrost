@@ -89,7 +89,7 @@ const Workspace = function(file_uri, context) {
                     throw this;
                 });
         } else {
-            this.error = _error_outputs.NOTFOUND(`${this.get_file_uri()} not found`);
+            this.error = _error_outputs.NOTFOUND(this.get_file_uri());
             return Promise.reject(this);
         }
 
