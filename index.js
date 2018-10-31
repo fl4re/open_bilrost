@@ -19,7 +19,7 @@ const is_win = /^win/.test(process.platform);
 const command_line_args = require('minimist')(process.argv.slice(2));
 
 const INTERNAL_FOLDER_PATH = is_win ?
-    path.join(process.env.APPDATA, 'Bilrost') :
+    path.join(process.env.LOCALAPPDATA, 'Bilrost') :
     path.join(os.homedir(), 'Library/Bilrost');
 const CACHE_PATH = path.join(INTERNAL_FOLDER_PATH, 'Cache');
 const CONFIG_PATH = path.join(INTERNAL_FOLDER_PATH, 'Config');
