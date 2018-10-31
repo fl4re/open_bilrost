@@ -7,12 +7,70 @@
 const crypto = require('crypto');
 
 const errors = require('../lib/errors')('Identity');
+const IFS = require('../ifs/services');
 
 const filter_error = err => {
     throw errors.INTERNALERROR(err);
 };
 
+const ifs_ignores = ['.git'];
+
 module.exports = (ifs_adapter, git_repo_manager, utilities, list_parent_assets) => {
+
+    const get_resource_hash = async ref => {
+        const identity = await ifs_adapter.readJson(utilities.resource_ref_to_identity_path(ref));
+        return identity.hash;
+    };
+
+    const format_identity_metadata = async ({ path, kind, mime }) => {
+        const ref = utilities.identity_path_to_resource_ref(path, ifs_adapter.path);
+        return {
+            kind,
+            ref,
+            path: utilities.map_resource_identity_path(path),
+            mime,
+            hash: await get_resource_hash(ref)
+                .catch(err => {
+                    if (!err.toString().includes('ENOENT') && !err.toString().includes('EISDIR')) {
+                        throw err;
+                    } else {
+                        return '';
+                    }
+                })
+        };
+    };
+
+    const list = async (ref = '/resources/') => {
+        const path = utilities.resource_ref_to_identity_path(ref);
+        try {
+            let stats = await IFS.get_stats(ifs_adapter, path, ifs_ignores);
+            if (stats.kind === 'file-list') {
+                stats.items = await Promise.all(stats.items.map(format_identity_metadata));
+            } else {
+                stats = await format_identity_metadata(stats);
+            }
+            return stats;
+        } catch (err) {
+            if (err === "Not found" || err.toString().includes('ENOENT')) {
+                throw errors.NOTFOUND(path);
+            } else if (err === "Not support") {
+                throw errors.FILETYPENOTSUPPORTED();
+            } else {
+                throw errors.INTERNALERROR(err);
+            }
+        }
+    };
+
+    const find = async (ref = '/resources', query) => {
+        const path = utilities.resource_ref_to_identity_path(ref);
+        try {
+            const stats = await IFS.search_query(ifs_adapter, path, query, ifs_ignores);
+            stats.items = await Promise.all(stats.items.map(format_identity_metadata));
+            return stats;
+        } catch (err) {
+            filter_error(ref);
+        }
+    };
 
     const build_hash = path => new Promise((resolve, reject) => {
         const fd_hash = ifs_adapter.createReadStream(path);
@@ -27,9 +85,6 @@ module.exports = (ifs_adapter, git_repo_manager, utilities, list_parent_assets) 
         fd_hash.pipe(hash);
     });
 
-    const get_resource_hash = ref => ifs_adapter.readJson(utilities.resource_ref_to_identity_path(ref))
-        .then(identity => identity.hash);
-
     // compare the resource sha given by its content with the hash defined by identity files
     const compare = ref => get_resource_hash(ref)
         .catch(err => {
@@ -38,7 +93,7 @@ module.exports = (ifs_adapter, git_repo_manager, utilities, list_parent_assets) 
                     code: 1 // no identity file
                 };
             } else {
-                throw err;
+                filter_error(err);
             }
         })
         .then(hash => build_hash(utilities.ref_to_relative_path(ref))
@@ -48,10 +103,11 @@ module.exports = (ifs_adapter, git_repo_manager, utilities, list_parent_assets) 
                         code: 2 // no resources
                     };
                 } else {
-                    throw err;
+                    filter_error(err);
                 }
             })
-            .then(read_hash => read_hash === hash));
+            .then(read_hash => read_hash === hash)
+        );
 
     const build_resource_identity = path => build_hash(path)
         .then(read_hash => ifs_adapter.outputFormattedJson(utilities.resource_path_to_identity_path(path), { hash: read_hash }));
@@ -62,6 +118,7 @@ module.exports = (ifs_adapter, git_repo_manager, utilities, list_parent_assets) 
             await ifs_adapter.removeFile(utilities.resource_path_to_identity_path(path));
         }
     };
+
     const build_and_stage_identity_files = resource_commitable_files => {
         const mapped_resource_files = [...resource_commitable_files.mod_paths, ...resource_commitable_files.add_paths];
         const identity_files_to_add = mapped_resource_files;
@@ -84,6 +141,8 @@ module.exports = (ifs_adapter, git_repo_manager, utilities, list_parent_assets) 
     };
 
     return {
+        list,
+        find,
         get_resource_hash,
         build_and_stage_identity_files,
         compare
