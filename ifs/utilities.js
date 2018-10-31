@@ -31,36 +31,28 @@ module.exports = {
         if (_file.error) {
             var code = _file.error.code;
             return {
-                "kind": code,
-                "id": _file.name,
-                "fileSize": code,
-                "createdDate": code,
-                "modifiedDate": code,
-                "fileExtension": _file.extension,
-                "mime-type": _file.mime,
-                "path": _file.path
+                kind: code,
+                name: _file.name,
+                fileSize: code,
+                createdDate: code,
+                modifiedDate: code,
+                fileExtension: _file.extension,
+                path: _file.path,
+                mime: _file.isFile() ? _file.mime : ""
             };
         } else {
             return {
-                "kind": _file.isFile() ? "file" : "dir",
-                "id": _file.name,
-                "fileSize": _file.size,
-                "createdDate": _file.ctime,
-                "modifiedDate": _file.mtime,
-                "fileExtension": _file.extension,
-                "mime-type": _file.mime,
-                "hasChildren": _file.hasChildren,
-                "path": _file.path
+                kind: _file.isFile() ? "file" : "dir",
+                name: _file.name,
+                fileSize: _file.size,
+                createdDate: _file.ctime,
+                modifiedDate: _file.mtime,
+                fileExtension: _file.extension,
+                path: _file.path,
+                etag: _file.mtime.getTime().toString() + _file.ino + _file.size,
+                mime: _file.isFile() ? _file.mime : ""
             };
         }
-    },
-
-    format_drive: function(_drive) {
-        return {
-            kind: 'dir',
-            id: _drive.name + '/',
-            fileSize: _drive.size,
-            hasChildren: true
-        };
     }
+
 };

@@ -149,7 +149,7 @@ const get_utilities = get_internal_file_path => {
         },
 
         map_resource_identity_path (path) {
-            return path.split(get_internal_file_path('resources')).join('');
+            return Path.normalize(path.split(get_internal_file_path('resources')).join(''));
         },
 
         resource_path_to_identity_path (resource_path) {
@@ -157,8 +157,13 @@ const get_utilities = get_internal_file_path => {
         },
 
         resource_ref_to_identity_path (resource_ref) {
-            let resource_path = resource_ref.match(resource_ref_regexp)[1];
+            const resource_path = resource_ref.match(resource_ref_regexp)[1];
             return utilities.resource_path_to_identity_path(resource_path);
+        },
+
+        identity_path_to_resource_ref (path, workspace_path) {
+            const relative_path = Path.relative(Path.join(workspace_path, get_internal_file_path('resources')), path);
+            return utilities.relative_path_to_ref(relative_path);
         }
 
     };

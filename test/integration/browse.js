@@ -45,8 +45,6 @@ describe('Run Content Browser related test for content browser api', function ()
         });
     });
 
-    after("Removing fixtures", () => Promise.all(Object.keys(workspaces).map(workspace_name => workspaces[workspace_name].remove())));
-
     describe('-- [GET] /contentbrowser/projects/', function(){
         it("", function(done) {
 

@@ -48,12 +48,6 @@ module.exports = function(server, context) {
                     result.nextLink = get_next_url(req.url, options.start, options.maxResults);
                 }
             }
-            if (result.modified) {
-                res.header('Last-Modified', result.modified);
-            }
-            if (result.etag) {
-                res.header('Etag', result.etag);
-            }
             handler.sendJSON(result, 200);
         } catch (err) {
             handler.sendError(err);
