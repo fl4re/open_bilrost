@@ -11,17 +11,17 @@ const status_config = require('./status.config.json');
 const commit_manager = (workspace, repo_manager, asset_finder, asset_reader) => {
 
     const get_commitable_files = () => {
-        let add_paths = [];
-        let mod_paths = [];
-        let del_paths = [];
+        let add = [];
+        let mod = [];
+        let del = [];
 
         const add_path_to_result = status => {
             if(status.status === status_config.sync.NEW) {
-                add_paths.push(status.path);
+                add.push(status.ref);
             } else if (status.status === status_config.sync.DELETED) {
-                del_paths.push(status.path);
+                del.push(status.ref);
             } else {
-                mod_paths.push(status.path);
+                mod.push(status.ref);
             }
         };
 
@@ -49,7 +49,7 @@ const commit_manager = (workspace, repo_manager, asset_finder, asset_reader) => 
                                 statuses.forEach(status => {
                                     if (status.status === status_config.sync.DELETED) {
                                         if (repo_manager.type === 'git' ? status.ref === ref : workspace.utilities.is_dependency(status.ref, asset.output.main, asset.output.dependencies)) {
-                                            del_paths.push(status.path);
+                                            del.push(status.ref);
                                         }
                                     } else if (status.status === status_config.sync.NEW || status.status === status_config.sync.MODIFIED || status.status === status_config.sync.RENAMED) {
                                         if (workspace.utilities.is_asset_ref(status.ref)) {
@@ -71,9 +71,9 @@ const commit_manager = (workspace, repo_manager, asset_finder, asset_reader) => 
                 }, Promise.resolve());
             })
             .then(() => ({
-                add_paths: utilities.unique(add_paths),
-                mod_paths: utilities.unique(mod_paths),
-                del_paths: utilities.unique(del_paths)
+                add: utilities.unique(add),
+                mod: utilities.unique(mod),
+                del: utilities.unique(del)
             }));
     };
 
@@ -90,7 +90,8 @@ const commit_manager = (workspace, repo_manager, asset_finder, asset_reader) => 
             }
         });
         return lazy_get_commitable_files()
-            .then(commitable_files => repo_manager.push_files(commitable_files.mod_paths, commitable_files.add_paths, commitable_files.del_paths, message, workspace.get_branch()));
+            .then(commitable_files => repo_manager.push_files(commitable_files.mod.map(workspace.utilities.ref_to_relative_path), commitable_files.add.map(workspace.utilities.ref_to_relative_path),
+                commitable_files.del.map(workspace.utilities.ref_to_relative_path), message, workspace.get_branch()));
     };
 
     const get_commit_log = (ref, start_at_revision, maxResults) => {

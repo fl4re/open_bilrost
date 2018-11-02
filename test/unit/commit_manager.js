@@ -104,9 +104,9 @@ describe('Commit Manager', function() {
 
         commit_manager.get_commitable_files()
             .then(commitable_files => {
-                commitable_files.del_paths.should.be.empty();
-                commitable_files.mod_paths.should.be.empty();
-                commitable_files.add_paths.should.be.empty();
+                commitable_files.del.should.be.empty();
+                commitable_files.mod.should.be.empty();
+                commitable_files.add.should.be.empty();
                 done();
             })
             .catch(done);
@@ -114,14 +114,14 @@ describe('Commit Manager', function() {
 
     it('Get commitable files with deleted asset', function(done){
         this.timeout(5*this.timeout()); // = 5 * default = 5 * 2000 = 10000
-
-        workspace.remove_asset("/assets/test_1_1_0.level");
+        const asset_to_remove = '/assets/test_1_1_0.level';
+        workspace.remove_asset(asset_to_remove);
 
         commit_manager.get_commitable_files()
             .then(commitable_files => {
-                commitable_files.del_paths[0].should.equal('/.bilrost/assets/test_1_1_0.level');
-                commitable_files.mod_paths.should.be.empty();
-                commitable_files.add_paths.should.be.empty();
+                commitable_files.del[0].should.equal(asset_to_remove);
+                commitable_files.mod.should.be.empty();
+                commitable_files.add.should.be.empty();
                 done();
             })
             .catch(done);
@@ -145,9 +145,9 @@ describe('Commit Manager', function() {
 
         commit_manager.get_commitable_files()
             .then(commitable_files => {
-                commitable_files.del_paths.should.be.empty();
-                commitable_files.mod_paths.should.be.empty();
-                commitable_files.add_paths.should.be.empty();
+                commitable_files.del.should.be.empty();
+                commitable_files.mod.should.be.empty();
+                commitable_files.add.should.be.empty();
                 done();
             })
             .catch(done);

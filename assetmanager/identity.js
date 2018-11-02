@@ -109,20 +109,20 @@ module.exports = (ifs_adapter, git_repo_manager, utilities, list_parent_assets) 
             .then(read_hash => read_hash === hash)
         );
 
-    const build_resource_identity = path => build_hash(path)
-        .then(read_hash => ifs_adapter.outputFormattedJson(utilities.resource_path_to_identity_path(path), { hash: read_hash }));
+    const build_resource_identity = ref => build_hash(utilities.ref_to_relative_path(ref))
+        .then(read_hash => ifs_adapter.outputFormattedJson(utilities.resource_ref_to_identity_path(ref), { hash: read_hash }));
 
-    const remove_resource_identity = async path => {
-        const parents = await list_parent_assets(utilities.relative_path_to_ref(path));
+    const remove_resource_identity = async ref => {
+        const parents = await list_parent_assets(ref);
         if (parents.length <= 1) {
-            await ifs_adapter.removeFile(utilities.resource_path_to_identity_path(path));
+            await ifs_adapter.removeFile(utilities.resource_ref_to_identity_path(ref));
         }
     };
 
     const build_and_stage_identity_files = resource_commitable_files => {
-        const mapped_resource_files = [...resource_commitable_files.mod_paths, ...resource_commitable_files.add_paths];
+        const mapped_resource_files = [...resource_commitable_files.mod, ...resource_commitable_files.add];
         const identity_files_to_add = mapped_resource_files;
-        const identity_files_to_remove = resource_commitable_files.del_paths;
+        const identity_files_to_remove = resource_commitable_files.del;
         const build_identity_files = () => {
             const build_identities = Promise.all(mapped_resource_files.map(build_resource_identity));
             const remove_identities = Promise.all(identity_files_to_remove.map(remove_resource_identity));
@@ -130,8 +130,8 @@ module.exports = (ifs_adapter, git_repo_manager, utilities, list_parent_assets) 
         };
 
         const stage_identity_files = () => {
-            const add_identities_to_git_stage = git_repo_manager.add_files(identity_files_to_add.map(utilities.resource_path_to_identity_path));
-            const remove_identities_from_git_stage = git_repo_manager.remove_files(identity_files_to_remove.map(utilities.resource_path_to_identity_path));
+            const add_identities_to_git_stage = git_repo_manager.add_files(identity_files_to_add.map(utilities.resource_ref_to_identity_path));
+            const remove_identities_from_git_stage = git_repo_manager.remove_files(identity_files_to_remove.map(utilities.resource_ref_to_identity_path));
             return Promise.all([add_identities_to_git_stage, remove_identities_from_git_stage]);
         };
 

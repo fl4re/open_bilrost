@@ -37,19 +37,22 @@ describe("Identity", function() {
 
     it('build and stage identity files', function(done) {
         let success_count = 0;
-        const add_path = "/added/a.json";
+        const added_path = "/added/a.json";
+        const added_ref = "/resources/added/a.json";
         const modified_path = "/modified/m.json";
+        const modified_ref = "/resources/added/a.json";
         const removed_path = "/removed/r.json";
+        const removed_ref = "/resources/removed/r.json";
         const ifs_adapter = {
             readJson: path => {
-                if (path === add_path) {
+                if (path === added_path) {
                     return Promise.resolve('foo');
                 } else if (path === modified_path) {
                     return Promise.resolve('bar');
                 }
             },
             outputFormattedJson: path => {
-                if (path === '.bilrost/resources' + add_path) {
+                if (path === '.bilrost/resources' + added_path) {
                     success_count ++;
                     return Promise.resolve();
                 } else if (path === '.bilrost/resources' + modified_path) {
@@ -66,7 +69,7 @@ describe("Identity", function() {
             createReadStream: path => {
                 const stream = new s.Readable();
                 let value = '';
-                if (path === add_path) {
+                if (path === added_path) {
                     value = 'foo';
                 } else if (path === modified_path) {
                     value = 'bar';
@@ -79,7 +82,7 @@ describe("Identity", function() {
         const git_repo_manager = {
             add_files: file_paths => {
                 file_paths.forEach(path => {
-                    if (path === '.bilrost/resources' + add_path) {
+                    if (path === '.bilrost/resources' + added_path) {
                         success_count ++;
                         return Promise.resolve();
                     } else if (path === '.bilrost/resources' + modified_path) {
@@ -102,10 +105,9 @@ describe("Identity", function() {
         ]);
         const id = identity(ifs_adapter, git_repo_manager, workspace_utilities, list_parent_assets);
         const commitable_files = {
-            add_paths: [add_path],
-            mod_paths: [modified_path],
-            del_paths: [removed_path]
-
+            add: [added_ref],
+            mod: [modified_ref],
+            del: [removed_ref]
         };
         id.build_and_stage_identity_files(commitable_files)
             .then(() => {
@@ -117,6 +119,7 @@ describe("Identity", function() {
     it('build and stage identity files with a resource removal which is referenced by two assets', function(done) {
         let success_count = 0;
         const removed_path = "/removed/r.json";
+        const removed_ref = "/resources/removed/r.json";
         const ifs_adapter = {
             removeFile: path => {
                 if (path === '.bilrost/resources' + removed_path) {
@@ -142,10 +145,9 @@ describe("Identity", function() {
         ]);
         const id = identity(ifs_adapter, git_repo_manager, workspace_utilities, list_parent_assets);
         const commitable_files = {
-            add_paths: [],
-            mod_paths: [],
-            del_paths: [removed_path]
-
+            add: [],
+            mod: [],
+            del: [removed_ref]
         };
         id.build_and_stage_identity_files(commitable_files)
             .then(() => {
