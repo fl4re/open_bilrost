@@ -67,7 +67,8 @@ const Repo_manager_s3 = input => {
         pull_file: file_path => {
             const ref = input.utilities.relative_path_to_ref(file_path, cwd);
             const full_path = path.join(cwd, file_path);
-            return identity.get_resource_hash(ref)
+            return identity.list(ref)
+                .then(id => id.get_hash())
                 .then(key => amazon.download(key, full_path))
                 .catch(filter_error);
         },
@@ -75,7 +76,8 @@ const Repo_manager_s3 = input => {
             const push_file = relative_path => {
                 const ref = input.utilities.relative_path_to_ref(relative_path);
                 const absolute_path = path.join(cwd, relative_path);
-                return identity.get_resource_hash(ref)
+                return identity.list(ref)
+                    .then(id => id.get_hash())
                     .then(key => amazon.exists(key)
                         .then(() => {
                             // eslint-disable-next-line no-console

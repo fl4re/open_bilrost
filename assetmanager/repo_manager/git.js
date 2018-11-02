@@ -179,8 +179,8 @@ class Repo_manager_git extends Repo_manager {
 
     _stage_file (operation, file_paths) {
         if (file_paths.length) {
-            // limit to 260 characters for win and 4096 for unix https://github.com/msysgit/git/pull/110
-            const groups = organize_paths_per_groups(file_paths, is_win ? 260 : 4096);
+            // limit to 4096 characters
+            const groups = organize_paths_per_groups(file_paths, 4096);
             return groups.reduce((sequence, group) => sequence.then(() => promisify(this.exec)(this.stage_files_command(operation, group), { cwd: this.cwd, maxBuffer: max_buffer })), Promise.resolve());
         } else {
             return Promise.resolve([]);
