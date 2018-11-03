@@ -161,8 +161,8 @@ const get_utilities = get_internal_file_path => {
             return utilities.resource_path_to_identity_path(resource_path);
         },
 
-        identity_path_to_resource_ref (path, workspace_path) {
-            const relative_path = Path.relative(Path.join(workspace_path, get_internal_file_path('resources')), path);
+        identity_path_to_resource_ref (path) {
+            const relative_path = Path.relative(Path.join(get_internal_file_path('resources')), path);
             return utilities.relative_path_to_ref(relative_path);
         }
 

@@ -56,13 +56,13 @@ describe('S3 repo manager', function() {
     });
     it('Pull files', done => {
         const p = path.join(test_path, '1');
-        const get_resource_hash = () => Promise.resolve(key_file_to_download);
+        const get_resource_hash = () => Promise.resolve({ hash: key_file_to_download });
         const repo_manager = Repo_manager.create({
             host_vcs: 's3',
             cwd: test_path,
             context: context,
             identity: {
-                get_resource_hash
+                get: get_resource_hash
             },
             utilities: workspace_utilities
         });
@@ -83,13 +83,13 @@ describe('S3 repo manager', function() {
             amazon_client: amazon_client(mock_bilrost_client),
             cache: cache
         };
-        const get_resource_hash = () => Promise.resolve("");
+        const get_resource_hash = () => Promise.resolve({ hash: "" });
         const repo_manager = Repo_manager.create({
             host_vcs: 's3',
             cwd: test_path,
             context: this_context,
             identity: {
-                get_resource_hash
+                get: get_resource_hash
             },
             utilities: workspace_utilities
         });
@@ -114,9 +114,9 @@ describe('S3 repo manager', function() {
         const get_resource_hash = ref => {
             switch (ref) {
             case added_resource_ref:
-                return Promise.resolve(added_key);
+                return Promise.resolve({ hash: added_key });
             case modified_resource_ref:
-                return Promise.resolve(modified_key);
+                return Promise.resolve({ hash: modified_key });
             }
         };
         const repo_manager = Repo_manager.create({
@@ -124,7 +124,7 @@ describe('S3 repo manager', function() {
             cwd: test_path,
             context: context,
             identity: {
-                get_resource_hash
+                get: get_resource_hash
             },
             utilities: workspace_utilities
         });
@@ -145,7 +145,7 @@ describe('S3 repo manager', function() {
             amazon_client: amazon_client(mock_bilrost_client),
             cache: cache
         };
-        const get_resource_hash = () => Promise.resolve("");
+        const get_resource_hash = () => Promise.resolve({ hash: "" });
         const repo_manager = Repo_manager.create({
             host_vcs: 's3',
             cwd: test_path,
@@ -163,7 +163,7 @@ describe('S3 repo manager', function() {
     });
     it('get current status', done => {
         const mock_bilrost_client = {};
-        const get_resource_hash = () => Promise.resolve("");
+        const get_resource_hash = () => Promise.resolve({ hash: "" });
 
         const modified_path = 'm';
         const modified_ref = '/resources/m';

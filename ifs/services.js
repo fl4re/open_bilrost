@@ -19,34 +19,19 @@ module.exports = {
         if (file.error) {
             throw "Not found";
         } else if(file.isFile()) {
-            return file;
+            return [utilities.format_file(file)];
         } else if (file.isDirectory()) {
-
-            // Performance note:
-            // Here we call two times to list directory contents, first call limits the
-            // quantity but stats every file included. There are N+1 call to fs.
-            // Second call doesn't limit but only calls 1 to fs.
-            const files = (await adapter.readdir(path))
+            return (await adapter.readdir(path))
                 .filter(({ path }) => !is_ignored_file_in_path(path, ignores))
                 .map(utilities.format_file);
-            return {
-                kind: 'file-list',
-                items: files
-            };
         } else {
-            //ToDo: support links, etc
             throw "Not supported";
         }
     },
-
     async search_query (adapter, path, query, ignores) {
         const representation = search_parser(query, macro_regex);
-        const file_stats = (await adapter.search(path, representation))
+        return (await adapter.search(path, representation))
             .filter(({ path }) => !is_ignored_file_in_path(path, ignores))
             .map(utilities.format_file);
-        return {
-            kind: 'file-list',
-            items: file_stats
-        };
     }
 };

@@ -684,7 +684,6 @@ describe('Run Content Browser related test for content browser api', function ()
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
                     const mall_ref = '/resources/mall/mall_demo';
-                    obj.path.toUpperCase().should.equal(workspaces.bob.get_resource_path(mall_ref).toUpperCase());
                     obj.ref.should.equal(mall_ref);
                     done();
                 });
@@ -736,7 +735,7 @@ describe('Run Content Browser related test for content browser api', function ()
                     }
                     obj.items.should.have.lengthOf(4);
                     obj.totalItems.should.equal(4);
-                    obj.items.map(item => item.should.have.properties("ref", "path"));
+                    obj.items.map(item => item.should.have.properties("ref", "kind", "mime"));
                     done();
                 });
 
@@ -754,7 +753,7 @@ describe('Run Content Browser related test for content browser api', function ()
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
                     obj.items.should.have.lengthOf(1);
-                    obj.items.map(item => item.should.have.properties("ref", "path"));
+                    obj.items.map(item => item.should.have.properties("ref", "kind", "mime"));
                     obj.totalItems.should.equal(4);
                     client
                         .get(obj.nextLink)
@@ -767,7 +766,7 @@ describe('Run Content Browser related test for content browser api', function ()
                                 return done({ error: err.toString(), status: res.status, body: obj });
                             }
                             obj.items.should.have.lengthOf(1);
-                            obj.items.map(item => item.should.have.properties("ref", "path"));
+                            obj.items.map(item => item.should.have.properties("ref", "kind", "mime"));
                             obj.totalItems.should.equal(4);
                             done();
                         });
@@ -786,7 +785,7 @@ describe('Run Content Browser related test for content browser api', function ()
                         return done({ error: err.toString(), status: res.status, body: obj });
                     }
                     obj.items.length.should.be.equal(12);
-                    obj.items.map(item => item.should.have.properties("ref", "path"));
+                    obj.items.map(item => item.should.have.properties("ref", "kind", "mime"));
                     obj.totalItems.should.be.equal(12);
                     done();
                 });

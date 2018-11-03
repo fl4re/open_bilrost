@@ -14,7 +14,7 @@ const s = require('stream');
 
 describe("Identity", function() {
 
-    it('Get resource hash', function(done) {
+    it('Get resource hash', async () => {
         const hash_example = 'c0535e4be2b79ffd93291305436bf889314e4a3faec05ecffcbb7df31ad9e51a';
         const ref = "/resources/a/b.json";
         const ifs_adapter = {
@@ -24,15 +24,19 @@ describe("Identity", function() {
                         hash: hash_example
                     });
                 }
-            }
+            },
+            stat: path => Promise.resolve({
+                path,
+                isFile: () => true,
+                isDirectory: () => false,
+                mtime: {
+                    getTime: () => ''
+                }
+            })
         };
         const id = identity(ifs_adapter, undefined, workspace_utilities);
-        id.get_resource_hash(ref)
-            .then(hash => {
-                should.equal(hash, hash_example);
-                done();
-            })
-            .catch(done);
+        const hash = (await id.get(ref)).hash;
+        should.equal(hash, hash_example);
     });
 
     it('build and stage identity files', function(done) {
@@ -171,7 +175,15 @@ describe("Identity", function() {
                     return Promise.resolve('renamed');
                 }
             },
-            createReadStream: () => fs.createReadStream('/dsadsadsafaf')
+            createReadStream: () => fs.createReadStream('/dsadsadsafaf'),
+            stat: path => Promise.resolve({
+                path,
+                isFile: () => true,
+                isDirectory: () => false,
+                mtime: {
+                    getTime: () => ''
+                }
+            })
         };
         const git_repo_manager = {};
         const id = identity(ifs_adapter, git_repo_manager, workspace_utilities);

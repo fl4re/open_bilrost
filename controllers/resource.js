@@ -34,16 +34,19 @@ module.exports = function(server, context) {
         try {
             const workspace = await _workspace.find(workspace_identifier);
             let options = {
-                filterName: req.query.uri,
+                filterName: req.query.ref,
                 maxResults: parseInt(req.query.maxResults, 10) || 100,
                 start: parseInt(req.query.start, 10) || 0,
                 q: req.query.q
             };
-            const result = options.q ? await workspace.resource.find(ref, options.q) : await workspace.resource.get(ref);
-            if (result.items) {
-                result.totalItems = result.items.length;
-                result.items = options.filterName ? ifs_util.filter_name(result.items, options.filterName) : result.items;
-                result.items = ifs_util.slice(result.items, options.start, options.maxResults);
+            let result = {};
+            let items = options.q ? await workspace.resource.find(ref, options.q) : await workspace.resource.list(ref);
+            items = options.filterName ? ifs_util.filter_name(items, options.filterName) : items;
+            if (items.length === 1) {
+                result = items[0];
+            } else {
+                result.totalItems = items.length;
+                result.items = ifs_util.slice(items, options.start, options.maxResults);
                 if (options.start + result.items.length < result.totalItems) {
                     result.nextLink = get_next_url(req.url, options.start, options.maxResults);
                 }

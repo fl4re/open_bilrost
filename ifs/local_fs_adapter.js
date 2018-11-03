@@ -105,7 +105,7 @@ var local_FS_adapter = function(base_path) {
                 file.name = basename(path);
                 file.extension = extension(path);
                 file.mime = mime.lookup(path);
-                file.path = absolute_path(path);
+                file.path = path;
                 if (file.isDirectory()) {
                     return hasSubDirectories(path).then(function(resp) {
                         file.hasChildren = resp;
