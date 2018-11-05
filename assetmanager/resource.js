@@ -74,7 +74,7 @@ module.exports = workspace => {
         }
     };
 
-    const get_from_fs = async ref => {
+    const list_from_fs = async ref => {
         if (!ref) {
             ref = "/resources/";
         }
@@ -92,17 +92,8 @@ module.exports = workspace => {
         }
     };
 
-    const format_resource_item = async (identity_item, fs_item) => {
-        const assets = await list_assets(identity_item.ref);
-        return {
-            ...fs_item,
-            ...identity_item,
-            assets
-        };
-    };
-
     const format_resource_items = async (identity_items, fs_items) => Promise.all(identity_items.map(async identity_item => {
-        const associated_fs_item = fs_items.find(({ path }) => path === identity_item.path) || {};
+        const associated_fs_item = fs_items.find(({ path }) => identity_item.ref === workspace.utilities.relative_path_to_ref(path)) || {};
         const assets = await list_assets(identity_item.ref);
         return {
             ...identity_item,
@@ -111,25 +102,20 @@ module.exports = workspace => {
         };
     }));
 
-    const get = async ref => {
+    const list = async ref => {
         try {
             const [identity_res, ifs_res] = await Promise.all([
                 identity.list(ref),
-                get_from_fs(ref)
+                list_from_fs(ref)
                     .catch(err => {
                         if (err.statusCode !== 404) {
                             throw errors.INTERNALERROR(err);
                         } else {
-                            return { items: [] };
+                            return [];
                         }
                     })
             ]);
-            if (identity_res.items) {
-                identity_res.items = await format_resource_items(identity_res.items, ifs_res.items);
-                return identity_res;
-            } else {
-                return await format_resource_item(identity_res, ifs_res);
-            }
+            return await format_resource_items(identity_res, ifs_res);
         } catch (err) {
             throw err.statusCode ? err : errors.INTERNALERROR(err);
         }
@@ -146,15 +132,14 @@ module.exports = workspace => {
                         }
                     })
             ]);
-            identity_res.items = await format_resource_items(identity_res.items, ifs_res.items);
-            return identity_res;
+            return await format_resource_items(identity_res, ifs_res);
         } catch (err) {
             throw err.statusCode ? err : errors.INTERNALERROR(err);
         }
     };
 
     return {
-        get,
+        list,
         find,
         commit_manager: commit_manager(workspace, resource_repo_manager, asset_finder, asset_reader),
         validator: validator(workspace.adapter, workspace.utilities),
