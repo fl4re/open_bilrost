@@ -4,7 +4,6 @@
 
 'use strict';
 
-var drivelist = require('drivelist');
 var fs = require('fs-extra');
 var mime = require('mime');
 var minimatch = require('minimatch');
@@ -169,10 +168,6 @@ var local_FS_adapter = function(base_path) {
                 })
             );
         };
-    }
-
-    function getDriveList() {
-        return promisify(drivelist.list)();
     }
 
     function readdir(path, name, maxResults, start) {
@@ -480,7 +475,6 @@ var local_FS_adapter = function(base_path) {
             getDirectories : getDirectories,
             remove: remove,
             isPlatformWin: isPlatformWin,
-            getDriveList: getDriveList,
             getAbsolutePath: absolute_path,
             readdir: readdir,
             dir_length: dir_length
