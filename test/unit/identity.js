@@ -5,12 +5,11 @@
 'use strict';
 
 const _path = require('path').posix;
-const fs = require('fs-extra');
 const should = require('should');
 
 const identity = require('../../assetmanager/identity');
 const workspace_utilities = require('../../assetmanager/workspace_utilities')(p => _path.join('.bilrost', p ? p : '/'));
-const s = require('stream');
+const { Readable } = require('stream');
 
 describe("Identity", function() {
 
@@ -37,6 +36,60 @@ describe("Identity", function() {
         const id = identity(ifs_adapter, undefined, workspace_utilities);
         const hash = (await id.get(ref)).hash;
         should.equal(hash, hash_example);
+    });
+
+    it('Compare well identity file', async () => {
+        const content = 'Hello world';
+        const hash = '64ec88ca00b268e5ba1a35678a1b5316d212f4f366b2477232534a8aeca37f3c';
+        const ifs_adapter = {
+            readJson: () => ({ hash }),
+            build_hash: () => Promise.resolve(hash),
+            createReadStream: () => {
+                const stream = new Readable();
+                stream.push(content);
+                stream.push(null);
+                return stream;
+            },
+            stat: path => Promise.resolve({
+                path,
+                isFile: () => true,
+                isDirectory: () => false,
+                mtime: {
+                    getTime: () => ''
+                }
+            })
+        };
+        const git_repo_manager = {};
+        const id = identity(ifs_adapter, git_repo_manager, workspace_utilities);
+        const res = await id.compare('/resources/dummy');
+        should.equal(res, true);
+    });
+
+    it('Fail to compare identity file', async () => {
+        const content = 'Hello world';
+        const hash = 'badhash';
+        const ifs_adapter = {
+            readJson: () => ({ hash }),
+            build_hash: () => Promise.resolve('differentHash'),
+            createReadStream: () => {
+                const stream = new Readable();
+                stream.push(content);
+                stream.push(null);
+                return stream;
+            },
+            stat: path => Promise.resolve({
+                path,
+                isFile: () => true,
+                isDirectory: () => false,
+                mtime: {
+                    getTime: () => ''
+                }
+            })
+        };
+        const git_repo_manager = {};
+        const id = identity(ifs_adapter, git_repo_manager, workspace_utilities);
+        const res = await id.compare('/resources/dummy');
+        should.equal(res, false);
     });
 
     it('build and stage identity files', function(done) {
@@ -68,7 +121,7 @@ describe("Identity", function() {
                 }
             },
             createReadStream: path => {
-                const stream = new s.Readable();
+                const stream = new Readable();
                 let value = '';
                 if (path === add_path) {
                     value = 'foo';
@@ -78,7 +131,8 @@ describe("Identity", function() {
                 stream.push(value);
                 stream.push(null);
                 return stream;
-            }
+            },
+            build_hash: () => Promise.resolve('hash')
         };
         const git_repo_manager = {
             add_files: file_paths => {
@@ -156,54 +210,6 @@ describe("Identity", function() {
                 should.equal(success_count, 1);
                 done();
             }).catch(done);
-    });
-
-    it('Compare identity file', function(done) {
-        const unchanged_path = "/unchanged/a.json";
-        const modified_path = "/modified/m.json";
-        const removed_path = "/removed/r.json";
-        const add_ref = '/resources/' + unchanged_path;
-        const modified_ref = '/resources/' + modified_path;
-        const removed_ref = '/resources/' + removed_path;
-        const ifs_adapter = {
-            readJson: path => {
-                if (path === unchanged_path) {
-                    return Promise.resolve('unchanged');
-                } else if (path === modified_path) {
-                    return Promise.resolve('modified');
-                } else {
-                    return Promise.resolve('renamed');
-                }
-            },
-            createReadStream: () => fs.createReadStream('/dsadsadsafaf'),
-            stat: path => Promise.resolve({
-                path,
-                isFile: () => true,
-                isDirectory: () => false,
-                mtime: {
-                    getTime: () => ''
-                }
-            })
-        };
-        const git_repo_manager = {};
-        const id = identity(ifs_adapter, git_repo_manager, workspace_utilities);
-        Promise.all([
-            id.compare(add_ref),
-            id.compare(modified_ref)
-        ]).then(res => {
-            const unchanged = res[0];
-            const modified = res[0];
-            should.equal(unchanged, true);
-            should.equal(modified, false);
-            return id.compare(removed_ref);
-        }).then(() => {
-            done('This comparaison shouldnt be valid!');
-        })
-            .catch(err => {
-                err.code.should.equal(2);
-                done();
-            });
-
     });
 
 });
