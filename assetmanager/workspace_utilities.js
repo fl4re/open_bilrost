@@ -2,10 +2,6 @@
 * Copyright (C) 2015-2018 Starbreeze AB All Rights Reserved.
 */
 
-/*
-    Asset manager
-    version 2.0.0
- */
 'use strict';
 
 const minimatch = require('minimatch');
@@ -47,6 +43,8 @@ const get_utilities = get_internal_file_path => {
     const is_asset_path = path => path.startsWith(get_internal_file_path('assets'));
 
     const utilities = {
+
+        get_internal_file_path,
 
         get_asset_basename (asset_ref) {
             return asset_ref.replace(/^.*\//, '');
@@ -148,22 +146,10 @@ const get_utilities = get_internal_file_path => {
             return ref === main || dependencies.indexOf(ref) !== -1;
         },
 
-        map_resource_identity_path (path) {
-            return Path.normalize(path.split(get_internal_file_path('resources')).join(''));
-        },
-
-        resource_path_to_identity_path (resource_path) {
-            return get_internal_file_path(Path.join('resources', resource_path));
-        },
-
+        // todo: remove this
         resource_ref_to_identity_path (resource_ref) {
             const resource_path = resource_ref.match(resource_ref_regexp)[1];
-            return utilities.resource_path_to_identity_path(resource_path);
-        },
-
-        identity_path_to_resource_ref (path) {
-            const relative_path = Path.relative(Path.join(get_internal_file_path('resources')), path);
-            return utilities.relative_path_to_ref(relative_path);
+            return get_internal_file_path(Path.join('resources', resource_path));
         }
 
     };

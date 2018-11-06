@@ -12,6 +12,7 @@ var promisify = require('../util/promisify');
 var recursive = require('recursive-readdir');
 var recursiveSync = require('recursive-readdir-sync');
 var walker = require('walker');
+const crypto = require('crypto');
 var isWin = /^win/.test(process.platform);
 
 /*
@@ -187,6 +188,21 @@ var local_FS_adapter = function(base_path) {
             .then(function(files) { return files.length; });
     }
 
+    const createReadStream = path => fs.createReadStream(absolute_path(path));
+
+    const build_hash = path => new Promise((resolve, reject) => {
+        const fd_hash = createReadStream(path);
+        const hash = crypto.createHash('sha256');
+        hash.setEncoding('hex');
+        hash.on('error', reject);
+        hash.on('finish', () => {
+            const read_hash = hash.read();
+            resolve(read_hash);
+        });
+        fd_hash.on('error', reject);
+        fd_hash.pipe(hash);
+    });
+
     function search (path, query_json, dir_globs) {
         const apply_operator = function(operator, val1, val2, val3) {
             let boolean;
@@ -305,7 +321,7 @@ var local_FS_adapter = function(base_path) {
                     stat.name = basename(entry);
                     stat.extension = extension(entry);
                     stat.mime = mime.lookup(entry);
-                    stat.path = entry;
+                    stat.path = relative_path(entry);
                     let is_not_filtered = filter(entry, stat);
                     if (is_not_filtered) {
                         result.push(stat);
@@ -468,16 +484,15 @@ var local_FS_adapter = function(base_path) {
             lstatSync : function(path) {
                 return fs.lstatSync(absolute_path(path));
             },
-            createReadStream : function(path) {
-                return fs.createReadStream(absolute_path(path));
-            },
-            search : search,
-            getDirectories : getDirectories,
-            remove: remove,
-            isPlatformWin: isPlatformWin,
+            createReadStream,
+            build_hash,
+            search,
+            getDirectories,
+            remove,
+            isPlatformWin,
             getAbsolutePath: absolute_path,
-            readdir: readdir,
-            dir_length: dir_length
+            readdir,
+            dir_length
         };
     });
 };

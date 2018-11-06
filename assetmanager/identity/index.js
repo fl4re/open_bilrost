@@ -4,60 +4,41 @@
 
 'use strict';
 
-const crypto = require('crypto');
-
 const errors = require('../../lib/errors')('Identity');
 const IFS = require('../../ifs/services');
 const Identity = require('./Identity');
+const util = require('./util');
 
-const filter_error = err => {
+const handle_error = err => {
     throw errors.INTERNALERROR(err);
 };
 
 const ifs_ignores = ['.git'];
 
-module.exports = (ifs_adapter, git_repo_manager, utilities, list_parent_assets) => {
+module.exports = (ifs_adapter, git_repo_manager, workspace_utilities, list_parent_assets) => {
 
-    // to move to ifs
-    const build_hash = path => new Promise((resolve, reject) => {
-        const filter_enoent = err => {
-            if (err.code === 'ENOENT') {
-                reject(errors.NOTFOUND(path));
-            } else {
-                reject(err);
-            }
-        };
-        const fd_hash = ifs_adapter.createReadStream(path);
-        const hash = crypto.createHash('sha256');
-        hash.setEncoding('hex');
-        hash.on('error', filter_enoent);
-        hash.on('finish', () => {
-            const read_hash = hash.read();
-            resolve(read_hash);
-        });
-        fd_hash.on('error', filter_enoent);
-        fd_hash.pipe(hash);
-    });
+    const identity_utilities = util(workspace_utilities);
 
     const instantiate_identity = async ({ path, kind, mime }) => {
         let hash;
-        const ref = utilities.identity_path_to_resource_ref(path);
+        const ref = identity_utilities.identity_path_to_resource_ref(path);
         try {
-            hash = (await ifs_adapter.readJson(utilities.resource_ref_to_identity_path(ref))).hash;
+            hash = (await ifs_adapter.readJson(identity_utilities.resource_ref_to_identity_path(ref))).hash;
         } catch (err) {
             if (err.code === 'ENOENT' || err.code === 'EISDIR') {
                 hash = '';
             } else {
-                throw err;
+                handle_error(err);
             }
         }
         return Identity(ref, kind, mime, hash);
     };
 
-    const list = async (ref = '/resources/') => {
-        const path = utilities.resource_ref_to_identity_path(ref);
+    const list = async (ref = '/resources/', query) => {
+        const path = identity_utilities.resource_ref_to_identity_path(ref);
         try {
-            let stats = await IFS.get_stats(ifs_adapter, path, ifs_ignores);
+            let stats = query ? await IFS.search_query(ifs_adapter, path, query, ifs_ignores)
+                : await IFS.get_stats(ifs_adapter, path, ifs_ignores);
             return await Promise.all(stats.map(instantiate_identity));
         } catch (err) {
             // TODO clean ifs error handlers
@@ -80,15 +61,7 @@ module.exports = (ifs_adapter, git_repo_manager, utilities, list_parent_assets) 
         }
     };
 
-    const find = async (ref = '/resources', query) => {
-        const path = utilities.resource_ref_to_identity_path(ref);
-        try {
-            const stats = await IFS.search_query(ifs_adapter, path, query, ifs_ignores);
-            return await Promise.all(stats.map(instantiate_identity));
-        } catch (err) {
-            filter_error(ref);
-        }
-    };
+    const find = async (ref, query) => list(ref, query);
 
     // compare the resource sha given by its content with the hash defined by identity files
     const compare = async ref => {
@@ -101,36 +74,45 @@ module.exports = (ifs_adapter, git_repo_manager, utilities, list_parent_assets) 
                     code: 1 // no identity file
                 };
             } else {
-                filter_error(err);
+                handle_error(err);
             }
         }
         try {
-            await build_hash(utilities.ref_to_relative_path(ref));
+            resource_hash = await build_hash(workspace_utilities.ref_to_relative_path(ref));
         } catch (err) {
             if (err.statusCode === 404) {
                 throw {
                     code: 2 // no resource
                 };
             } else {
-                filter_error(err);
+                handle_error(err);
             }
         }
         return identity_hash === resource_hash;
     };
 
+    const build_hash = path => ifs_adapter.build_hash(path)
+        .catch(err => {
+            if (err.code === 'ENOENT') {
+                throw errors.NOTFOUND(path);
+            } else {
+                handle_error(err);
+            }
+        });
+
     const create = async path => {
         try {
             const hash = await build_hash(path);
-            await ifs_adapter.outputFormattedJson(utilities.resource_path_to_identity_path(path), { hash });
+            await ifs_adapter.outputFormattedJson(identity_utilities.resource_path_to_identity_path(path), { hash });
         } catch (err) {
-            filter_error(err);
+            handle_error(err);
         }
     };
 
     const remove = async path => {
-        const parents = await list_parent_assets(utilities.relative_path_to_ref(path));
+        const parents = await list_parent_assets(workspace_utilities.relative_path_to_ref(path));
         if (parents.length <= 1) {
-            await ifs_adapter.removeFile(utilities.resource_path_to_identity_path(path));
+            await ifs_adapter.removeFile(identity_utilities.resource_path_to_identity_path(path));
         }
     };
 
@@ -146,14 +128,14 @@ module.exports = (ifs_adapter, git_repo_manager, utilities, list_parent_assets) 
         };
 
         const stage_identity_files = () => {
-            const add_identities_to_git_stage = git_repo_manager.add_files(identity_files_to_add.map(utilities.resource_path_to_identity_path));
-            const remove_identities_from_git_stage = git_repo_manager.remove_files(identity_files_to_remove.map(utilities.resource_path_to_identity_path));
+            const add_identities_to_git_stage = git_repo_manager.add_files(identity_files_to_add.map(identity_utilities.resource_path_to_identity_path));
+            const remove_identities_from_git_stage = git_repo_manager.remove_files(identity_files_to_remove.map(identity_utilities.resource_path_to_identity_path));
             return Promise.all([add_identities_to_git_stage, remove_identities_from_git_stage]);
         };
 
         return build_identity_files()
             .then(() => stage_identity_files())
-            .catch(filter_error);
+            .catch(handle_error);
     };
 
     return {
