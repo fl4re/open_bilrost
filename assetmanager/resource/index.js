@@ -5,13 +5,14 @@
 'use strict';
 
 // to remove as soon as assets are managed by git
-const asset = require('./asset');
-const repo_manager = require('./repo_manager');
-const IFS = require('../ifs/services');
-const errors = require('../lib/errors')('Resource');
-const commit_manager = require('./commit_manager');
-const identity_manager = require('./identity');
-const validator = require('./validator/resource');
+const asset = require('../asset');
+const repo_manager = require('../repo_manager');
+const IFS = require('../../ifs/services');
+const errors = require('../../lib/errors')('Resource');
+const commit_manager = require('../commit_manager');
+const identity_manager = require('../identity');
+const validator = require('../validator/resource');
+const Resource = require('./Resource');
 
 const files_to_ignore = [
     ".svn",
@@ -92,14 +93,13 @@ module.exports = workspace => {
         }
     };
 
-    const format_resource_items = async (identity_items, fs_items) => Promise.all(identity_items.map(async identity_item => {
+    const instantiate_resource = async (identity_items, fs_items) => Promise.all(identity_items.map(async identity_item => {
         const associated_fs_item = fs_items.find(({ path }) => identity_item.ref === workspace.utilities.relative_path_to_ref(path)) || {};
         const assets = await list_assets(identity_item.ref);
-        return {
-            ...identity_item,
+        return Resource(identity_item, {
             ...associated_fs_item,
             assets
-        };
+        });
     }));
 
     const list = async ref => {
@@ -115,7 +115,7 @@ module.exports = workspace => {
                         }
                     })
             ]);
-            return await format_resource_items(identity_res, ifs_res);
+            return await instantiate_resource(identity_res, ifs_res);
         } catch (err) {
             throw err.statusCode ? err : errors.INTERNALERROR(err);
         }
@@ -132,7 +132,7 @@ module.exports = workspace => {
                         }
                     })
             ]);
-            return await format_resource_items(identity_res, ifs_res);
+            return await instantiate_resource(identity_res, ifs_res);
         } catch (err) {
             throw err.statusCode ? err : errors.INTERNALERROR(err);
         }

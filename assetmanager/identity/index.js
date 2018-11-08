@@ -23,7 +23,7 @@ module.exports = (ifs_adapter, git_repo_manager, workspace_utilities, list_paren
         let hash;
         const ref = identity_utilities.identity_path_to_resource_ref(path);
         try {
-            hash = (await ifs_adapter.readJson(identity_utilities.resource_ref_to_identity_path(ref))).hash;
+            hash = (await ifs_adapter.readJson(path)).hash;
         } catch (err) {
             if (err.code === 'ENOENT' || err.code === 'EISDIR') {
                 hash = '';
