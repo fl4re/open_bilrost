@@ -4,17 +4,12 @@
 
 'use strict';
 
-module.exports = ({ ref, kind, mime, hash, assets, fileSize, createdDate, modifiedDate, fileExtension, path, etag, name }) => ({
-    ref,
-    kind,
-    mime,
-    hash,
-    name,
+module.exports = (identity, { assets, path, fileSize, createdDate, modifiedDate, fileExtension }) => ({
+    identity,
     assets,
+    path,
     fileSize,
     createdDate,
     modifiedDate,
-    fileExtension,
-    path,
-    etag
+    fileExtension
 });
