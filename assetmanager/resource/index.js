@@ -12,7 +12,7 @@ const errors = require('../../lib/errors')('Resource');
 const commit_manager = require('../commit_manager');
 const identity_manager = require('../identity');
 const validator = require('../validator/resource');
-const Resource = require('./Resource');
+const model = require('./model');
 
 const files_to_ignore = [
     ".svn",
@@ -96,7 +96,7 @@ module.exports = workspace => {
     const instantiate_resource = async (identity_items, fs_items) => Promise.all(identity_items.map(async identity_item => {
         const associated_fs_item = fs_items.find(({ path }) => identity_item.ref === workspace.utilities.relative_path_to_ref(path)) || {};
         const assets = await list_assets(identity_item.ref);
-        return Resource(identity_item, {
+        return model(identity_item, {
             ...associated_fs_item,
             assets
         });

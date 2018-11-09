@@ -11,6 +11,16 @@ module.exports = function(server, context) {
     const favorite = context.favorite;
     const _workspace = require('../assetmanager/workspace')(context);
 
+    server.get('/assetmanager/favorites', async (req, res, next) => {
+        const handler = create_handler(req, res, next);
+        try {
+            const workspaces = await favorite.list();
+            handler.sendJSON(workspaces, 200);
+        } catch (workspace) {
+            handler.sendError(workspace);
+        }
+    })
+
     server.post('/assetmanager/favorites', async (req, res, next) => {
         const handler = create_handler(req, res, next);
         const workspace_file_uri = req.body.file_uri;

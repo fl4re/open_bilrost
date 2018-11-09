@@ -150,6 +150,10 @@ const get_utilities = get_internal_file_path => {
         resource_ref_to_identity_path (resource_ref) {
             const resource_path = resource_ref.match(resource_ref_regexp)[1];
             return get_internal_file_path(Path.join('resources', resource_path));
+        },
+
+        generate_guid () {
+            return require('crypto').randomBytes(20).toString('hex');
         }
 
     };

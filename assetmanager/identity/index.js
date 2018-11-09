@@ -6,7 +6,7 @@
 
 const errors = require('../../lib/errors')('Identity');
 const IFS = require('../../ifs/services');
-const Identity = require('./Identity');
+const model = require('./model');
 const util = require('./util');
 
 const handle_error = err => {
@@ -31,7 +31,7 @@ module.exports = (ifs_adapter, git_repo_manager, workspace_utilities, list_paren
                 handle_error(err);
             }
         }
-        return Identity(ref, kind, mime, hash);
+        return model(ref, kind, mime, hash);
     };
 
     const list = async (ref = '/resources/', query) => {

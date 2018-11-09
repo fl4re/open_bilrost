@@ -411,7 +411,7 @@ var local_FS_adapter = function(base_path) {
             createFolder: path => {
                 //TODO hidden files for win
                 path = absolute_path(path);
-                fs.mkdirsSync(path);
+                return fs.mkdirs(path);
             },
             outputJson: (path, json) => {
                 //TODO hidden files for win

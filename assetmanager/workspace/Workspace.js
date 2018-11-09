@@ -10,25 +10,23 @@
 
 const fs = require('fs-extra');
 const _path = require('path').posix;
-const minimatch = require('minimatch');
 
-const utilities = require('./utilities');
-const adapters = require('../ifs/adapters');
-const branch_model = require('./branch');
-const asset = require('./asset');
-const _resource = require("./resource");
-const assets_collection = require('./databases/assets_collection');
-const status_collection = require('./databases/status_collection');
-const Subscription_manager = require('./subscription_manager');
-const Stage_manager = require('./stage_manager');
-const Workspace_factory = require('./workspace_factory');
-const project_factory = require('./project_factory');
-const Status_manager = require('./status_manager');
-const repo_manager = require('./repo_manager');
-
+const utilities = require('./util');
+const adapters = require('../../ifs/adapters');
+const branch_model = require('../branch');
+const asset = require('../asset');
+const _resource = require("../resource");
+const assets_collection = require('../databases/assets_collection');
+const status_collection = require('../databases/status_collection');
+const Subscription_manager = require('../subscription_manager');
+const Stage_manager = require('../stage_manager');
+const Workspace_factory = require('../workspace_factory');
+const project_factory = require('../project_factory');
+const Status_manager = require('../status_manager');
+const repo_manager = require('../repo_manager');
+const status_config = require('../status.config.json');
+const workspace_utilities = require('../workspace_utilities');
 const _error_outputs = require('../lib/errors')("Workspace");
-const status_config = require('./status.config.json');
-const workspace_utilities = require('./workspace_utilities');
 
 const WORKSPACE_INTERNAL_FOLDER_PATH = '.bilrost';
 
@@ -49,7 +47,7 @@ const is_locked = file_uri => workspace_locks.find(lock_uri => lock_uri === file
 
 let database_semaphores = {};
 
-const Workspace = function(file_uri, context) {
+module.exports = function (file_uri, context) {
     if (!file_uri) {
         throw new Error('Cannot instantiate a Workspace without an file uri');
     }
@@ -96,11 +94,7 @@ const Workspace = function(file_uri, context) {
     };
 
     const get_current_branch = () => {
-        const git_repo_manager = repo_manager.create({
-            host_vcs: 'git',
-            cwd: this.adapter.path
-        });
-        const branch_manager = branch_model(git_repo_manager);
+        const branch_manager = branch_model(this.get_base_absolute_path());
         return branch_manager.get_name()
             .then(branch => {
                 this.branch_name = branch;
@@ -397,49 +391,4 @@ const Workspace = function(file_uri, context) {
         .then(instantiate_asset)
         .then(instantiate_status_manager)
         .then(() => this);
-};
-
-module.exports = context => {
-
-    const favorite = context.favorite;
-
-    const find_by_file_uri = file_uri => new Workspace(file_uri, context);
-
-    const list = options => {
-        const name_filter = options && options.filterName;
-        const filter_undefined_workspaces = workspaces => workspaces.filter(workspace => workspace !== undefined);
-        const filter_by_name = workspaces => name_filter ? workspaces.filter(workspace => minimatch(workspace.properties.name || '', name_filter || '*')) : workspaces;
-        return favorite.list()
-            .then(list => Promise.all(list.map(({ file_uri }) => new Workspace(file_uri, context).then(obj => obj, () => {}))))
-            .then(filter_undefined_workspaces)
-            .then(filter_by_name)
-            .catch(transform_error);
-    };
-
-    function find_by_identifiers(identifiers) {
-        if (identifiers && identifiers.file_uri) {
-            return find_by_file_uri(identifiers.file_uri);
-        } else {
-            return Promise.reject({error: _error_outputs.NOTFOUND(identifiers)});
-        }
-    }
-
-    const find = identifier => {
-        const is_file_uri = /file:\/\/.*/.test(identifier);
-        if (is_file_uri) {
-            return find_by_file_uri(identifier);
-        } else if (typeof identifier === 'string') {
-            return favorite.find(identifier)
-                .then(identifiers => find_by_identifiers(identifiers));
-        } else {
-            throw _error_outputs.INTERNALERROR('Identifier is not under string format.');
-        }
-    };
-
-    return {
-        list: list,
-        find: find,
-        find_by_file_uri: find_by_file_uri
-    };
-
 };
